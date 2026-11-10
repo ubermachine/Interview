@@ -1,0 +1,20 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C# / .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Scratch and temporary logs
+*.log
+*.tmp
+scratch/
