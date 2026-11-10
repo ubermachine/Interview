@@ -371,8 +371,8 @@ catch (SocketException ex)
 
 ## Q6: Abstract Class vs Interface (with C# 8+ Default Methods)
 * **⚡ Direct Screening Answer:**  
-  "An **Interface** defines a contract ('what' an object can do) and supports multiple inheritance; since C# 8, interfaces can contain default implementations, but **cannot have instance fields or state**. An **Abstract Class** defines identity ('is-a' hierarchy) and can hold instance state, fields, constructors, and access modifiers (`protected`), but C# only permits single class inheritance."
-* **🎯 Formal Rubric Keywords:** **Contract vs Identity Hierarchy**, **Multiple Interface Inheritance vs Single Class Inheritance**, **Lack of Instance State in Interfaces**, **Virtual Method Table (vtable)**, **Default Interface Methods (DIM)**.
+  "The core difference comes down to **identity versus capability**. An **Interface** defines a capability ('what' a class can do) with multiple inheritance—ideal for dependency injection and mocking—but it **cannot hold instance fields or state**. An **Abstract Class** defines shared identity ('what' a class is) and can maintain internal state, fields, constructors, and access modifiers (`protected`), but C# restricts you to single class inheritance. Even with C# 8 default methods, interfaces still cannot hold instance state."
+* **🎯 Formal Rubric Keywords:** **Capability vs Identity Hierarchy**, **Multiple Interface Implementation vs Single Class Inheritance**, **Lack of Instance State / Fields in Interfaces**, **Virtual Method Table (vtable)**, **Default Interface Methods (DIM)**.
 * **🧠 Everyday Indian Analogy:**  
   * Interface = Driving License: You can hold 3 licenses (Car, Bike, Heavy Vehicle). Specifies what you can drive, holds no physical blood or bones.  
   * Abstract Class = Biological DNA (Mammal): You have lungs, blood, and heart (instance state). You can only have 1 biological parent species.

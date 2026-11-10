@@ -367,19 +367,25 @@ catch (SocketException ex)
 
 ## Q6: Abstract Class vs Interface (with C# 8+ Default Methods)
 * **Asked At:** TCS, Infosys, Cognizant, Accenture, Deloitte, Nagarro, EPAM.
+* **⚡ 10-Second Knockout Hook:**  
+  > "The simplest way to put it: **Interfaces define what a class can *do*; Abstract classes define what a class *is*.** Interfaces give you multiple inheritance with zero state; abstract classes give you a shared biological identity that can actually hold state, fields, and constructors."
+
 * **⚡ 30-Second Senior Opening Pitch:**  
-  > "An **Interface** defines a behavioral contract ('what' an object can do) and supports multiple inheritance; a class can implement multiple interfaces. An **Abstract Class** defines an identity hierarchy ('is-a' relationship) that can maintain internal state, fields, constructors, and access modifiers (`protected`, `internal`), but C# only permits single class inheritance. Since C# 8, interfaces can have Default Method Implementations to add new methods without breaking legacy implementations, but they still cannot hold instance state."
+  > "The core difference really comes down to **identity versus capability**.  
+  > I reach for an **interface** when I need to define a capability—like `IPaymentGateway` or `ILoggable`—so I can inject dependencies and mock them cleanly in tests. C# lets a class implement multiple interfaces, but they **cannot hold instance fields or state**.  
+  > I use an **abstract class** when classes belong to the same family and need to share **real state and plumbing**. It can have constructors, protected fields, and initialize shared dependencies like a `DbContext`—though C# limits you to single class inheritance.  
+  > Even with C# 8 adding default interface methods, interfaces still can't hold instance state, so abstract classes are still king for sharing base plumbing."
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
-    * **Interface:** "A contract that defines a set of member signatures (methods, properties, events) that an implementing class or struct must provide, supporting multiple inheritance of contracts. Since C# 8, interfaces can contain default implementations and static members, but cannot declare instance state/fields."
-    * **Abstract Class:** "An incomplete class marked with the `abstract` modifier that cannot be instantiated directly and serves as a common base class in a single-inheritance hierarchy. It can contain concrete state (fields), constructors, non-virtual methods, and access-controlled members (`protected`, `internal`)."
-  * **Keywords Interviewer Evaluates:** **Contract vs Identity**, **Multiple Interface Inheritance vs Single Class Inheritance**, **Lack of Instance State / Fields in Interfaces**, **Virtual Method Table (vtable) Resolution**, **Default Interface Methods (DIM)**, **Constructor Injection in Base Classes**, **Liskov Substitution Principle**.
+    * **Interface:** "A contract defining member signatures (methods, properties, events) that an implementing type must provide, supporting multiple inheritance of contracts. Since C# 8, interfaces can contain default implementations and static members, and C# 11 added static abstract members, but they strictly cannot declare instance state/fields."
+    * **Abstract Class:** "An incomplete reference type marked with `abstract` that cannot be instantiated directly and serves as a common base class in a single-inheritance hierarchy. It can contain concrete state (fields), constructors, non-virtual methods, and access-controlled members (`protected`, `internal`)."
+  * **Keywords Interviewer Evaluates:** **Capability vs Identity Hierarchy**, **Multiple Interface Implementation vs Single Class Inheritance**, **Lack of Instance State / Fields in Interfaces**, **Virtual Method Table (vtable) Resolution vs Interface Dispatch (VSD)**, **Default Interface Methods (DIM)**, **Static Abstract Members (C# 11)**, **Base Constructor Injection**, **Liskov Substitution Principle**.
   * **How to say it in your project:** "In our multi-tenant SaaS backend, we declared `IRepository<T>` as an interface so services could be mocked cleanly in xUnit tests. We created an `abstract class BaseSqlRepository<T> : IRepository<T>` that held the shared `protected readonly ApplicationDbContext _db;` and constructor injection logic, avoiding boilerplate across 25 specific domain repositories."
 
 * **🧠 Everyday Analogies (Mental Models for Fast Recall):**  
-  * **Interface (Driver's License):** Specifies what you can do (drive a car, drive a truck) regardless of whether you are human, android, or an employee. You can hold multiple licenses.
-  * **Abstract Class (DNA / Species):** You inherit from `Mammal`—you have eyes, blood type, and lungs (state and physical identity). You can only have one biological parent species.
+  * **Interface (Driver's License / Certifications):** Specifies what you can do (drive a car, fly a drone) regardless of who you are. You can hold 5 licenses simultaneously. None of them contain blood, lungs, or organs (zero instance state).
+  * **Abstract Class (Biological DNA / Species):** You inherit from `Mammal`—you have lungs, blood, and a heart (instance state and fields). You can only have one biological parent species (single inheritance).
 
 * **💻 Simple Code Example:**
 ```csharp
@@ -409,8 +415,12 @@ public abstract class BaseRepository<T> where T : class
 ```
 
 * **⚠️ Senior Trap & Cross-Question:**  
-  * *Trap Question:* "If interfaces can have default method implementations in C# 8+, why do we still need abstract classes?"  
+  * *Trap Question 1:* "If interfaces can have default method implementations in C# 8+, why do we still need abstract classes?"  
   * *Senior Answer:* "Interfaces still **cannot have instance state (fields)**. An interface cannot have non-static fields, constructors, or `protected` variables. When you need to share constructor dependencies (like `DbContext` or `ILogger`) across a family of services, you must use an abstract class."
+  * *Trap Question 2:* "Can you call a Default Interface Method directly on a class instance, like `service.SendUrgentAlertAsync(...)`?"  
+  * *Senior Answer:* "No! Unless the class explicitly overrides the default method, it does not become a public member of the class. You must cast the instance to the interface: `((INotificationService)service).SendUrgentAlertAsync(...)`. This prevents naming collisions and preserves class encapsulation."
+  * *Trap Question 3:* "What did C# 11 add to interfaces?"  
+  * *Senior Answer:* "**Static abstract members** in interfaces. This enabled Generic Math (`INumber<T>`), allowing operators like `+` and `-` or static factory methods to be defined polymorphically on generic types."
 
 * **📊 Decision Guide:**
 | Feature | Interface | Abstract Class |
