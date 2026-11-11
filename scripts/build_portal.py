@@ -125,6 +125,15 @@ manifest = [
         "domain": "05. Concurrency & Race Conditions"
     },
     {
+        "id": "06_Concurrency_RaceConditions_EventDriven_Fixes",
+        "filename": "06_Concurrency_RaceConditions_EventDriven_Fixes.md",
+        "title": "05. Concurrency & Race Conditions (Enterprise Fixes)",
+        "badge": "🟣 Deep Dive",
+        "type": "deep",
+        "icon": "🔒",
+        "domain": "05. Concurrency & Race Conditions"
+    },
+    {
         "id": "06_Security_DevOps_Basic_Interview",
         "filename": "06_Security_DevOps_Basic_Interview.md",
         "title": "06. Security & DevOps (Basic Interview)",
@@ -137,6 +146,15 @@ manifest = [
         "id": "06_Security_DevOps_Deep_Dive",
         "filename": "06_Security_DevOps_Deep_Dive.md",
         "title": "06. Security & DevOps (Deep Dive)",
+        "badge": "🟣 Deep Dive",
+        "type": "deep",
+        "icon": "🛡️",
+        "domain": "06. Security, Testing & DevOps"
+    },
+    {
+        "id": "07_Security_Testing_DevOps_AdjacentSkills",
+        "filename": "07_Security_Testing_DevOps_AdjacentSkills.md",
+        "title": "06. Security, Testing & DevOps (Adjacent Senior Skills)",
         "badge": "🟣 Deep Dive",
         "type": "deep",
         "icon": "🛡️",
