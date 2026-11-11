@@ -8,7 +8,7 @@
 [![Target Market](https://img.shields.io/badge/Target%20Market-India%20GCCs%20%26%20IT%20Services-blue)](#target-audience--enterprise-context)
 [![Live Web Portal](https://img.shields.io/badge/Live%20Portal-GitHub%20Pages-2ea44f?logo=githubpages&logoColor=white)](https://ubermachine.github.io/Interview/)
 [![Offline Web Portal](https://img.shields.io/badge/Offline%20Portal-100%25%20Offline%20UI-success)](#interactive-offline-study-portal-study_portalhtml)
-[![Profile Views](https://komarev.com/ghpvc/?username=ubermachine&color=007ec6&style=flat-square&label=Profile%20Views)](https://github.com/ubermachine)
+[![Profile Views](https://komarev.com/ghpvc/?username=ubermachine&color=007ec6&style=flat-square&label=Profile%20Views&base=95)](https://github.com/ubermachine)
 
 > A practical interview-prep suite for senior .NET + SQL Server + Angular + microservices roles (5–10+ years). Every question gives you a **one-line answer** for the first 10 seconds, a **30–45 second spoken answer** in plain English, and the **exact terms interviewers listen for** — each term explained in one short phrase, so you understand it before you say it. Code stays under 15 lines. Deep runtime internals live in a separate, clearly-labelled appendix, because you rarely need them aloud.
 
