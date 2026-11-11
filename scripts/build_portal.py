@@ -201,7 +201,11 @@ def build():
     with open(PORTAL_FILE, 'w', encoding='utf-8') as f:
         f.write(new_html)
 
-    print(f'Successfully updated {PORTAL_FILE} with {len(docs_data)} documents ({len(new_html):,} bytes).')
+    INDEX_FILE = os.path.join(WORKSPACE_DIR, 'index.html')
+    with open(INDEX_FILE, 'w', encoding='utf-8') as f:
+        f.write(new_html)
+
+    print(f'Successfully updated {PORTAL_FILE} and {INDEX_FILE} with {len(docs_data)} documents ({len(new_html):,} bytes).')
 
 if __name__ == '__main__':
     build()
