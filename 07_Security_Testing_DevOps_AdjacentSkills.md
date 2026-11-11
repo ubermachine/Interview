@@ -54,7 +54,7 @@ sequenceDiagram
   public IActionResult ProcessTransferJunior([FromHeader] string authorization)
   {
       var token = authorization.Replace("Bearer ", "");
-      // FATAL SECURITY FLAW: Reading payload without cryptographic signature verification!
+      // CRITICAL SECURITY VULNERABILITY: Reading payload without cryptographic signature verification!
       // An attacker can change "role": "User" to "role": "Admin" in Base64 and gain full access!
       var handler = new JwtSecurityTokenHandler();
       var jwt = handler.ReadJwtToken(token); 
@@ -120,12 +120,12 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
   // JUNIOR ANTI-PATTERN: Reversed middleware order & permissive 5-minute clock skew
   var app = builder.Build();
 
-  // FATAL BUG 1: UseAuthorization runs BEFORE UseAuthentication!
+  // CRITICAL BUG 1: UseAuthorization runs BEFORE UseAuthentication!
   // HttpContext.User is still empty/anonymous when policies evaluate!
   app.UseAuthorization();
   app.UseAuthentication();
 
-  // FATAL BUG 2: Default ClockSkew is 5 minutes!
+  // CRITICAL BUG 2: Default ClockSkew is 5 minutes!
   // Expired tokens remain valid for a full 300 seconds after revocation!
   ```
 * **✅ Senior Production Code (Custom Requirement Handler with Tenant Validation):**
@@ -663,7 +663,7 @@ ENTRYPOINT ["dotnet", "OrderService.Api.dll"]
   # JUNIOR ANTI-PATTERN: Probing database in Liveness Probe
   livenessProbe:
     httpGet:
-      path: /healthz/ready # FATAL: Contains SQL Server connectivity check!
+      path: /healthz/ready # CRITICAL: Contains SQL Server connectivity check!
       port: 8080
     periodSeconds: 5
     failureThreshold: 2

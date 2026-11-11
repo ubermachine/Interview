@@ -471,7 +471,7 @@
 * **💬 Simple Explanation:**
   * **The Fatal Junior Trap:**
     ```csharp
-    // ❌ DISASTER: Loads 5,000,000 rows into RAM!
+    // ❌ FAILURE: Loads 5,000,000 rows into RAM!
     IEnumerable<Customer> customers = _context.Customers;
     var result = customers.Where(c => c.Country == "India").Take(10).ToList();
     ```

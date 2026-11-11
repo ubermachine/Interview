@@ -56,7 +56,7 @@ When an interviewer asks:
 
         public void ProcessPayment(PaymentRequest request)
         {
-            // DISASTER AT 3,000 REQ/SEC:
+            // FAILURE AT 3,000 REQ/SEC:
             // 1. Thread affinity: Cannot use 'await' inside lock!
             // 2. Calling .GetAwaiter().GetResult() holds the OS ThreadPool thread captive!
             // 3. When external gateway latency blips to 200ms, all 50 worker threads block!
@@ -136,7 +136,7 @@ When an interviewer asks:
     // ❌ BAD JUNIOR CODE: ConcurrentDictionary.GetOrAdd leaking semaphores forever in Gen 2
     public class KeyedLockMemoryLeak
     {
-        // FATAL MEMORY LEAK: In a system with 500,000 customer IDs,
+        // SEVERE MEMORY LEAK: In a system with 500,000 customer IDs,
         // GetOrAdd creates a SemaphoreSlim for every customer ID and NEVER REMOVES IT!
         // 500,000 SemaphoreSlim objects and dictionary nodes accumulate forever in Gen 2 heap!
         // Consumes 850 MB of uncollected RAM, fragmenting managed heap!
@@ -271,7 +271,7 @@ flowchart TD
     ```csharp
     // ❌ BAD JUNIOR CODE: Acquiring infinite lease (-1s) without renewal heartbeat
     var leaseClient = blobClient.GetBlobLeaseClient();
-    // DISASTER: Setting lease duration to -1 (infinite)!
+    // FAILURE: Setting lease duration to -1 (infinite)!
     // If the Kubernetes pod crashes or gets evicted (OOMKilled) while calculating interest:
     // The lease is NEVER released! The nightly job is PERMANENTLY BLOCKED for days!
     await leaseClient.AcquireAsync(TimeSpan.FromSeconds(-1));
@@ -367,7 +367,7 @@ flowchart TD
 
         public async Task<bool> BuyPhone(string productId)
         {
-            // DISASTER: SemaphoreSlim only protects memory INSIDE POD A!
+            // FAILURE: SemaphoreSlim only protects memory INSIDE POD A!
             // Pods B, C, D, E, F, G, H have their own independent SemaphoreSlim instances!
             // All 8 pods process orders concurrently -> Oversells 500 phones to 3,800 customers!
             await _lock.WaitAsync();
@@ -579,7 +579,7 @@ flowchart LR
     public async Task HandlePaymentMessageAntiPattern(ServiceBusReceivedMessage msg)
     {
         var payment = JsonSerializer.Deserialize<PaymentMessage>(msg.Body)!;
-        // DISASTER: If a network timeout occurs while acknowledging message,
+        // FAILURE: If a network timeout occurs while acknowledging message,
         // Service Bus redelivers the message!
         // Junior code debits the customer's bank account AGAIN! ₹5,000 becomes ₹10,000 debit!
         await _walletService.DebitBalanceAsync(payment.AccountId, payment.Amount);
@@ -668,7 +668,7 @@ flowchart LR
         await _db.SaveChangesAsync(); // DB is updated!
 
         // STEP 2: Publish event to broker
-        // DISASTER: If the network blips, pod crashes, or broker is unreachable right here:
+        // FAILURE: If the network blips, pod crashes, or broker is unreachable right here:
         // The event is LOST FOREVER!
         // Database has order as 'Paid', but message broker never receives 'OrderPaidEvent'!
         await _bus.PublishAsync(new OrderPaidEvent(req.OrderId)); 
@@ -1014,7 +1014,7 @@ flowchart LR
     [HttpPost("upload-mri")]
     public async Task<IActionResult> UploadMriAntiPattern(IFormFile file)
     {
-        // DISASTER: 200 concurrent uploads * 50 MB = 10 GB allocated on Large Object Heap!
+        // FAILURE: 200 concurrent uploads * 50 MB = 10 GB allocated on Large Object Heap!
         // 50 MB byte arrays land directly on LOH.
         // LOH is NOT compacted -> Memory fragments into Swiss-cheese holes!
         // Container pod memory limit (4 GB) breached within 3 minutes -> Exit Code 137 OOMKilled!
@@ -1319,7 +1319,7 @@ flowchart LR
     // ❌ BAD JUNIOR CODE: SemaphoreSlim only protects memory inside Pod 1!
     public async Task ProcessWebhookAntiPattern(WebhookPayload payload)
     {
-        // DISASTER: 10 pods receive webhooks for Customer 999 simultaneously!
+        // FAILURE: 10 pods receive webhooks for Customer 999 simultaneously!
         // Each pod enters its local SemaphoreSlim independently!
         // All 10 pods read balance $1,000 simultaneously, add $100, and save $1,100!
         // Real balance should be $2,000, but is corrupted to $1,100 due to lost updates!
@@ -1396,7 +1396,7 @@ flowchart LR
         await _db.SaveChangesAsync(); // Step 1: Database updated!
 
         // Step 2: Publish event to Azure Service Bus
-        // DISASTER: If a network blip occurs, broker times out, or pod is killed here:
+        // FAILURE: If a network blip occurs, broker times out, or pod is killed here:
         // The message is LOST FOREVER! Database has customer order as 'Paid',
         // but warehouse never receives dispatch event! Customer never gets package!
         await _bus.PublishAsync(new OrderPaidEvent(dto.OrderId));
@@ -1492,7 +1492,7 @@ flowchart LR
     public async Task ProcessDebitAntiPattern(ServiceBusReceivedMessage msg)
     {
         var debit = JsonSerializer.Deserialize<DebitEvent>(msg.Body)!;
-        // DISASTER: When message is redelivered 3 times due to network timeout:
+        // FAILURE: When message is redelivered 3 times due to network timeout:
         // Junior code debits the bank account 3 times! ₹5,000 becomes ₹15,000 debit!
         await _bankRepo.DeductFundsAsync(debit.AccountId, debit.Amount);
     }
@@ -1735,7 +1735,7 @@ flowchart LR
 
     public async Task ProcessOrder(string customerId)
     {
-        // DISASTER: 5,000,000 unique customer IDs generate 5,000,000 SemaphoreSlim objects!
+        // FAILURE: 5,000,000 unique customer IDs generate 5,000,000 SemaphoreSlim objects!
         // None are ever removed from the dictionary!
         // Consumes 1.2 GB of permanent Gen 2 memory, causing Swiss-cheese heap fragmentation!
         var sem = _locks.GetOrAdd(customerId, _ => new SemaphoreSlim(1, 1));
@@ -1832,7 +1832,7 @@ flowchart LR
     [HttpPost("orders/checkout")]
     public async Task<IActionResult> Checkout(string productId)
     {
-        // DISASTER: Azure Blob REST API lease acquisition takes 150-300ms round-trip!
+        // FAILURE: Azure Blob REST API lease acquisition takes 150-300ms round-trip!
         // Using it for a 5,000 req/sec user checkout API adds 300ms latency to every user click!
         // Storage account hits HTTP 503 throttling limits!
         var lease = await _blobLock.TryAcquireAsync(TimeSpan.FromSeconds(15));
@@ -1894,7 +1894,7 @@ flowchart LR
     var processor = container.GetChangeFeedProcessorBuilder<Order>("OrderSync", HandleChanges)
                              .WithLeaseContainer(leaseContainer)
                              .Build();
-    // DISASTER: Both microservices fight for the SAME lease tokens in the lease container!
+    // FAILURE: Both microservices fight for the SAME lease tokens in the lease container!
     // Service A steals lease from Service B -> Service B steals it back!
     // Changes are randomly processed by one service and skipped by the other!
     ```
@@ -2024,7 +2024,7 @@ ightarrow$ Rental Car ($100). The rental car API fails due to zero inventory.
     // ❌ BAD JUNIOR CODE: Direct transaction with EnableRetryOnFailure enabled
     public async Task CheckoutAntiPattern(Order order)
     {
-        // FATAL CRASH: If 'EnableRetryOnFailure()' is configured in DbContext,
+        // CRITICAL CRASH: If 'EnableRetryOnFailure()' is configured in DbContext,
         // calling BeginTransactionAsync directly throws:
         // InvalidOperationException: The configured execution strategy 'SqlServerRetryingExecutionStrategy' 
         // does not support user-initiated transactions!

@@ -85,7 +85,7 @@
 # MODULE 1: C# LANGUAGE & OOPS FUNDAMENTALS (SCREENING HITLIST)
 
 ## Q1: SOLID Principles with Real-Time Project Examples
-* **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, Deloitte, EY, Nagarro, EPAM (Asked in 99% of interviews).
+* **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, Deloitte, EY, Nagarro, EPAM.
 * **⚡ 10-Second Opening Hook:**  
   > "SOLID isn't academic theory—it's five practical architectural guardrails to prevent code rot. Each principle isolates a specific blast radius so adding a new feature or payment method never breaks existing, tested production code."
 
@@ -366,7 +366,7 @@ try
 }
 catch (SocketException ex)
 {
-    // ❌ FATAL ANTI-PATTERN: Resets stack trace! Line 45 is lost forever!
+    // ❌ SEVERE ANTI-PATTERN: Resets stack trace! Line 45 is lost forever!
     // throw ex; 
 
     // ✅ SENIOR PATTERN 1: Preserves original line 45 in stack trace
@@ -460,7 +460,7 @@ public abstract class BaseRepository<T> where T : class
 ---
 
 ## Q7: Boxing and Unboxing Mechanics & Performance
-* **Asked At:** Asked in 85% of Indian technical screening rounds.
+* **Asked At:** Frequently asked in Indian technical screening rounds (TCS, Infosys, Cognizant, Wipro).
 * **⚡ 10-Second Opening Hook:**  
   > "Boxing takes a lightweight value type from the stack, wraps it in a 16-byte object header, and dumps it onto the managed heap; unboxing extracts that value back. Boxing kills high-throughput performance through GC Gen 0 churn."
 
@@ -1893,7 +1893,7 @@ catch (DbUpdateConcurrencyException)
 # MODULE 4: ASYNCHRONOUS PROGRAMMING & CONCURRENCY
 
 ## Q31: async and await Internals: Does it Create a New Thread?
-* **Asked At:** Asked in 95% of Indian technical rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Wells Fargo, Walmart, EPAM).
+* **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Wells Fargo, Walmart, EPAM.
 * **⚡ 10-Second Opening Hook:**  
   > "There is literally **zero thread running** while your database query or HTTP call is in flight. `async/await` doesn't spawn threads; it frees them up using OS kernel interrupts (IOCP) and turns your method into a state machine."
 
@@ -2104,7 +2104,7 @@ public async Task<IActionResult> GenerateReportAsync([FromQuery] int deptId, Can
 ---
 
 ## Q35: lock vs SemaphoreSlim in Asynchronous Code
-* **Asked At:** Asked in 85% of Indian senior technical rounds (TCS, Infosys, Cognizant, Wipro, Accenture, EPAM).
+* **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, EPAM.
 * **⚡ 10-Second Opening Hook:**  
   > "You cannot put an `await` inside a C# `lock`—it's a hard compiler error because `lock` requires the exact same thread to exit. To synchronize async code, we use **`SemaphoreSlim.WaitAsync()`**."
 
@@ -2635,7 +2635,7 @@ WHERE RankNum = 2; -- Simply replace 2 with N for Nth highest!
 ---
 
 ## Q44: DELETE vs TRUNCATE vs DROP
-* **Asked At:** Asked in 95% of Indian technical screening rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Nagarro, EPAM).
+* **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Nagarro, EPAM.
 * **⚡ 10-Second Opening Hook:**  
   > "`DELETE` is a row-by-row pencil eraser with full logging and triggers. `TRUNCATE` unclips all pages at once with minimal logging and resets identity. And contrary to the popular interview myth, **`TRUNCATE` CAN be rolled back** inside a transaction."
 
@@ -2797,13 +2797,13 @@ CREATE TABLE Customers (
   >  
   > A Stored Procedure is procedural: it can execute DML operations, manage transactions with `BEGIN TRAN` and `COMMIT`, return multiple result sets, and use output parameters, but you cannot embed it directly inside a `SELECT` statement.  
   >  
-  > A Function must be deterministic and side-effect free: it cannot modify table data, cannot manage transactions, and must return a value or table. Crucially, in production, I avoid Scalar UDFs on large tables because they run row-by-row (RBAR) and destroy parallelism; I always use **Inline Table-Valued Functions (iTVF)** because SQL Server inlines them directly into the parent execution plan."
+  > A Function must be side-effect-free (no DML, no transactions) and return a value or table; it does not have to be deterministic (GETDATE() is allowed). Crucially, in production, I avoid Scalar UDFs on large tables because they run row-by-row (RBAR) and destroy parallelism; I always use **Inline Table-Valued Functions (iTVF)** because SQL Server inlines them directly into the parent execution plan."
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
     * **Stored Procedure:** "A named batch of precompiled T-SQL with input/output parameters. Can do DML, DDL, transactions, and return multiple result sets - but cannot be called inline inside a SELECT."
     * **User-Defined Function (UDF):** "A routine that computes and returns a scalar value or a table. It must be side-effect free (no DML, no transactions) and can be embedded directly in SELECT/WHERE/JOIN clauses."
-  * **Keywords Interviewer Evaluates:** **Procedural vs Functional/Deterministic**, **DML Operations Allowed in SPs / Disallowed in UDFs**, **Transaction Management (`BEGIN TRAN`)**, **Query Embeddability (`SELECT dbo.fn()`)**, **Execution Plan Caching**, **Scalar UDF RBAR Performance Trap vs Inline Table-Valued Functions (iTVF)**.
+  * **Keywords Interviewer Evaluates:** **Procedural vs Functional (Side-Effect-Free)**, **DML Operations Allowed in SPs / Disallowed in UDFs**, **Transaction Management (`BEGIN TRAN`)**, **Query Embeddability (`SELECT dbo.fn()`)**, **Execution Plan Caching**, **Scalar UDF RBAR Performance Trap vs Inline Table-Valued Functions (iTVF)**.
   * **How to say it in your project:** "In our funds transfer module, we used a Stored Procedure `sp_TransferFunds` because it required an explicit `BEGIN TRANSACTION` to debit and credit accounts atomically. In contrast, for reusable tax calculations across reporting queries, we wrote an Inline Table-Valued Function `fn_CalculateTax()` so reports could join directly against it without the RBAR performance penalties of scalar functions."
 
 * **🧠 Everyday Analogies (Mental Models for Fast Recall):**  
@@ -2853,7 +2853,7 @@ SELECT * FROM fn_GetActiveOrders(101);
 ---
 
 ## Q48: ACID Properties Explained with a Banking Scenario
-* **Asked At:** Asked in 95% of Indian technical rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Walmart, Wells Fargo, EPAM).
+* **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Walmart, Wells Fargo, EPAM.
 * **⚡ 10-Second Opening Hook:**  
   > "**ACID is the bedrock of database reliability**: Atomicity means all-or-nothing; Consistency means rules are never broken; Isolation means concurrent users don't see half-baked data; Durability means committed data survives a power outage."
 

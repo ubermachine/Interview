@@ -1669,7 +1669,7 @@ Under the hood, SQL Server enforces both constraints via unique indexes. A Prima
 *Commonly asked at: TCS, Infosys, Cognizant, Wipro*
 
 **⚡ One-line answer**
-Stored procedures execute procedural code and DML modifying data, while functions must be deterministic, return values, and can be embedded in SELECT queries.
+Stored procedures execute procedural code and DML modifying data, while functions must be side-effect-free, return values, and can be embedded in SELECT queries.
 
 **🗣️ Spoken answer (30–45 seconds)**
 The architectural boundary between them is side-effects and query composability. Stored procedures execute procedural logic, perform DML modifications, and manage database transactions. However, procedures cannot be called inside `SELECT` or `WHERE` clauses. User-defined functions compute calculations without side-effects and embed directly into queries. Scalar functions often trigger row-by-row [RBAR] execution penalties across large tables. In one of my projects, replacing scalar functions with inline table-valued functions improved report speed.

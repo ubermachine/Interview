@@ -44,6 +44,15 @@ manifest = [
         "domain": "02. SQL Server & Performance Tuning"
     },
     {
+        "id": "02_SQL_Server_Performance_Tuning",
+        "filename": "02_SQL_Server_Performance_Tuning.md",
+        "title": "02. SQL Server Performance Tuning",
+        "badge": "🟣 Deep Dive",
+        "type": "deep",
+        "icon": "🗄️",
+        "domain": "02. SQL Server & Performance Tuning"
+    },
+    {
         "id": "03_Angular_Signals_Basic_Interview",
         "filename": "03_Angular_Signals_Basic_Interview.md",
         "title": "03. Angular & Signals (Basic Interview)",
@@ -56,6 +65,15 @@ manifest = [
         "id": "03_Angular_Signals_Deep_Dive",
         "filename": "03_Angular_Signals_Deep_Dive.md",
         "title": "03. Angular & Signals (Deep Dive)",
+        "badge": "🟣 Deep Dive",
+        "type": "deep",
+        "icon": "🅰️",
+        "domain": "03. Angular 17/18 & Signals"
+    },
+    {
+        "id": "03_Angular_Signals_RxJS",
+        "filename": "03_Angular_Signals_RxJS.md",
+        "title": "03. Angular Signals + RxJS",
         "badge": "🟣 Deep Dive",
         "type": "deep",
         "icon": "🅰️",
@@ -77,6 +95,15 @@ manifest = [
         "badge": "🟣 Deep Dive",
         "type": "deep",
         "icon": "🌐",
+        "domain": "04. Microservices & Distributed Systems"
+    },
+    {
+        "id": "04_Microservices_SystemDesign",
+        "filename": "04_Microservices_SystemDesign.md",
+        "title": "04. Microservices System Design",
+        "badge": "🟣 Deep Dive",
+        "type": "deep",
+        "icon": "🧩",
         "domain": "04. Microservices & Distributed Systems"
     },
     {

@@ -715,7 +715,7 @@ public async Task<IActionResult> GetUserAsync(Guid id, CancellationToken ct)
   * **Scenario:** Swiggy / Zomato order checkout API serving 4,000 requests/sec. An authentication filter calls a distributed Redis cache service to validate customer session tokens.
   * **❌ Bad Production Code (The Trap - Sync-Over-Async Thread Block):**
     ```csharp
-    // ❌ FATAL ANTI-PATTERN: Calling .Result inside a synchronous filter or controller method
+    // ❌ SEVERE ANTI-PATTERN: Calling .Result inside a synchronous filter or controller method
     public class LegacyAuthFilter : IActionFilter
     {
         private readonly ITokenService _tokenService;
@@ -938,13 +938,13 @@ public ValueTask<UserProfile?> GetUserAsync(Guid id)
   * **Scenario:** High-concurrency product pricing service in an e-commerce catalog queried 60,000 times/second, where 95% of queries hit local in-memory Redis/MemoryCache.
   * **❌ Bad Production Code (The Trap - Awaiting Twice & Unnecessary Heap Allocation):**
     ```csharp
-    // ❌ FATAL BUG: Awaiting a pooled ValueTask twice corrupts runtime state!
+    // ❌ CRITICAL BUG: Awaiting a pooled ValueTask twice corrupts runtime state!
     public async Task ProcessPricingAsync(int productId)
     {
         ValueTask<decimal> priceTask = GetPriceAsync(productId);
         
         decimal price1 = await priceTask; // First await succeeds and recycles underlying IValueTaskSource back to pool!
-        decimal price2 = await priceTask; // FATAL CORRUPTION: Second await accesses recycled/corrupted memory!
+        decimal price2 = await priceTask; // DATA CORRUPTION: Second await accesses recycled/corrupted memory!
     }
     ```
   * **✅ Senior Production Code (The Fix):**
@@ -1922,7 +1922,7 @@ public async Task<List<CustomerDto>> GetActiveCustomersAsync(AppDbContext db, st
   * **Scenario:** E-commerce order fulfillment portal where warehouse managers query recent active orders from an `Orders` table containing 5,000,000 rows.
   * **❌ Bad Production Code (The Trap - In-Memory Materialization Outage):**
     ```csharp
-    // ❌ FATAL DISASTER: Casting DbSet to IEnumerable before applying filtering!
+    // ❌ SEVERE ANTI-PATTERN: Casting DbSet to IEnumerable before applying filtering!
     public async Task<List<OrderDto>> GetActiveOrdersBadAsync()
     {
         // BUG: Casting to IEnumerable forces LINQ-to-Objects!
@@ -1963,7 +1963,7 @@ public async Task<List<CustomerDto>> GetActiveCustomersAsync(AppDbContext db, st
 
 * **⚠️ The Production Bug That Brings Down Servers:**  
   ```csharp
-  // ❌ FATAL BUG: Casting to IEnumerable before filtering!
+  // ❌ CRITICAL BUG: Casting to IEnumerable before filtering!
   IEnumerable<Order> orders = _dbContext.Orders; // Pulls ALL 5,000,000 rows into RAM!
   var result = orders.Where(o => o.Status == "Active").Take(10).ToList();
 
@@ -2030,7 +2030,7 @@ var order = await db.Orders
         .Include(c => c.Addresses)
         .Include(c => c.PaymentMethods)
         .FirstOrDefaultAsync(c => c.Id == customerId);
-    // THE CARTESIAN EXPLOSION DISASTER:
+    // THE CARTESIAN EXPLOSION HAZARD:
     // Generates multiple relational LEFT JOINs.
     // Row count returned = 1 * 30 orders * 10 items * 10 addresses * 20 payment methods = 60,000 SQL ROWS!
     // Customer profile columns are duplicated across all 60,000 rows.

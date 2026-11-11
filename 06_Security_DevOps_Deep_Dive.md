@@ -128,7 +128,7 @@ public async Task<IActionResult> GetInvoice(Guid id, [FromServices] IAuthorizati
 * **Why Interviewers Ask It:** Every Indian service and product enterprise uses ASP.NET Core Web APIs protected by JWTs. Interviewers test whether you truly understand cryptographic token validation, middleware pipeline mechanics, and security defaults, or if you simply copy-paste code from StackOverflow.
 
 * **⚡ 30-Second Senior Opening Pitch:**  
-  > "Authentication answers *'Who are you?'* by cryptographically validating credentials (e.g. verifying a JWT signature and hydrating `HttpContext.User`), while Authorization answers *'What are you permitted to do?'* by evaluating permissions and policies against those authenticated claims. A JWT is a Base64URL-encoded container with three parts: **Header** (algorithm, key ID), **Payload** (claims like `sub`, `iss`, `aud`, `exp`), and **Signature** (`HMACSHA256` or `RS256`). ASP.NET Core's `AddJwtBearer` validates these parts against the Identity Provider's JWKS. Setting `ClockSkew = TimeSpan.Zero` is critical because Microsoft's default adds a **5-minute grace period**, allowing expired tokens to remain valid for 300 extra seconds after revocation or expiration."
+  > "Authentication answers *'Who are you?'* by cryptographically validating credentials (e.g. verifying a JWT signature and hydrating `HttpContext.User`), while Authorization answers *'What are you permitted to do?'* by evaluating permissions and policies against those authenticated claims. A JWT is a Base64URL-encoded container with three parts: **Header** (algorithm, key ID), **Payload** (claims like `sub`, `iss`, `aud`, `exp`), and **Signature** (`HMACSHA256` or `RS256`). ASP.NET Core's `AddJwtBearer` validates these parts against the Identity Provider's JWKS. Setting `ClockSkew = TimeSpan.Zero` is critical because Microsoft's default adds a **5-minute grace period**, allowing expired tokens to remain valid for 300 extra seconds past their expiration timestamp."
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS / Architecture Definition:**  
@@ -137,13 +137,13 @@ public async Task<IActionResult> GetInvoice(Guid id, [FromServices] IAuthorizati
     * **RFC 7519 JSON Web Token:** Standard defining compact, URL-safe container format for claims.
     * **JOSE Header (alg, kid, typ):** JSON Object Signing and Encryption metadata defining the signing algorithm and Key ID.
     * **Registered Claims (iss, aud, exp, nbf, sub):** Standardized JWT claims specifying issuer, audience, expiration time, not-before time, and subject.
-    * **Cryptographic Signature (RS256 / HS256):** Digital signature verifying token integrity and non-repudiation using asymmetric RSA public/private key pairs or symmetric shared secrets.
+    * **Cryptographic Signature (RS256 / HS256):** Digital signature verifying token integrity. Asymmetric RS256 provides non-repudiation (private key signs, public key verifies), while symmetric HS256 uses a shared secret providing integrity and authenticity.
     * **JWKS (JSON Web Key Set / RFC 7517):** Identity Provider endpoint (/.well-known/jwks.json) publishing public keys used by APIs to validate signatures dynamically.
     * **TokenValidationParameters.ClockSkew = TimeSpan.Zero:** Explicit configuration eliminating the default 5-minute grace period that allows expired tokens to access APIs.
     * **ClaimsPrincipal & ClaimsIdentity:** .NET runtime security models populated by UseAuthentication() and inspected by UseAuthorization().
     * **Middleware Ordering:** Mandatory sequence in Program.cs: UseRouting() -> UseAuthentication() -> UseAuthorization() -> UseEndpoints().
   * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"In our banking microservices, we configure AddJwtBearer with asymmetric RS256 token validation against Keycloak's JWKS endpoint. We explicitly set ClockSkew = TimeSpan.Zero to eliminate the 5-minute security loophole where revoked or expired tokens can otherwise still access APIs."*
+    > *"In our banking microservices, we configure AddJwtBearer with asymmetric RS256 token validation against Keycloak's JWKS endpoint. We explicitly set ClockSkew = TimeSpan.Zero to eliminate the 5-minute security loophole where expired tokens can otherwise still access APIs."*
 
 * **🧠 Everyday Analogies (Mental Models for Fast Recall):**  
   * **Authentication:** Showing your Government Passport and boarding pass at airport security. The officer verifies the biometric hologram and confirms your identity.
