@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-import os, json, re, sys
+import os, json, sys
 
 WORKSPACE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE_FILE = os.path.join(WORKSPACE_DIR, 'scripts', 'portal_template.html')
 PORTAL_FILE = os.path.join(WORKSPACE_DIR, 'Study_Portal.html')
+INDEX_FILE = os.path.join(WORKSPACE_DIR, 'index.html')
 
 manifest = [
     {
@@ -161,12 +163,12 @@ manifest = [
 ]
 
 def build():
-    if not os.path.exists(PORTAL_FILE):
-        print(f'Error: {PORTAL_FILE} not found!')
+    if not os.path.exists(TEMPLATE_FILE):
+        print(f'Error: Template {TEMPLATE_FILE} not found!')
         sys.exit(1)
 
-    with open(PORTAL_FILE, 'r', encoding='utf-8') as f:
-        html = f.read()
+    with open(TEMPLATE_FILE, 'r', encoding='utf-8') as f:
+        template = f.read()
 
     docs_data = []
     for item in manifest:
@@ -181,31 +183,24 @@ def build():
         doc['content'] = content
         docs_data.append(doc)
 
-    json_str = json.dumps(docs_data, ensure_ascii=False)
-    
-    tag_start = '<script id="docsData" type="application/json">'
-    tag_end = '</script>'
-    
-    idx_start = html.find(tag_start)
-    if idx_start == -1:
-        print('Error: start tag not found')
-        sys.exit(1)
-    
-    idx_end = html.find(tag_end, idx_start)
-    if idx_end == -1:
-        print('Error: end tag not found')
+    json_raw = json.dumps(docs_data, ensure_ascii=False)
+    # Strictly escape '<' and '>' so that no HTML tag (especially </script>) can trigger the HTML parser
+    json_safe = json_raw.replace('<', r'\u003c').replace('>', r'\u003e')
+
+    placeholder = '<!-- DOCS_DATA_PLACEHOLDER -->'
+    if placeholder not in template:
+        print(f'Error: {placeholder} not found in template!')
         sys.exit(1)
 
-    new_html = html[:idx_start + len(tag_start)] + json_str + html[idx_end:]
+    rendered_html = template.replace(placeholder, json_safe)
 
     with open(PORTAL_FILE, 'w', encoding='utf-8') as f:
-        f.write(new_html)
+        f.write(rendered_html)
 
-    INDEX_FILE = os.path.join(WORKSPACE_DIR, 'index.html')
     with open(INDEX_FILE, 'w', encoding='utf-8') as f:
-        f.write(new_html)
+        f.write(rendered_html)
 
-    print(f'Successfully updated {PORTAL_FILE} and {INDEX_FILE} with {len(docs_data)} documents ({len(new_html):,} bytes).')
+    print(f'Successfully generated {PORTAL_FILE} and {INDEX_FILE} ({len(rendered_html):,} bytes, {len(docs_data)} documents).')
 
 if __name__ == '__main__':
     build()
