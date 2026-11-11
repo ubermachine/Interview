@@ -6,7 +6,8 @@
 [![Angular 17/18 Signals](https://img.shields.io/badge/Angular-17%20%7C%2018%20Signals-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
 [![Experience Level](https://img.shields.io/badge/Experience-5--10%2B%20YOE%20(Lead%20%2F%20Architect)-orange)](#target-audience--enterprise-context)
 [![Target Market](https://img.shields.io/badge/Target%20Market-India%20GCCs%20%26%20IT%20Services-blue)](#target-audience--enterprise-context)
-[![Offline Web Portal](https://img.shields.io/badge/Portal-100%25%20Offline%20Interactive%20UI-success)](#interactive-offline-study-portal-study_portalhtml)
+[![Live Web Portal](https://img.shields.io/badge/Live%20Portal-GitHub%20Pages-2ea44f?logo=githubpages&logoColor=white)](https://ubermachine.github.io/Interview/)
+[![Offline Web Portal](https://img.shields.io/badge/Offline%20Portal-100%25%20Offline%20UI-success)](#interactive-offline-study-portal-study_portalhtml)
 
 > A practical interview-prep suite for senior .NET + SQL Server + Angular + microservices roles (5–10+ years). Every question gives you a **one-line answer** for the first 10 seconds, a **30–45 second spoken answer** in plain English, and the **exact terms interviewers listen for** — each term explained in one short phrase, so you understand it before you say it. Code stays under 15 lines. Deep runtime internals live in a separate, clearly-labelled appendix, because you rarely need them aloud.
 
@@ -153,8 +154,12 @@ flowchart TD
 
 ## 🚀 Quick Start Guide
 
-### 1. View in Browser (Recommended)
-Simply open [`Study_Portal.html`](Study_Portal.html) in your browser:
+### 1. View Live Online (Instant Access)
+🌐 Access the interactive web portal directly on GitHub Pages:  
+👉 **[https://ubermachine.github.io/Interview/](https://ubermachine.github.io/Interview/)**
+
+### 2. View Locally (100% Offline)
+Simply open [`Study_Portal.html`](Study_Portal.html) (or `index.html`) in your browser:
 ```bash
 # Linux
 xdg-open Study_Portal.html
