@@ -8,7 +8,7 @@
 [![Target Market](https://img.shields.io/badge/Target%20Market-India%20GCCs%20%26%20IT%20Services-blue)](#target-audience--enterprise-context)
 [![Offline Web Portal](https://img.shields.io/badge/Portal-100%25%20Offline%20Interactive%20UI-success)](#interactive-offline-study-portal-study_portalhtml)
 
-> A battle-tested, production-grounded, comprehensive technical interview repository specifically designed for **Senior Developers, Technical Leads, Module Leads, and Full-Stack Architects (5–10+ Years of Experience)** interviewing across the Indian technology ecosystem and global enterprise capability centers.
+> A practical interview-prep suite for senior .NET + SQL Server + Angular + microservices roles (5–10+ years). Every question gives you a **one-line answer** for the first 10 seconds, a **30–45 second spoken answer** in plain English, and the **exact terms interviewers listen for** — each term explained in one short phrase, so you understand it before you say it. Code stays under 15 lines. Deep runtime internals live in a separate, clearly-labelled appendix, because you rarely need them aloud.
 
 ---
 
@@ -32,27 +32,30 @@ Most interview repositories fall into two failure modes:
 
 ---
 
-## 🏛️ The 6-Part Senior Answer Architecture
+## 🏛️ Speakable Senior English (SSE-1) Question Architecture
 
-Every single question across the deep dive modules is structured using the **6-Part Senior Answer Architecture**:
+Every question across the suite is structured using the **SSE-1 Standard Template**:
 
 ```mermaid
 flowchart LR
-    A["⚡ 1. 30-Second Senior Opening Pitch"] --> B["🎯 2. Formal Definitions & Rubric Keywords"]
-    B --> C["🧠 3. Everyday Real-World Analogy"]
-    C --> D["💻 4. Modern Production Code (5–15 Lines)"]
-    D --> E["⚠️ 5. Senior Trap & Cross-Question Rebuttal"]
-    E --> F["📊 6. When to Use What Decision Matrix"]
+    A["⚡ 1. One-Line Answer (≤25w)"] --> B["🗣️ 2. Spoken Answer (30–45s)"]
+    B --> C["🎯 3. Glossed Terms & Core Keywords"]
+    C --> D["🧠 4. Memory Hook"]
+    D --> E["💻 5. Clean Code (5–15 Lines)"]
+    E --> F["⚠️ 6. Likely Follow-Up"]
+    F --> G["📊 7. Quick Comparison"]
 ```
 
-| Component | Purpose & Execution |
+| Section | Purpose & Word Budget |
 | :--- | :--- |
-| **1. ⚡ 30-Second Senior Opening Pitch** | The immediate, confident answer given in the first 30 seconds that immediately demonstrates senior architectural mastery. |
-| **2. 🎯 Formal Definitions & Rubric Keywords** | **The verbatim academic terms panel interviewers listen for:** exact CS definitions, official RFC numbers, evaluation rubric keywords (*Dynamic vtable dispatch*, *Managed pointer*, *RFC 7807 ProblemDetails*, *Push-pull reactivity DAG*, *Cartesian explosion*, *Thread starvation*, *Two-Phase Commit*), and authentic project delivery phrasing. |
-| **3. 🧠 Everyday Real-World Analogy** | High-retention, culturally intuitive mental models (Aadhaar cards, Swiggy delivery kitchens, IRCTC Tatkal booking queues, Mumbai local train footboards, Domino's buzzers, UPI idempotent transactions) for rapid recall under interview stress. |
-| **4. 💻 Modern Production Code (5–15 Lines)** | Clean, runnable, modern C# 12 / T-SQL / TypeScript code contrasting the junior anti-pattern with the senior production solution. |
-| **5. ⚠️ Senior Trap & Cross-Question** | The follow-up curveball question the panel asks to test if you copied the answer, paired with the battle-tested senior rebuttal. |
-| **6. 📊 Decision Guide ("When to Use What")** | Markdown comparison matrices specifying exact trade-offs, performance overheads, and implementation rules. |
+| **1. ⚡ One-Line Answer** | **≤ 25 words (1 sentence).** Your immediate, crisp definition for the first 10 seconds. |
+| **2. 🗣️ Spoken Answer (30–45s)** | **60–90 words (4–6 sentences, avg ≤ 15 words/sentence).** Natural spoken conversational English. Order: direct answer → plain explanation → one production consequence. |
+| **3. 🎯 Terms the Interviewer Listens For** | **5–7 real industry terms**, each paired with a ≤ 10-word plain gloss. 3 marked with ⭐ as core terms that should leave your mouth. |
+| **4. 🧠 Memory Hook** | **≤ 30 words.** One intuitive everyday analogy for stress recall. |
+| **5. 💻 Code** | **5–15 lines.** One clean ❌/✅ pair with concise comments (≤ 8 words). |
+| **6. ⚠️ Likely Follow-Up** | **Question ≤ 20 words, answer ≤ 60 words.** Plain phrase first, technical term in brackets. |
+| **7. 📊 Quick Comparison** | **≤ 5 rows, ≤ 6 words per cell.** Immediate visual trade-off matrix. |
+| **🔬 Under the Hood (Optional)** | **≤ 80 words.** Reserved strictly for optional Tier-3 runtime engine mechanics. |
 
 ---
 
@@ -174,7 +177,7 @@ start Study_Portal.html
 
 Contributions are welcome! If you recently attended a technical round at a Tier-1 product firm, GCC, or consultancy in India and encountered a new architectural question or trap:
 1. Fork the repository.
-2. Add the question adhering strictly to the **6-Part Senior Answer Architecture**.
+2. Add the question adhering strictly to the **Speakable Senior English (SSE-1) Standard Template**.
 3. Submit a pull request.
 
 ---

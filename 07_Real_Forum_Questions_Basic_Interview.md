@@ -53,7 +53,7 @@
 *(Asked at Morgan Stanley / Wells Fargo)*
 
 * **⚡ Direct Answer / 30-Second Pitch:**
-  > The .NET Garbage Collector operates on the **Generational Hypothesis**: newly allocated objects have the shortest lifespans, while older objects live much longer. Managed memory is split into **Gen 0** (new ephemeral objects), **Gen 1** (short buffer zone), **Gen 2** (long-lived objects), and the **Large Object Heap (LOH)** for objects $\ge$ 85,000 bytes. Gen 0 collections take sub-milliseconds, while Gen 2 collections cause expensive "Stop-The-World" pauses.
+  > The .NET Garbage Collector operates on the **Generational Hypothesis**: newly allocated objects have the shortest lifespans, while older objects live much longer. Managed memory is split into **Gen 0** (new ephemeral objects), **Gen 1** (short buffer zone), **Gen 2** (long-lived objects), and the **Large Object Heap (LOH)** for objects ≥ 85,000 bytes. Gen 0 collections take sub-milliseconds, while Gen 2 collections cause expensive "Stop-The-World" pauses.
 
 * **🧠 Easy Mental Model / Everyday Analogy:**
   > Think of your kitchen waste management:
@@ -66,7 +66,7 @@
   * When you create a small object (like `new OrderDto()`), it lands in Gen 0.
   * When Gen 0 fills up, GC runs: live objects get promoted to Gen 1, dead ones are freed.
   * Surviving Gen 1 objects get promoted to Gen 2.
-  * Objects $\ge$ 85,000 bytes skip Gen 0/1 and go straight to LOH because copying huge blocks of RAM would burn too much CPU.
+  * Objects ≥ 85,000 bytes skip Gen 0/1 and go straight to LOH because copying huge blocks of RAM would burn too much CPU.
   * Because LOH is not compacted by default, creating and releasing many 100KB byte arrays leaves fragmented holes, triggering `OutOfMemoryException` even with gigabytes of free RAM.
 
 * **🎯 Core Terms to Remember:**
@@ -75,7 +75,7 @@
   * **Stop-The-World (STW):** Pausing all application threads during collection.
 
 * **💡 Quick Pro-Tip:**
-  * Never repeatedly allocate large byte arrays or strings $\ge$ 85KB in hot API paths. Rent them using `ArrayPool<byte>.Shared` instead.
+  * Never repeatedly allocate large byte arrays or strings ≥ 85 KB in hot API paths. Rent them using `ArrayPool<byte>.Shared` instead.
 
 ---
 
@@ -105,7 +105,7 @@
   * **OOMKilled (Exit Code 137):** Linux kernel killing processes that breach container memory limits.
 
 * **💡 Quick Pro-Tip:**
-  * In containerized .NET microservices with $<1$ GB RAM limits, either enable `<ServerGarbageCollection>false</ServerGarbageCollection>` or set `DOTNET_GCHeapHardLimitPercent=75` in your Dockerfile/manifest.
+  * In containerized .NET microservices with < 1 GB RAM limits, either enable `<ServerGarbageCollection>false</ServerGarbageCollection>` or set `DOTNET_GCHeapHardLimitPercent=75` in your Dockerfile/manifest.
 
 ---
 
@@ -274,7 +274,7 @@
   * **`IValueTaskSource`:** The pooled backing source powering asynchronous `ValueTask` executions.
 
 * **💡 Quick Pro-Tip:**
-  * Default to `Task<T>` for 95% of application code. Only introduce `ValueTask<T>` on hyper-hot paths where high-frequency operations complete synchronously $>90\%$ of the time.
+  * Default to `Task<T>` for 95% of application code. Only introduce `ValueTask<T>` on hyper-hot paths where high-frequency operations complete synchronously > 90% of the time.
 
 ---
 
@@ -282,7 +282,7 @@
 *(Asked at Wells Fargo / Fidelity)*
 
 * **⚡ Direct Answer / 30-Second Pitch:**
-  > C#'s `lock (obj)` statement is built on the Win32 `Monitor` primitive, which requires the lock to be **released by the exact same operating system thread that acquired it**. Because an `await` statement may resume execution on a completely different ThreadPool thread, using `lock` across an `await` triggers a compile-time error. The battle-tested solution is **`SemaphoreSlim(1, 1)`**.
+  > C#'s `lock (obj)` statement is built on the Win32 `Monitor` primitive, which requires the lock to be **released by the exact same operating system thread that acquired it**. Because an `await` statement may resume execution on a completely different ThreadPool thread, using `lock` across an `await` triggers a compile-time error. The recommended solution is **`SemaphoreSlim(1, 1)`**.
 
 * **🧠 Easy Mental Model / Everyday Analogy:**
   > Imagine an office biometric fingerprint door:
@@ -503,13 +503,13 @@
 
 * **🧠 Easy Mental Model / Everyday Analogy:**
   > Imagine an order with 10 line items and 10 payment audit logs:
-  * **Single Query (Cartesian Explosion):** $1 	imes 10 	imes 10 = 100$ giant rows sent across the network! The customer's full name, shipping address, and order description are duplicated 100 times in the response packet.
-  * **Split Queries:** EF Core sends 3 clean queries: 1 query for the Order (1 row), 1 query for Line Items (10 rows), and 1 query for Audit Logs (10 rows). Total rows sent: $1 + 10 + 10 = 21$ rows!
+  * **Single Query (Cartesian Explosion):** $11 × 10 × 10 = 100 giant rows sent across the network! The customer's full name, shipping address, and order description are duplicated 100 times in the response packet.
+  * **Split Queries:** EF Core sends 3 clean queries: 1 query for the Order (1 row), 1 query for Line Items (10 rows), and 1 query for Audit Logs (10 rows). Total rows sent: $11 + 10 + 10 = 21 rows!
 
 * **💬 Simple Explanation:**
   * If a Customer has 20 Orders, and each Order has 10 Items:
-    * Single query returns $20 	imes 10 = 200$ rows with Customer data repeated on every row.
-    * If you include a third collection with 5 addresses: $20 	imes 10 	imes 5 = 1,000$ rows!
+    * Single query returns $220 × 10 = 200 rows with Customer data repeated on every row.
+    * If you include a third collection with 5 addresses: $220 × 10 × 5 = 1,000 rows!
   * Adding `.AsSplitQuery()`:
     ```csharp
     var customer = await _context.Customers
@@ -703,7 +703,7 @@
   * You keep form #1 in the filing cabinet and shred forms #2 and #3 into the recycling bin!
 
 * **💬 Simple Explanation:**
-  * **The Battle-Tested SQL Query:**
+  * **The Production-Proven SQL Query:**
     ```sql
     WITH DuplicateCTE AS (
         SELECT EmployeeId, Email,
@@ -1174,7 +1174,7 @@
   * Managing a lock requires roughly 96-128 bytes of server RAM.
   * If a statement updates 1,000,000 rows at once, tracking 1,000,000 row locks consumes excessive RAM.
   * At ~5,000 locks, SQL Server trades concurrency for memory by taking one exclusive table lock (`TAB: X`).
-  * **The Battle-Tested Chunking Loop:**
+  * **The Production Chunking Loop:**
     ```sql
     DECLARE @RowsAffected INT = 1;
     WHILE @RowsAffected > 0

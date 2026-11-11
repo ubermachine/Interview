@@ -148,7 +148,7 @@ public async Task ProcessLargePayloadAsync(Stream incomingStream)
     // After 10,000 requests, memory is full of non-contiguous 50 KB holes.
     // Process RAM balloons to 4 GB, and the service crashes with OutOfMemoryException even with 1.5 GB free RAM!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Reusable buffer pooling via ArrayPool<T>
     public async Task ExportInvoicePdfAsync(InvoiceRequest request, Stream destinationStream)
@@ -247,7 +247,7 @@ public async Task ProcessLargePayloadAsync(Stream incomingStream)
     # Server GC delays collections to maximize throughput. With 32 heaps growing simultaneously,
     # memory hits 520 MB within 40 seconds before GC kicks in -> Linux OOMKilled (Exit Code 137)!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```json
     // runtimeconfig.json OR Environment Variables in Kubernetes Deployment
     {
@@ -351,7 +351,7 @@ public class Point2DClass
     // = 40 BYTES PER OBJECT!
     // At 250,000 ticks/sec, this creates 10 MB/sec of heap garbage, forcing 40 Gen 0 GC pauses every minute!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Stack-allocated readonly record struct
     public readonly record struct OrderTick(int SecurityId, double Price, long Volume);
@@ -444,7 +444,7 @@ public void ProcessNetworkPacket(ReadOnlySpan<byte> packet)
         ArrayPool<byte>.Shared.Return(buffer);
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Guaranteed Return in finally & PII Zeroing
     public async Task ProcessWebhookAsync(Stream requestStream)
@@ -541,7 +541,7 @@ public static int ParseOrderId(string requestPath)
         // Across 10,000,000 rows, this allocates 50,000,000 strings (~2.5 GB garbage), triggering massive GC pauses!
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Zero-Allocation string slicing with ReadOnlySpan<char>
     public void ParseLedgerLine_Senior(ReadOnlySpan<char> line)
@@ -738,7 +738,7 @@ public async Task<IActionResult> GetUserAsync(Guid id, CancellationToken ct)
     // 4. ThreadPool Hill-Climbing algorithm injects only 1-2 new threads per second.
     // 5. Incoming requests pile up in the Kestrel queue. Latency jumps to 30s -> 504 Gateway Timeout!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Async all the way down with IAsyncActionFilter
     public class SeniorAuthFilter : IAsyncActionFilter
@@ -844,7 +844,7 @@ public async IAsyncEnumerable<SensorReading> StreamReadingsAsync(
         return Ok(records);
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: True asynchronous streaming via IAsyncEnumerable
     [HttpGet("export-stream")]
@@ -947,7 +947,7 @@ public ValueTask<UserProfile?> GetUserAsync(Guid id)
         decimal price2 = await priceTask; // FATAL CORRUPTION: Second await accesses recycled/corrupted memory!
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Zero allocation on cache hits + Safe .AsTask() conversion
     public class PricingService
@@ -1067,7 +1067,7 @@ public async Task<string> GetDataWithLockAsync(CancellationToken ct)
         finally { _isRefreshing = false; }
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Asynchronous mutual exclusion via SemaphoreSlim(1, 1)
     public class TokenRefreshManager
@@ -1203,7 +1203,7 @@ await foreach (var order in channel.Reader.ReadAllAsync())
         });
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Bounded Channel with Asynchronous Non-Blocking Backpressure
     public class AuditChannelProcessor : BackgroundService
@@ -1411,7 +1411,7 @@ public class OrderWorker : BackgroundService
         }
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Inject IServiceScopeFactory and create explicit short-lived scopes
     public class SettlementWorker : BackgroundService
@@ -1534,7 +1534,7 @@ app.MapControllers();              // 5. Invokes Filters (Resource -> Action -> 
     // it occurs BEFORE GlobalExceptionMiddleware!
     // Result: Bypasses custom JSON error formatting and leaks raw internal CLR stack traces to the caller!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Strictly ordered pipeline
     var app = builder.Build();
@@ -1645,7 +1645,7 @@ builder.Services.AddHttpClient<IPaymentGatewayClient, PaymentGatewayClient>(clie
     // Under 3,000 RPS, the OS runs out of all 65,535 ephemeral TCP ports within 2 minutes!
     // Throws: SocketException ("No connection could be made because target machine actively refused it")!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Typed client with SocketsHttpHandler connection pooling & DNS rotation
     builder.Services.AddHttpClient<IBankPaymentClient, BankPaymentClient>(client =>
@@ -1748,7 +1748,7 @@ builder.Services.AddRateLimiter(options =>
     // The same bot sends 100 requests at 11:00:00 (allowed because window reset!).
     // Result: 200 requests executed within 1 second, crashing payment microservices!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Token Bucket Limiter with Rejection & Retry-After Header
     builder.Services.AddRateLimiter(options =>
@@ -1939,7 +1939,7 @@ public async Task<List<CustomerDto>> GetActiveCustomersAsync(AppDbContext db, st
         return top10;
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Pure IQueryable translated to native database SQL
     public async Task<List<OrderDto>> GetActiveOrdersSeniorAsync(CancellationToken ct)
@@ -2036,7 +2036,7 @@ var order = await db.Orders
     // Customer profile columns are duplicated across all 60,000 rows.
     // 25 MB payload transmitted across TDS for a SINGLE customer! Latency: 2.8 seconds!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Decompose joins into clean queries using .AsSplitQuery()
     var customer = await _dbContext.Customers
@@ -2125,7 +2125,7 @@ var orders = await db.Orders
     // For 2,000 products, it instantiates 2,000 Category instances in memory instead of 10!
     // Inflates RAM consumption by 400% and breaks object reference equality (p1.Category != p2.Category)!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: AsNoTrackingWithIdentityResolution
     var products = await _dbContext.Products
@@ -2214,7 +2214,7 @@ var allOrders = await db.Orders.IgnoreQueryFilters().ToListAsync();
         // Massive regulatory GDPR/RBI compliance violation!
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Enforce Global Query Filters at the Model Boundary
     public class BankingDbContext : DbContext
@@ -2410,7 +2410,7 @@ public Result<decimal> CalculateWithdrawal(decimal balance, decimal amount)
         return balance - amount;
     }
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: Zero-Allocation Result Struct
     public readonly record struct Result<T>
@@ -2525,7 +2525,7 @@ public async Task<PaymentResponse> ProcessPaymentAsync(string idempotencyKey, Pa
     // RACE CONDITION: If 2 retry requests hit 2 different Kubernetes pods simultaneously,
     // both pass the AnyAsync() check and both execute payment charge, charging customer TWICE!
     ```
-  * **✅ Battle-Tested Senior Production Code (The Fix):**
+  * **✅ Senior Production Code (The Fix):**
     ```csharp
     // ✅ SENIOR PATTERN: 2-Tier Defense: Redis Distributed Lease + SQL ACID Unique Constraint
     [HttpPost("checkout")]
@@ -2685,7 +2685,7 @@ ROLLBACK TRANSACTION; -- Proven: TRUNCATE is 100% rollable!
 DROP TABLE IF EXISTS StagingAuditLogs;
 ```
 
-##### Snippet 2: Battle-Tested Safe Upsert Stored Procedure with `UPDLOCK, HOLDLOCK` (5-15 Lines)
+##### Snippet 2: Safe Upsert Stored Procedure with `UPDLOCK, HOLDLOCK` (5-15 Lines)
 ```sql
 -- Scenario: High-concurrency wallet balance upsert without deadlocks or primary key violations
 CREATE OR ALTER PROCEDURE dbo.UpsertWalletBalance
@@ -2782,7 +2782,7 @@ WHERE SalaryRank = @N; -- E.g. @N = 3 for 3rd highest distinct compensation band
     OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY;
     -- Result: Returns the 3rd employee who also earns ₹1.5 Crore! Board gets the 1st distinct salary instead of 3rd!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: DENSE_RANK guarantees the 3rd distinct compensation tier
     WITH ExecutiveRankings AS (
@@ -2877,7 +2877,7 @@ WHERE RowNum > 1; -- Deletes duplicates directly from underlying physical table!
     );
     -- Takes 45 minutes, locks the table, and inflates the transaction log by 12 GB!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Updatable CTE with ROW_NUMBER() in a single atomic set-based delete
     WITH DuplicateCustomersCTE AS (
@@ -2976,7 +2976,7 @@ FROM dbo.BankTransactions;
     FROM dbo.AccountTransactions;
     -- SQL Server spools intermediate calculation into TempDB on-disk worktables, crushing disk I/O!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Explicit ROWS frame avoids TempDB on-disk spools completely
     SELECT 
@@ -3079,7 +3079,7 @@ HAVING COUNT(*) >= 3;
     DECLARE streak_cursor CURSOR FOR SELECT UserId, LoginDate FROM UserLogins ORDER BY UserId, LoginDate;
     -- Takes 3.5 hours, runs on a single thread, and blocks transactional login inserts!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Set-based Gaps-and-Islands via Difference-of-Dates
     WITH DistinctLogins AS (
@@ -3196,7 +3196,7 @@ ORDER BY Depth, ManagerId;
     LEFT JOIN Employees e3 ON e2.ManagerId = e3.EmployeeId;
     -- Missing circular reference detection; if an employee is accidentally assigned as their manager's manager, it blows up!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Recursive CTE with level tracking, hierarchy path, and cycle safeguard
     WITH OrgHierarchyCTE AS (
@@ -3357,7 +3357,7 @@ CREATE TABLE dbo.Orders (
     -- Inserts scatter randomly across 250,000 data pages!
     -- Triggers 1,200 page splits/second, high PAGEIOLATCH_SH disk latency, and 65% internal fragmentation!
     ```
-  * **✅ Battle-Tested Senior Production Design (The Fix):**
+  * **✅ Senior Production Design (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Sequential Key for Clustered Index, GUID on unique Non-Clustered Index
     CREATE TABLE dbo.Transactions (
@@ -3383,7 +3383,7 @@ CREATE TABLE dbo.Orders (
 
 | Clustered Key Type | Insertion Pattern | Page Splits? | Fragmentation | Ideal Use Case |
 | :--- | :--- | :--- | :--- | :--- |
-| **`BIGINT IDENTITY(1,1)`** | Sequential (end of table) | ❌ Zero page splits | < 1% | **Default gold standard** |
+| **`BIGINT IDENTITY(1,1)`** | Sequential (end of table) | ❌ Zero page splits | < 1% | **Recommended default** |
 | **`NEWSEQUENTIALID()`** | Sequential within reboot | ❌ Low page splits | Low | Distributed GUID requirements |
 | **Random `NEWID()`** | Completely random | ⚠️ Constant 50/50 splits | > 90% | Banned as clustered key |
 
@@ -3435,7 +3435,7 @@ INCLUDE (FirstName, LastName, PhoneNumber); -- Included Columns: Stored at leaf 
     -- to the Clustered Index leaf level for every query to fetch OrderStatus and TotalAmount!
     -- CPU hits 95% on 4,000 req/sec!
     ```
-  * **✅ Battle-Tested Senior Production Design (The Fix):**
+  * **✅ Senior Production Design (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Composite search key with INCLUDE columns for a 100% Covering Index
     CREATE NONCLUSTERED INDEX IX_Orders_CustomerId_OrderDate_Covering
@@ -3503,7 +3503,7 @@ WITH (FILLFACTOR = 85); -- Leaves 15% free space on leaf pages to absorb inserts
     -- Every time an updated address expands row size beyond 8,060 bytes,
     -- SQL Server splits the 8KB page 50/50, generating 450 page splits/sec during peak hours!
     ```
-  * **✅ Battle-Tested Senior Production Configuration (The Fix):**
+  * **✅ Senior Production Configuration (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Fill Factor 80 leaves 20% headroom per 8KB page to absorb row expansions
     ALTER INDEX IX_CustomerProfiles_ProfileId 
@@ -3576,7 +3576,7 @@ ELSE IF @FragmentationPercent >= 5.0
     ALTER INDEX ALL ON dbo.OrderTrades REBUILD;
     -- Blocks all trading transactions for 45 minutes, fills TempDB, and blows out transaction log!
     ```
-  * **✅ Battle-Tested Senior Production Maintenance Script (The Fix):**
+  * **✅ Senior Production Maintenance Script (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Threshold-driven dynamic maintenance (Reorganize vs Online Rebuild)
     -- Rule 1: Fragmentation between 10% and 30% -> REORGANIZE (Online, non-blocking leaf compaction)
@@ -3724,7 +3724,7 @@ WHERE CreatedDate >= '2026-01-01' AND CreatedDate < '2027-01-01';
     -- SQL Server cannot seek the index! It must evaluate YEAR() on 25,000,000 rows via an Index Scan!
     -- Takes 34 seconds, reads 1.8 GB from disk!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: SARGable half-open range predicate allowing logarithmic Index Seek
     SELECT ApplicationId, CustomerId, LoanAmount, CreatedDate
@@ -3803,7 +3803,7 @@ END;
     -- Reused at 08:30 AM by Indian regional depot with @CountryCode = 'IN' (7.84M rows)!
     -- Reuses Iceland's plan: executes 7,840,000 random Key Lookups! 100% CPU freeze!
     ```
-  * **✅ Battle-Tested Senior Production Query (The Fix):**
+  * **✅ Senior Production Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX 1: OPTIMIZE FOR UNKNOWN (Average density vector compilation)
     CREATE PROCEDURE dbo.GetShipmentsByCountry @CountryCode CHAR(2) AS
@@ -3888,7 +3888,7 @@ ORDER BY AvgCpuMicrosec DESC;
 * **💼 Concrete Real-World Production Example:**
   * **Scenario:** P1 Production Escalation at Wells Fargo / Barclays: API response times jump from 85ms to 14,000ms; DBA team needs to identify the exact blocking query and missing index in 60 seconds.
   * **❌ Bad Junior Approach:** Opening SQL Server Profiler on a production server under 10,000 req/sec (Profiler trace overhead crashes the database server!).
-  * **✅ Battle-Tested Senior Production DMV Triage Queries (The Fix):**
+  * **✅ Senior Production DMV Triage Queries (The Fix):**
     ```sql
     -- 1. Identify Top High-CPU Consuming Queries currently cached
     SELECT TOP 5
@@ -4084,7 +4084,7 @@ COMMIT TRANSACTION;
     -- TX 2 requests X Lock, but blocked by TX 1's S Lock!
     -- DEADLOCK! Error 1205: Transaction was deadlocked on lock resources and has been chosen as deadlock victim!
     ```
-  * **✅ Battle-Tested Senior Production Transaction Code (The Fix):**
+  * **✅ Senior Production Transaction Code (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Acquire Update Lock (U) upfront during the SELECT phase!
     BEGIN TRANSACTION;
@@ -4158,7 +4158,7 @@ WITH ROLLBACK IMMEDIATE;
     -- Reads uncommitted dirty transactions that get rolled back, reads rows twice during page splits,
     -- producing invalid financial regulatory audit reports!
     ```
-  * **✅ Battle-Tested Senior Production Architecture (The RCSI Fix):**
+  * **✅ Senior Production Architecture (The RCSI Fix):**
     ```sql
     -- ✅ SENIOR FIX: Enable Read Committed Snapshot Isolation at database level
     ALTER DATABASE FinancialLedgerDB 
@@ -4241,7 +4241,7 @@ END;
     -- Once SQL Server acquires 5,000 row/page locks, it escalates to an Exclusive Table Lock (TABLOCKX)!
     -- Freezes all user logins and authorization checks across the company for 12 minutes!
     ```
-  * **✅ Battle-Tested Senior Production Maintenance Query (The Fix):**
+  * **✅ Senior Production Maintenance Query (The Fix):**
     ```sql
     -- ✅ SENIOR FIX: Chunked batch deletes of 2,000 rows with pauses to prevent lock escalation
     DECLARE @BatchSize INT = 2000;
@@ -4336,7 +4336,7 @@ COMMIT TRANSACTION;
     -- REPEATABLE READ only holds locks on EXISTING rows! It cannot prevent new matching rows!
     -- When the query re-runs, the sum has phantom ₹5,00,000! Compliance audit failure!
     ```
-  * **✅ Battle-Tested Senior Production Implementation (Key-Range Locks in `SERIALIZABLE`):**
+  * **✅ Senior Production Implementation (Key-Range Locks in `SERIALIZABLE`):**
     ```sql
     -- ✅ SENIOR FIX: SERIALIZABLE uses Key-Range Locks (RangeS-S) to lock index gaps!
     SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;

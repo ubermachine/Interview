@@ -1,13 +1,13 @@
 # 09. .NET Core & CLR Ultra-Deep Internals (Niche & Low-Latency Architecture)
 
-> ⚠️ **IMPORTANT DISCLAIMER FOR CANDIDATES IN INDIA:**  
-> This document covers ultra-deep runtime engine mechanics, byte-level memory layouts, and low-level CLR execution internals.  
-> **In 95% of senior interviews in India (TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, HCL, Mindtree, Deloitte, EY, Nagarro, EPAM, and standard GCC client rounds), you will NEVER be asked these questions.** Interviewers in those rounds focus on real-world delivery: SOLID principles, `IEnumerable` vs `IQueryable`, DI lifetimes, EF Core queries, async deadlocks, and SQL Server indexes.  
+> 🔬 **OPTIONAL DEEP INTERNALS APPENDIX (TIER-3):**  
+> This document covers deep runtime engine mechanics, byte-level memory layouts, and low-level CLR execution internals.  
+> **These details are Tier-3 internals: they are optional reference material and not expected or required in spoken interview answers.** Standard senior and lead rounds focus on real-world delivery: SOLID principles, `IEnumerable` vs `IQueryable`, DI lifetimes, EF Core queries, async deadlocks, and SQL Server indexes.  
 > 
-> **Refer to this document ONLY if you are interviewing for:**  
-> 1. Core Infrastructure / Framework teams (e.g., building proprietary internal runtime libraries at Morgan Stanley Core Quant, Goldman Sachs, or Walmart Global Tech Platform).  
-> 2. Ultra-Low-Latency High-Frequency Trading (HFT) systems where microsecond GC pauses cause monetary loss.  
-> 3. Systems-level Performance Profiling / Production SRE triage requiring memory dump analysis (`dotnet-dump`, SOS lldb).
+> **Refer to this document only when diving into:**  
+> 1. Core runtime and low-latency infrastructure libraries.  
+> 2. Systems where sub-millisecond GC latency profiling is required.  
+> 3. Production memory dump analysis (`dotnet-dump`, SOS lldb).
 
 ---
 

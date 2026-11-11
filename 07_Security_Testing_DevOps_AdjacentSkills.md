@@ -62,7 +62,7 @@ sequenceDiagram
       return Ok();
   }
   ```
-* **✅ Senior Battle-Tested Code (Asymmetric Cryptographic Signature & Audience Validation):**
+* **✅ Senior Production Code (Asymmetric Cryptographic Signature & Audience Validation):**
   ```csharp
   // Program.cs - Strict ASP.NET Core JWT Validation
   builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -128,7 +128,7 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
   // FATAL BUG 2: Default ClockSkew is 5 minutes!
   // Expired tokens remain valid for a full 300 seconds after revocation!
   ```
-* **✅ Senior Battle-Tested Code (Custom Requirement Handler with Tenant Validation):**
+* **✅ Senior Production Code (Custom Requirement Handler with Tenant Validation):**
   ```csharp
   public sealed class TenantAccessRequirement : IAuthorizationRequirement { }
 
@@ -182,7 +182,7 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
 * **The Scenario:** An enterprise cluster of 15 microservices (Order, Payment, Inventory, Analytics, etc.).
 * **❌ Bad Production Architecture (HS256 Shared Secret Leak):**
   A junior developer places `"JwtSecret": "SuperSecretKey999!"` in every microservice's `appsettings.json`. When a low-privilege analytics microservice repository is compromised, the attacker extracts the key and uses it to forge valid administrator JWTs for the Payment Service!
-* **✅ Senior Battle-Tested Code (Zero-Secret Asymmetric RS256 Verification):**
+* **✅ Senior Production Code (Zero-Secret Asymmetric RS256 Verification):**
   Microservices never hold signing keys. They configure ASP.NET Core to verify against the central identity provider's JWKS:
   ```csharp
   builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -228,7 +228,7 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
 * **The Scenario:** In a banking portal, an executive's mobile device is stolen while an active 1-hour session is open. Security operations initiates an emergency session kill.
 * **❌ Bad Production Architecture (Relational DB Lookup Trap):**
   Querying SQL Server on every single HTTP request (`SELECT IsRevoked FROM Sessions WHERE TokenId = @id`). Under 20,000 req/sec, this creates intense database connection pool exhaustion and destroys the stateless performance benefits of JWTs!
-* **✅ Senior Battle-Tested Code (Redis JTI Denylist & Refresh Token Rotation):**
+* **✅ Senior Production Code (Redis JTI Denylist & Refresh Token Rotation):**
   ```csharp
   // Program.cs - Instant Token Invalidation via Redis JTI Denylist
   builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -300,7 +300,7 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
 * **The Scenario:** An Angular 18 Single Page Application authenticates users against Azure Active Directory / Keycloak.
 * **❌ Bad Production Flow (The Deprecated Implicit Grant Flow):**
   Configuring the client to receive access tokens directly in the URL hash fragment (`response_type=token`). The access token is permanently exposed in browser history, HTTP referer headers, and vulnerable to malicious browser extensions.
-* **✅ Senior Battle-Tested Code (Client-Side PKCE Challenge Generation):**
+* **✅ Senior Production Code (Client-Side PKCE Challenge Generation):**
   ```typescript
   // pkce-utils.ts - Production PKCE Generator in Angular / Web Crypto API
   export async function generatePkceChallenge(): Promise<{ verifier: string; challenge: string }> {
@@ -366,7 +366,7 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
       .FromSqlRaw($"SELECT * FROM Users WHERE Email = '{userInputEmail}'") // Attack: ' OR '1'='1
       .ToListAsync();
   ```
-* **✅ Senior Battle-Tested Code (Hardened Headers & Parameterized Queries):**
+* **✅ Senior Production Code (Hardened Headers & Parameterized Queries):**
   ```csharp
   // Program.cs - Hardened CORS Whitelist with Credentials
   builder.Services.AddCors(options =>
@@ -430,7 +430,7 @@ Senior engineers are expected to design **reliable, non-flaky automated test sui
   services.AddDbContext<AppDbContext>(opts => 
       opts.UseInMemoryDatabase("TestDb")); // Ignores transactions, RowVersion concurrency, and locks!
   ```
-* **✅ Senior Battle-Tested Code (Testcontainers + Dynamic Connection String):**
+* **✅ Senior Production Code (Testcontainers + Dynamic Connection String):**
   ```csharp
   using Testcontainers.MsSql;
   using Microsoft.AspNetCore.Mvc.Testing;
@@ -515,7 +515,7 @@ Senior engineers are expected to design **reliable, non-flaky automated test sui
 * **The Scenario:** A suite of 250 integration tests running in an Azure DevOps / GitHub Actions pipeline failing intermittently with duplicate key errors.
 * **❌ Bad Production Practice (Dropping Database Between Tests):**
   Running `context.Database.EnsureDeleted()` and `context.Database.Migrate()` before every test. This takes 4 to 8 seconds per test, stretching a 250-test suite run to over 25 minutes!
-* **✅ Senior Battle-Tested Code (Respawn High-Speed Checkpoint Reset):**
+* **✅ Senior Production Code (Respawn High-Speed Checkpoint Reset):**
   ```csharp
   [CollectionDefinition("SharedDatabaseCollection")]
   public class SharedDatabaseCollection : ICollectionFixture<IntegrationTestWebAppFactory>
@@ -592,7 +592,7 @@ Senior engineers are expected to design **reliable, non-flaky automated test sui
   ENTRYPOINT ["dotnet", "out/OrderService.Api.dll"]
   ```
 
-* **✅ Senior Battle-Tested Dockerfile (Multi-Stage, Layer-Cached, Non-Root Alpine Build):**
+* **✅ Senior Production Dockerfile (Multi-Stage, Layer-Cached, Non-Root Alpine Build):**
 ```dockerfile
 # =========================================================================
 # STAGE 1: Build & Publish Environment (.NET SDK)
@@ -671,7 +671,7 @@ ENTRYPOINT ["dotnet", "OrderService.Api.dll"]
   # Kubelet restarts all 50 pods simultaneously, hammering the rebooting DB with 50 connection storms!
   ```
 
-* **✅ Senior Battle-Tested Configuration (Independent Liveness, Readiness & Startup Probes):**
+* **✅ Senior Production Configuration (Independent Liveness, Readiness & Startup Probes):**
   ```yaml
   # kubernetes-deployment.yaml - Production Pod Health Probes
   apiVersion: apps/v1
@@ -763,7 +763,7 @@ app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
 * **The Scenario:** Deploying an upgraded Payment Ingestion engine (v2) on Kubernetes during high-volume business hours.
 * **❌ Bad Production Deployment (Big-Bang Kubernetes Rolling Update):**
   Triggering an immediate `kubectl set image deployment` replacing 100% of replicas. If an edge-case null-pointer exists in the new payment gateway SDK, 100% of incoming customer payments immediately fail with 500 errors. Rolling back requires pulling the old image, restarting 20 pods, and takes 8 minutes of downtime!
-* **✅ Senior Battle-Tested Configuration (Canary Routing with Feature Gates):**
+* **✅ Senior Production Configuration (Canary Routing with Feature Gates):**
   ```yaml
   # istio-canary-virtualservice.yaml - 95% to Stable (v1), 5% to Canary (v2)
   apiVersion: networking.istio.io/v1alpha3

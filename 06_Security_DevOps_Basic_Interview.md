@@ -457,7 +457,7 @@ Never check external databases or message brokers inside your **Liveness Probe**
 ## 11. What is the Difference Between Blue-Green Deployment and Canary Deployment?
 
 ### ⚡ Direct Answer / 30-Second Pitch
-> "**Blue-Green Deployment** runs two identical production environments (Blue = current version, Green = new version); once Green passes verification, 100% of traffic is switched instantly at the router. **Canary Deployment** rolls out the new version to a small subset of servers and gradually shifts a percentage of user traffic (e.g., 5% $\rightarrow$ 25% $\rightarrow$ 100%) while monitoring error rates."
+> "**Blue-Green Deployment** runs two identical production environments (Blue = current version, Green = new version); once Green passes verification, 100% of traffic is switched instantly at the router. **Canary Deployment** rolls out the new version to a small subset of servers and gradually shifts a percentage of user traffic (e.g., 5% → 25% → 100%) while monitoring error rates."
 
 ### 🧠 Easy Mental Model / Everyday Analogy
 * **Switching Railway Platforms vs. The Coal Mine Canary Bird:**
@@ -489,7 +489,7 @@ flowchart TD
 ### 💬 Simple Explanation
 | Feature | Blue-Green Deployment | Canary Deployment |
 | :--- | :--- | :--- |
-| **Traffic Shift** | All-at-once (0% $\rightarrow$ 100% instant cutover). | Incremental (e.g., 5% $\rightarrow$ 25% $\rightarrow$ 50% $\rightarrow$ 100%). |
+| **Traffic Shift** | All-at-once (0% → 100% instant cutover). | Incremental (e.g., 5% → 25% → 50% → 100%). |
 | **Infrastructure Cost** | Requires 2x infrastructure during deployment window. | Minimal extra infrastructure (only 1–2 canary pods). |
 | **Rollback Speed** | Near-instantaneous (flip router back to Blue). | Fast (scale canary pods down to zero). |
 | **User Blast Radius** | If an undiscovered bug exists, 100% of users see it. | If a bug exists, only 5% of users experience it. |

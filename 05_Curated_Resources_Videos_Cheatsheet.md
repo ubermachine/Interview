@@ -20,7 +20,7 @@
 
 ## 2. Top GitHub Reference Repositories
 
-Studying production-grade open-source repositories provides battle-tested blueprints for system design and code review rounds:
+Studying production-grade open-source repositories provides proven blueprints for system design and code review rounds:
 
 ### 1. [dotnet-architecture / eShop](https://github.com/dotnet/eshop)
 * **Creators:** Official Microsoft Architecture Team (.NET 8/9+).
@@ -265,7 +265,7 @@ When delivering behavioral responses, frame your technical contributions using t
       tx.Commit();
   }
   ```
-* **✅ The Senior Battle-Tested Fix (Async Pipeline + Chunked Batching):**
+* **✅ The Senior Production Fix (Async Pipeline + Chunked Batching):**
   ```csharp
   public async Task ProcessBillingBatchSeniorAsync(List<Invoice> invoices, CancellationToken ct)
   {
@@ -335,7 +335,7 @@ When delivering behavioral responses, frame your technical contributions using t
       }
   }
   ```
-* **✅ The Senior Battle-Tested Fix (Standalone + Signals + `@defer`):**
+* **✅ The Senior Production Fix (Standalone + Signals + `@defer`):**
   ```typescript
   @Component({
       selector: 'app-ticker',
@@ -376,7 +376,7 @@ When delivering behavioral responses, frame your technical contributions using t
   * **Saga (The UPI Transfer with Automated Refund):** You transfer the money locally in 1 second. If the merchant fails to deliver the goods, the system issues a semantic refund credit in 2 seconds. High speed, total availability, zero cross-city lockups.
 
 * **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
-  * **Two-Phase Commit (2PC):** A synchronous distributed consensus protocol with a *Prepare Phase* and a *Commit Phase*; notorious for coordinator single points of failure (SPOF) and latency amplification.
+  * **Two-Phase Commit (2PC):** A synchronous distributed consensus protocol with a *Prepare Phase* and a *Commit Phase*; vulnerable to coordinator single points of failure (SPOF) and latency amplification.
   * **Latency Amplification & Blocking Locks:** In 2PC, locks must be held across all participant nodes until the slowest network round-trip finishes, driving database connection pool exhaustion.
   * **CAP Theorem ($P$ Trade-Off):** Under real-world network partitions, 2PC sacrifices availability ($A$) for consistency ($C$), leading to request timeouts under flash load.
   * **Saga Orchestrator State Machine:** Centralized coordinator executing discrete local transactions with backward semantic compensation, preserving system availability ($A$).

@@ -20,7 +20,7 @@
 
 ## 2. Top GitHub Reference Repositories
 
-Studying production-grade open-source repositories provides battle-tested blueprints for system design and code review rounds:
+Studying production-grade open-source repositories provides proven blueprints for system design and code review rounds:
 
 ### 1. [dotnet-architecture / eShop](https://github.com/dotnet/eshop)
 * **Creators:** Official Microsoft Architecture Team (.NET 8/9+).
@@ -144,11 +144,11 @@ Use this side-by-side quick-reference card to scan and memorize how to pivot fro
 
 | Domain & Topic | 🧠 Everyday Analogy (Intuitive Hook) | 🎯 Exact Technical Terms & Buzzwords (The Interview Rubric) | ⚡ Senior Soundbite (How to Say It Confidently) |
 | :--- | :--- | :--- | :--- |
-| **.NET CLR & Garbage Collection** | **Office Desk:** Gen 0 (Sticky notepad), Gen 1 (Drawer), Gen 2 (Archive), LOH (Heavy furniture storage). | • Generational Hypothesis<br>• Tracing Mark-Sweep-Compact Collector<br>• Card Table / Write Watch<br>• Ephemeral Segment<br>• Large Object Heap (85,000-byte threshold)<br>• Free-List Allocator (fragmentation hazard)<br>• Server GC (1 heap & thread per CPU core, `OOMKilled`) vs Workstation GC<br>• Dispose Pattern & `SafeHandle`<br>• `GC.SuppressFinalize(this)` | *"The CLR relies on the Generational Hypothesis; objects $\ge 85,000$ bytes bypass generational sweeps to the LOH free-list without compaction, and Server GC in small Kubernetes pods risks immediate `OOMKilled` crashes unless heap counts are restricted."* |
+| **.NET CLR & Garbage Collection** | **Office Desk:** Gen 0 (Sticky notepad), Gen 1 (Drawer), Gen 2 (Archive), LOH (Heavy furniture storage). | • Generational Hypothesis<br>• Tracing Mark-Sweep-Compact Collector<br>• Card Table / Write Watch<br>• Ephemeral Segment<br>• Large Object Heap (85,000-byte threshold)<br>• Free-List Allocator (fragmentation hazard)<br>• Server GC (1 heap & thread per CPU core, `OOMKilled`) vs Workstation GC<br>• Dispose Pattern & `SafeHandle`<br>• `GC.SuppressFinalize(this)` | *"The CLR relies on the Generational Hypothesis; objects ≥ 85,000 bytes bypass generational sweeps to the LOH free-list without compaction, and Server GC in small Kubernetes pods risks immediate `OOMKilled` crashes unless heap counts are restricted."* |
 | **Async / Await Mechanics** | **Coffee Shop Pager:** Counter clerk hands you a vibrating token; clerk serves other customers while espresso brews. | • Roslyn Lowering<br>• `IAsyncStateMachine` struct<br>• `ExecutionContext` capture & ambient flow<br>• `SynchronizationContext`<br>• ThreadPool Starvation (Sync-over-Async)<br>• `.GetAwaiter().GetResult()` blocking hazards<br>• `ValueTask<T>` allocation-free fast path<br>• `IAsyncEnumerable<T>` asynchronous pull | *"The Roslyn compiler lowers `async/await` into an `IAsyncStateMachine` struct; synchronous blocking via `.Result` or `.GetAwaiter().GetResult()` starves ThreadPool worker threads, while `ValueTask<T>` eliminates Task allocations on synchronous completions."* |
 | **ASP.NET Core Architecture & DI** | **Russian Nesting Dolls:** Requests pass through middleware layers inward and outward.<br>**Hotel Keycard:** Scoped per stay. | • `RequestDelegate` pipeline<br>• Russian Doll middleware execution order<br>• Captive Dependency anti-pattern<br>• Object Lifetimes: `Transient`, `Scoped`, `Singleton`<br>• `IServiceScopeFactory.CreateScope()`<br>• Socket Exhaustion (`new HttpClient()` trap)<br>• `IHttpClientFactory` connection pooling<br>• Polly v8 Resilience Handler Pipeline | *"Injecting a Scoped service into a Singleton causes a Captive Dependency bug, pinning scoped state into permanent memory and creating concurrency race conditions; background jobs must explicitly create scopes via `IServiceScopeFactory`."* |
 | **High-Performance EF Core** | **Grocery Delivery List:** Ordering only 3 specific vegetables rather than renting the whole grocery truck. | • ChangeTracker snapshot memory overhead<br>• `AsNoTracking()` / `AsNoTrackingWithIdentityResolution()`<br>• Cartesian Product Explosion<br>• `AsSplitQuery()` multi-SQL split<br>• N+1 Query Problem (`Include` vs `Select`)<br>• `AddDbContextPool<TContext>` instance recycling<br>• Compiled Queries (`EF.CompileAsyncQuery`) | *"Read endpoints must bypass EF Core snapshot change-tracking via `AsNoTracking()`, and multi-collection joins must use `AsSplitQuery()` to eliminate Cartesian product row explosion and network bloat."* |
-| **SQL Server Storage & Indexes** | **Textbook Index & Glossary:** Clustered index is the page-numbered book; non-clustered index is the back index. | • 8KB Physical Data Pages<br>• 96-byte Page Header & Slot Array<br>• Clustered B-Tree Leaf Level (the actual data)<br>• Non-Clustered Bookmark / Key Lookup (random I/O)<br>• Covering Index with leaf `INCLUDE` columns<br>• Page Splits & Fill Factor (80-90% sweet spot)<br>• Index Seek (logarithmic $O(\log N)$) vs Index Scan ($O(N)$) | *"When a non-clustered index lacks requested columns, the storage engine executes expensive Bookmark Key Lookups against the clustered index; leaf `INCLUDE` columns create covering indexes that resolve queries purely in the B-Tree leaf level."* |
+| **SQL Server Storage & Indexes** | **Textbook Index & Glossary:** Clustered index is the page-numbered book; non-clustered index is the back index. | • 8KB Physical Data Pages<br>• 96-byte Page Header & Slot Array<br>• Clustered B-Tree Leaf Level (the actual data)<br>• Non-Clustered Bookmark / Key Lookup (random I/O)<br>• Covering Index with leaf `INCLUDE` columns<br>• Page Splits & Fill Factor (80-90% sweet spot)<br>• Index Seek (logarithmic O(log N)) vs Index Scan (O(N)) | *"When a non-clustered index lacks requested columns, the storage engine executes expensive Bookmark Key Lookups against the clustered index; leaf `INCLUDE` columns create covering indexes that resolve queries purely in the B-Tree leaf level."* |
 | **SQL Query Tuning & Sniffing** | **Custom Tailored Suit:** Tailoring a suit for an elephant, then forcing a child to wear it. | • SARGability (`WHERE YEAR(...)` function wrapping)<br>• Implicit Datatype Conversion (`VARCHAR` vs `NVARCHAR`)<br>• Parameter Sniffing & Plan Cache Pollution<br>• `OPTIMIZE FOR (@param = UNKNOWN)`<br>• Query Compilation with `OPTION (RECOMPILE)`<br>• Local Variable Parameter Masking<br>• SQL Server Query Store Plan Forcing | *"Parameter sniffing occurs when SQL Server freezes an execution plan compiled for an extreme outlier parameter value; remedies include `OPTIMIZE FOR`, local variable masking, or plan forcing via Query Store."* |
 | **SQL Concurrency & Deadlocks** | **Traffic Junction Gridlock:** Car A waits for Car B to move, while Car B waits for Car A. | • Lock Compatibility Matrix (Shared `S`, Exclusive `X`, Update `U`)<br>• Intent Locks (`IS`, `IX`, `Intent Exclusive`)<br>• Lock Escalation threshold (5,000 fine locks to table lock)<br>• Extended Events `xml_deadlock_report`<br>• Read Committed Snapshot Isolation (RCSI)<br>• Row Versioning in `tempdb` version store | *"Lock escalation converts 5,000 fine-grained row locks into an exclusive table lock, halting concurrent transactions; RCSI eliminates reader-writer blocking by serving non-blocking row versions from `tempdb`."* |
 | **Modern Angular & Signals** | **Excel Formula Grid:** Updating cell A1 instantly updates dependent formula cell B1 without recalculating the sheet. | • Signals Push-Pull Reactive Algorithm<br>• Dependency Graph (Directed Acyclic Graph / DAG)<br>• Glitch-Free Reactive Evaluation<br>• Reactive Primitives: `signal()`, `computed()`, `effect()`<br>• Standalone Components (`imports: []`)<br>• Built-in Control Flow (`@if`, `@for (track)`, `@defer`)<br>• Zoneless Change Detection (`provideExperimentalZonelessChangeDetection`) | *"Angular Signals replace Zone.js monkey-patched dirty-checking with fine-grained reactive push-pull DAG evaluation, updating only the precise DOM nodes bound to changed signals with zero component-tree traversal."* |
@@ -223,7 +223,7 @@ When delivering behavioral responses, frame your technical contributions using t
 
 ---
 
-### Scenario 1: Resolving a Catastrophic Production Outage (P1 Incident)
+### Scenario 1: Resolving a Critical Production Outage (P1 Incident)
 
 * **⚡ 30-Second Interview Pitch (Say this first):**
   > "During a month-end billing spike, our core Web API suffered a 100% CPU lockup and pod crashes. I captured and analyzed a live thread dump, identified widespread ThreadPool starvation caused by sync-over-async blocking on an external payment provider, patched the code to pure async/await, and deployed Polly circuit breakers—dropping P99 latency from 15 seconds to 85 milliseconds."
@@ -265,7 +265,7 @@ When delivering behavioral responses, frame your technical contributions using t
       tx.Commit();
   }
   ```
-* **✅ The Senior Battle-Tested Fix (Async Pipeline + Chunked Batching):**
+* **✅ The Senior Production Fix (Async Pipeline + Chunked Batching):**
   ```csharp
   public async Task ProcessBillingBatchSeniorAsync(List<Invoice> invoices, CancellationToken ct)
   {
@@ -335,7 +335,7 @@ When delivering behavioral responses, frame your technical contributions using t
       }
   }
   ```
-* **✅ The Senior Battle-Tested Fix (Standalone + Signals + `@defer`):**
+* **✅ The Senior Production Fix (Standalone + Signals + `@defer`):**
   ```typescript
   @Component({
       selector: 'app-ticker',
@@ -376,10 +376,10 @@ When delivering behavioral responses, frame your technical contributions using t
   * **Saga (The UPI Transfer with Automated Refund):** You transfer the money locally in 1 second. If the merchant fails to deliver the goods, the system issues a semantic refund credit in 2 seconds. High speed, total availability, zero cross-city lockups.
 
 * **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
-  * **Two-Phase Commit (2PC):** A synchronous distributed consensus protocol with a *Prepare Phase* and a *Commit Phase*; notorious for coordinator single points of failure (SPOF) and latency amplification.
+  * **Two-Phase Commit (2PC):** A synchronous distributed consensus protocol with a *Prepare Phase* and a *Commit Phase*; vulnerable to coordinator single points of failure (SPOF) and latency amplification.
   * **Latency Amplification & Blocking Locks:** In 2PC, locks must be held across all participant nodes until the slowest network round-trip finishes, driving database connection pool exhaustion.
-  * **CAP Theorem ($P$ Trade-Off):** Under real-world network partitions, 2PC sacrifices availability ($A$) for consistency ($C$), leading to request timeouts under flash load.
-  * **Saga Orchestrator State Machine:** Centralized coordinator executing discrete local transactions with backward semantic compensation, preserving system availability ($A$).
+  * **CAP Theorem (Partition Tolerance Trade-Off):** Under network partitions, synchronous 2PC sacrifices availability for consistency, leading to request timeouts under flash load.
+  * **Saga Orchestrator State Machine:** Centralized coordinator executing discrete local transactions with backward semantic compensation, preserving system availability.
   * **Empirical Architectural Proof of Concept (PoC):** Resolving subjective team disagreements using measurable benchmark data (P99 latency, throughput TPS, deadlock rates) rather than seniority-based arguments.
 
 * **Situation:** While designing a multi-service order fulfillment engine, our Principal Architect advocated for a Two-Phase Commit (2PC) distributed transaction coordinator to preserve strict immediate consistency, while product management demanded 99.99% system availability during flash sales.

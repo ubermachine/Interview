@@ -86,7 +86,7 @@
 
 ## Q1: SOLID Principles with Real-Time Project Examples
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, Deloitte, EY, Nagarro, EPAM (Asked in 99% of interviews).
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "SOLID isn't academic theory—it's five practical architectural guardrails to prevent code rot. Each principle isolates a specific blast radius so adding a new feature or payment method never breaks existing, tested production code."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -162,8 +162,8 @@ public class CheckoutService
 ---
 
 ## Q2: IEnumerable vs IQueryable vs IList vs ICollection
-* **Asked At:** Literally 100% of Indian .NET Technical Rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Commonly asked across Indian .NET Technical Rounds.
+* **⚡ 10-Second Opening Hook:**  
   > "The real architectural line in the sand is where the work happens: `IQueryable` translates expression trees into native SQL executed on the database server, while `IEnumerable` pulls all raw records into C# RAM across the network and filters them in memory."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -174,7 +174,7 @@ public class CheckoutService
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
-    * **`IEnumerable<T>`:** "A read-only, forward-only sequence. You can loop through it once at a time, but you can't index into it or change it. LINQ filters over it run in memory, item by item (LINQ to Objects)."
+    * **`IEnumerable<T>`:** "A read-only, forward-only sequence. You can enumerate it many times; each pass is forward-only, no indexing. LINQ filters over it run in memory, item by item (LINQ to Objects)."
     * **`IQueryable<T>`:** "A query object that stores your LINQ as an expression tree instead of running it immediately. EF Core translates that tree into SQL, so filtering and TOP happen on the database server (LINQ to Entities)."
     * **`ICollection<T>`:** "`IEnumerable` plus the ability to change the collection - `Add`, `Remove`, `Clear` - and read its `Count`. Still no indexing."
     * **`IList<T>`:** "`ICollection` plus position-based access - you can get and set by index (`list[0]`), plus `Insert` and `RemoveAt`."
@@ -216,7 +216,7 @@ var optimizedOrders = query.Where(o => o.Status == "Shipped").Take(10).ToList();
 
 ## Q3: String vs StringBuilder & String Immutability
 * **Asked At:** TCS, Wipro, Infosys, Cognizant, Accenture, Mindtree, Tech Mahindra.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`string` is an immutable reference type where every concatenation allocates a brand-new heap object and discards the old one; `StringBuilder` is a mutable, chunked buffer that modifies character arrays in place."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -268,7 +268,7 @@ string result = sb.ToString();
 
 ## Q4: ref vs out vs in vs params
 * **Asked At:** Accenture, Capgemini, Infosys, Cognizant, Persistent, HCL.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`ref` is read-write by reference; `out` is write-only mandatory assignment; `in` is a read-only reference for zero-copy performance; and `params` bundles variable arguments into an array."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -336,8 +336,8 @@ public class ParameterDemo
 ---
 
 ## Q5: throw vs throw ex vs throw new CustomException
-* **Asked At:** Asked in 90% of Indian screening rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Frequently asked in Indian screening rounds.
+* **⚡ 10-Second Opening Hook:**  
   > "`throw;` preserves the crime scene by keeping the original call stack and line numbers intact; `throw ex;` destroys the evidence by resetting the stack trace; and custom exceptions preserve business context while keeping the root cause in `InnerException`."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -393,7 +393,7 @@ catch (SocketException ex)
 
 ## Q6: Abstract Class vs Interface (with C# 8+ Default Methods)
 * **Asked At:** TCS, Infosys, Cognizant, Accenture, Deloitte, Nagarro, EPAM.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "The simplest way to put it: **Interfaces define what a class can *do*; Abstract classes define what a class *is*.** Interfaces give you multiple inheritance with zero state; abstract classes give you a shared biological identity that can actually hold state, fields, and constructors."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -461,7 +461,7 @@ public abstract class BaseRepository<T> where T : class
 
 ## Q7: Boxing and Unboxing Mechanics & Performance
 * **Asked At:** Asked in 85% of Indian technical screening rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Boxing takes a lightweight value type from the stack, wraps it in a 16-byte object header, and dumps it onto the managed heap; unboxing extracts that value back. Boxing kills high-throughput performance through GC Gen 0 churn."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -506,15 +506,15 @@ numbers.Add(42);
 * **📊 Decision Guide:**
 | Operation | Direction | Memory Location | Performance Impact | What Must Be Done in Code |
 | :--- | :--- | :--- | :--- | :--- |
-| **Boxing** | Value Type $\rightarrow$ Reference Type | Stack $\rightarrow$ Heap | **High** (Allocates 16-byte header + GC pressure) | Replace `ArrayList` / `Hashtable` with `List<T>` / `Dictionary<K,V>`. |
-| **Unboxing** | Reference Type $\rightarrow$ Value Type | Heap $\rightarrow$ Stack | Low (Type check + bitwise memory copy) | Cast only to the exact identical value type. |
-| **Generics** | Strongly-Typed $\langle T \rangle$ | Pure Stack / Inline | **Zero Boxing** | Use `List<T>`, `Span<T>`, and `IEquatable<T>`. |
+| **Boxing** | Value Type → Reference Type | Stack → Heap | **High** (Allocates 16-byte header + GC pressure) | Replace `ArrayList` / `Hashtable` with `List<T>` / `Dictionary<K,V>`. |
+| **Unboxing** | Reference Type → Value Type | Heap → Stack | Low (Type check + bitwise memory copy) | Cast only to the exact identical value type. |
+| **Generics** | Strongly-Typed `<T>` | Pure Stack / Inline | **Zero Boxing** | Use `List<T>`, `Span<T>`, and `IEquatable<T>`. |
 
 ---
 
 ## Q8: Method Overloading vs Method Overriding vs Method Shadowing (new)
 * **Asked At:** TCS, Wipro, Infosys, Cognizant, Accenture, Mindtree.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Overloading is compile-time convenience (same name, different arguments); Overriding is true runtime polymorphism via the vtable; Shadowing with `new` is brute-force hiding that breaks polymorphism."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -576,11 +576,11 @@ s2.Execute(); // Prints: "Base Executing" (Compile-time reference wins! Shadow m
 
 ## Q9: const vs readonly vs static readonly
 * **Asked At:** Capgemini, Accenture, Cognizant, Infosys, Persistent.
-* **⚡ 10-Second Knockout Hook:**  
-  > "`const` is hardcoded into the calling assembly's IL at compile time; `readonly` is initialized at runtime per instance; and `static readonly` is initialized once per AppDomain when the type loads."
+* **⚡ 10-Second Opening Hook:**  
+  > "`const` is hardcoded into the calling assembly's IL at compile time; `readonly` is initialized at runtime per instance; and `static readonly` is initialized once per process, when the type is first used."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
-  > "In enterprise systems, declaring `public const` across shared NuGet packages or multi-assembly solutions is a notorious deployment landmine.  
+  > "In enterprise systems, declaring `public const` across shared NuGet packages or multi-assembly solutions is a common deployment trap.  
   > Because `const` is a compile-time constant, the Roslyn compiler literally inlines the raw literal value directly into the consuming assembly's IL. If you update the constant in a shared library and deploy the new DLL without recompiling consuming services, they continue running with the old hardcoded value.  
   > In production, I use `readonly` for instance dependencies injected via constructors—like `_logger` or `_dbContext`—guaranteeing immutability after construction.  
   > For cross-assembly application constants or values read from environment variables on startup, I always use `static readonly`."
@@ -632,13 +632,13 @@ public class AppConfig
 | :--- | :--- | :--- | :--- | :--- |
 | **`const`** | Compile Time | Never (Hardcoded literal) | None (Inlined in IL) | **Unsafe** (Requires consumer recompilation) |
 | **`readonly`** | Runtime | Declaration or Constructor | Per instance heap/stack | **Safe** (Resolved at runtime) |
-| **`static readonly`**| Runtime | Declaration or Static Constructor | Once per AppDomain | **Safe** (Resolved at runtime) |
+| **`static readonly`**| Runtime | Declaration or Static Constructor | Once per process | **Safe** (Resolved at runtime) |
 
 ---
 
 ## Q10: Delegates, Func, Action, Predicate & Lambda Expressions
-* **Asked At:** Asked in 90% of Indian .NET rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Frequently asked in Indian .NET rounds.
+* **⚡ 10-Second Opening Hook:**  
   > "A delegate is a type-safe object-oriented function pointer in the CLR; `Action`, `Func`, and `Predicate` are built-in generic delegates that eliminate custom boilerplate; and lambdas are the anonymous syntax to write them inline."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -696,7 +696,7 @@ bool check = isEven(4); // true
 
 ## Q11: Extension Methods in C#
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Extension methods are static compiler illusions that let you 'add' methods to existing types without modifying source code or subclassing—they execute as standard static method calls with syntactic sugar."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -748,7 +748,7 @@ bool valid = userEmail.IsValidEmail(); // Fluent instance syntax!
 
 ## Q12: Nullable Types, Null-Forgiving (!) & Null-Coalescing (??, ??=)
 * **Asked At:** Mindtree, Cognizant, Nagarro, EPAM, Persistent.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`Nullable<T>` allows stack-allocated value types to represent null; C# 8 Nullable Reference Types use Roslyn static analysis to eliminate `NullReferenceException`; and `??`, `??=`, and `!` provide defensive handling and compiler communication."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -803,8 +803,8 @@ public string CustomerName { get; set; } = null!; // Prevents compiler warning C
 ---
 
 ## Q13: class vs struct vs record (Record Class vs Record Struct)
-* **Asked At:** Asked in 90% of Indian senior rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Frequently asked in Indian senior rounds.
+* **⚡ 10-Second Opening Hook:**  
   > "`class` is reference identity on the heap; `struct` is value copy on the stack; and `record` gives you compiler-synthesized value equality, immutability, and non-destructive mutation via `with` expressions."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -816,7 +816,7 @@ public string CustomerName { get; set; } = null!; // Prevents compiler warning C
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
     * **Class:** "A reference type on the heap identified by reference - two variables can point to the same object, and equality means 'same object', not 'same values'. Supports inheritance and mutable state."
-    * **Struct:** "A value type stored on the stack (or inline inside its parent object). Assignment copies the whole value, equality compares field by field, and it can't participate in class inheritance."
+    * **Struct:** "A value type stored on the stack (or inline inside its parent object). Assignment copies the whole value, default struct equality compares field by field via reflection unless overridden, and it can't participate in class inheritance."
     * **Record (`record class` / `record struct`):** "A type where identity IS its values. The compiler generates value-based `Equals` and `GetHashCode`, a readable `ToString`, positional constructors with deconstruction, and non-destructive mutation via `with` expressions."
   * **Keywords Interviewer Evaluates:** **Managed Heap vs Thread Execution Stack**, **Reference Equality vs Structural/Value Equality**, **Non-Destructive Mutation (`with { }`)**, **`init`-only Properties**, **Positional Deconstruction**, **Record Struct vs Record Class**, **GC Allocation Reduction**.
   * **How to say it in your project:** "In our Kafka event consumer, incoming messages were deserialized into mutable classes. Multiple consumer threads occasionally mutated message fields concurrently. We switched to `public record OrderEvent(Guid Id, decimal Amount, DateTime CreatedAt);`. Immutability eliminated race conditions, and value equality allowed xUnit tests to assert `Assert.Equal(expectedEvent, actualEvent)` in a single clean line."
@@ -857,7 +857,7 @@ var order3 = order1 with { Status = "Shipped" }; // Creates new record with modi
 
 ## Q14: IDisposable Pattern & the using Statement
 * **Asked At:** TCS, Wipro, Infosys, Cognizant, Accenture, Deloitte.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "The Garbage Collector only frees managed memory, not OS handles; `IDisposable` gives developers deterministic, immediate cleanup of unmanaged resources like file handles, database connections, and network sockets."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -906,8 +906,8 @@ public async Task ProcessFileAsync(string filePath)
 # MODULE 2: ASP.NET CORE & WEB API ARCHITECTURE
 
 ## Q15: Dependency Injection Lifetimes (Transient vs Scoped vs Singleton & Captive Dependency)
-* **Asked At:** Literally 100% of Indian .NET Technical Rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, EPAM, Nagarro).
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Commonly asked across Indian .NET Technical Rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, EPAM, Nagarro).
+* **⚡ 10-Second Opening Hook:**  
   > "Transient is a fresh paper cup every time; Scoped is your lunch plate tied 1:1 to an HTTP request; Singleton lives forever for the entire app. The classic senior bug is a **Captive Dependency**—when a Singleton holds onto a Scoped `DbContext`, triggering multi-threaded crashes and memory leaks."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -977,7 +977,7 @@ public class ResilientHealthMonitor
 
 ## Q16: Middleware vs Action Filters (app.Use vs app.Run vs app.Map)
 * **Asked At:** Cognizant, TCS, Infosys, Accenture, Capgemini, Nagarro.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Middleware is the airport security guard operating on raw `HttpContext` before routing; Action Filters are the project managers inspecting your exact action arguments and model state inside MVC. `Use` chains, `Run` terminates, and `Map` branches."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -988,7 +988,7 @@ public class ResilientHealthMonitor
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
-    * **Middleware:** "A small component in the request pipeline that sees every incoming request and outgoing response. Technically it's a `RequestDelegate` - a method that takes the `HttpContext` (the request/response) and a `next` function, does its work, calls `await next()` to hand off to the rest of the pipeline, then can finish up on the way back. It runs before MVC routing picks a controller, so it knows nothing about action methods or model state."
+    * **Middleware:** "A pipeline component representing a `RequestDelegate` (`Func<HttpContext, Task>`). Runs outside MVC. Registered before `UseRouting` it can't see the endpoint; after it, it can. It never sees action arguments or ModelState."
     * **Action Filters:** "MVC-pipeline components that fire only after routing has chosen an action method, so they can inspect the controller context, the action arguments, model state, and results."
     * **`app.Use()`:** "Registers middleware that can look at the request, call `next()` to continue down the pipeline, and then look at the response coming back."
     * **`app.Run()`:** "Registers terminal middleware: it writes the response and stops the pipeline - nothing downstream ever runs."
@@ -1040,7 +1040,7 @@ app.Run();
 
 ## Q17: Writing Custom Middleware for Global Exception Handling
 * **Asked At:** Deloitte, EY, PwC, Infosys, Capgemini, TCS.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Never let raw stack traces leak to users or scatter `try-catch` blocks across controllers. A custom Global Exception Middleware wraps the entire request pipeline, catches unhandled domain exceptions, logs a correlation `TraceIdentifier`, and returns a standardized RFC 7807 `ProblemDetails` JSON payload."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1124,7 +1124,7 @@ public class ExceptionHandlingMiddleware
 
 ## Q18: ASP.NET Core Filter Pipeline Order of Execution
 * **Asked At:** Accenture, Capgemini, Cognizant, Wipro, Infosys.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Remember the mnemonic **ARE-R**: **A**uthorization, **R**esource, **A**ction, **E**xception, **R**esult. Authorization runs first to verify identity; Result runs last to serialize the payload."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1191,7 +1191,7 @@ flowchart TD
 
 * **⚠️ Senior Trap & Cross-Question:**  
   * *Trap Question:* "Why do senior architects prefer Global Exception Handling Middleware over `IExceptionFilter`?"  
-  * *Senior Answer:* "Exception Filters **only** catch exceptions that originate within the MVC Controller or Action Filters. They cannot catch exceptions occurring in middleware, during authentication/authorization, or during Response Result Serialization! Middleware wraps the entire HTTP pipeline, ensuring 100% of uncaught exceptions are trapped."
+  * *Senior Answer:* "Exception Filters **only** catch exceptions that originate within the MVC Controller or Action Filters. They cannot catch exceptions occurring in middleware, during authentication/authorization, or during Response Result Serialization! Middleware wraps the entire HTTP pipeline, ensuring all uncaught exceptions are trapped."
 
 * **📊 Decision Guide:**
 | Filter Type | Executes When | Can Short-Circuit? | Best Used For |
@@ -1206,7 +1206,7 @@ flowchart TD
 
 ## Q19: JWT Authentication & Authorization in Web API
 * **Asked At:** Literally 95% of Indian .NET Technical Rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "JWT is a stateless, cryptographically signed token with three dot-separated parts: Header, Claims Payload, and Signature. ASP.NET Core validates the cryptographic hash and unpacks it into `HttpContext.User` as a `ClaimsPrincipal`—and always set `ClockSkew = TimeSpan.Zero` to kill the 5-minute expiry loophole."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1279,7 +1279,7 @@ public class PayrollController : ControllerBase
 
 ## Q20: CORS (Cross-Origin Resource Sharing) Configuration
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "CORS is a browser-enforced security handshake, not a backend firewall. The browser sends a preflight `OPTIONS` request, and ASP.NET Core answers with allowed origins, headers, and methods—placed strictly between `UseRouting` and `UseAuthentication`."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1337,7 +1337,7 @@ app.UseAuthorization();
 
 ## Q21: Configuration & Options Pattern (IOptions vs IOptionsSnapshot vs IOptionsMonitor)
 * **Asked At:** Nagarro, EPAM, Deloitte, EY, Wells Fargo.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`IOptions` is a Singleton that reads config once at boot; `IOptionsSnapshot` is Scoped and re-reads config on every HTTP request; `IOptionsMonitor` is a Singleton that listens for real-time file change events via `OnChange`."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1395,8 +1395,8 @@ public class CheckoutController : ControllerBase
 ---
 
 ## Q22: HTTP Status Codes & RESTful API Best Practices
-* **Asked At:** Asked in 90% of Indian Web API interviews.
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Frequently asked in Indian Web API interviews.
+* **⚡ 10-Second Opening Hook:**  
   > "A professional REST API speaks fluent HTTP: 200 for successful reads, 201 with a `Location` header for created resources, 204 for void deletes, 400 for bad payloads, 401 for unauthenticated, 403 for unauthorized, 404 for missing, and 409 for concurrency or unique key collisions."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1463,7 +1463,7 @@ public class OrdersController : ControllerBase
 
 ## Q23: IHttpClientFactory: Typed Client vs Socket Exhaustion vs DNS Bug
 * **Asked At:** Wells Fargo, Morgan Stanley, Walmart, EPAM, Nagarro, Cognizant.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`new HttpClient()` causes TCP Socket Exhaustion in `TIME_WAIT`; static singleton `HttpClient` causes the DNS Stale Cache Bug. `IHttpClientFactory` solves both by pooling and rotating `HttpMessageHandler` sockets every 2 minutes while keeping client facades lightweight."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1484,7 +1484,7 @@ public class OrdersController : ControllerBase
   * **Rental Car Fleet with Central Garage:**
     * `new HttpClient()`: Buying a brand-new car for every 5-km trip, driving it once, and parking it on the street where it blocks parking spots for 4 minutes (`TIME_WAIT`).
     * Static Singleton `HttpClient`: Buying 1 car in 2005 and refusing to replace its tires or GPS even after city roads change (DNS bug).
-    * `IHttpClientFactory`: A professional fleet manager that services and rotates car engines every 2 hours while handing you keys on demand.
+    * `IHttpClientFactory`: A professional fleet manager that services and rotates car engines every 2 minutes while handing you keys on demand.
 
 * **💻 Simple Code Example:**
 ```csharp
@@ -1523,8 +1523,8 @@ builder.Services.AddHttpClient<PaymentClient>(client =>
 # MODULE 3: ENTITY FRAMEWORK CORE & DATA ACCESS
 
 ## Q24: Eager Loading (.Include) vs Lazy Loading vs Explicit Loading
-* **Asked At:** Literally 100% of Indian .NET Technical Rounds.
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Commonly asked across Indian .NET Technical Rounds.
+* **⚡ 10-Second Opening Hook:**  
   > "Eager loading queries everything upfront in 1 round-trip via SQL `JOIN`; Lazy loading defers child queries until touched, causing the devastating **N+1 query storm**; Explicit loading fires a manual round-trip only when you ask for it."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1540,7 +1540,7 @@ builder.Services.AddHttpClient<PaymentClient>(client =>
     * **Lazy Loading:** "Related entities load automatically, on demand, the first time you touch the navigation property - enabled by proxies and `virtual` properties. Convenient, but easy to trigger hidden queries."
     * **Explicit Loading:** "You manually load a navigation property when you want it, via `Entry(entity).Collection(x => x.Children).Load()`."
     * **N+1 Query Problem:** "The lazy-loading disaster: 1 query fetches N parents, then looping over them fires N more queries - N+1 round trips instead of one join."
-  * **Keywords Interviewer Evaluates:** **Eager Loading (`.Include()`, `.ThenInclude()`)**, **Lazy Loading (`virtual` Proxies / IL Weaving)**, **N+1 Query Explosion**, **Explicit Loading (`Entry().Load()`)**, **`.AsSplitQuery()` Optimization**, **Cartesian Explosion**.
+  * **Keywords Interviewer Evaluates:** **Eager Loading (`.Include()`, `.ThenInclude()`)**, **Lazy Loading (`virtual` Proxies / Castle DynamicProxy)**, **N+1 Query Explosion**, **Explicit Loading (`Entry().Load()`)**, **`.AsSplitQuery()` Optimization**, **Cartesian Explosion**.
   * **How to say it in your project:** "In our retail order API, serializing `Customers` to JSON triggered lazy loading on `Orders`, generating 1,200 SQL queries in a single HTTP request (N+1 bug) and spiking DB CPU to 98%. We rewrote the endpoint using Eager Loading (`.Include(c => c.Orders).AsNoTracking()`), reducing the execution to a single SQL query with response time dropping from 4.2 seconds to 38 milliseconds."
 
 * **🧠 Everyday Analogies (Mental Models for Fast Recall):**  
@@ -1582,7 +1582,7 @@ if (customer != null && customer.VipStatus)
 
 ## Q25: First vs FirstOrDefault vs Single vs SingleOrDefault vs Find
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`First` grabs the top row or crashes; `FirstOrDefault` grabs the top row or returns null; `Single` and `SingleOrDefault` generate `SELECT TOP 2` to guarantee uniqueness and throw if there are duplicates; `Find` checks local RAM cache first and skips SQL entirely if tracked."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1634,7 +1634,7 @@ var cachedUser = await _context.Users.FindAsync(userId);
 
 ## Q26: AsNoTracking() vs Tracked Queries
 * **Asked At:** Cognizant, Wipro, Accenture, Capgemini, Infosys, Nagarro.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Tracked queries clone in-memory snapshots of every property so `SaveChanges` can detect updates; `.AsNoTracking()` bypasses change tracking entirely, slashing memory allocations by 50% and boosting read query throughput by 35%."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1684,7 +1684,7 @@ public async Task<IActionResult> GetProductCatalog()
 
 ## Q27: Code-First Migrations & Production CI/CD Scripts
 * **Asked At:** Infosys, Wipro, TCS, Capgemini, Deloitte, EY.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`context.Database.Migrate()` at startup is a dangerous production anti-pattern that causes multi-pod concurrency crashes. In production CI/CD, always generate an idempotent SQL script with `dotnet ef migrations script --idempotent` and run it via DBA release pipelines."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1734,7 +1734,7 @@ dotnet ef migrations script --idempotent --output deploy_migrations.sql
 
 ## Q28: EF Core vs Dapper: When to Use Which
 * **Asked At:** Persistent, EPAM, Nagarro, Wells Fargo, Morgan Stanley.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "EF Core is a full ORM built for transactional domain models and change-tracked mutations; Dapper is a lightweight micro-ORM built on raw ADO.NET for maximum SQL query speed and high-throughput read reporting."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1785,7 +1785,7 @@ var summary = await connection.QueryAsync<AccountSummaryDto>(
 
 ## Q29: Select() vs SelectMany() in LINQ
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`Select()` is a 1-to-1 transform that keeps collections nested; `SelectMany()` is a 1-to-many projection that flattens nested lists of lists into a single consolidated sequence—translating to `CROSS APPLY` or `INNER JOIN` in SQL."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1834,7 +1834,7 @@ var flattened = customers.SelectMany(c => c.PhoneNumbers).ToList();
 
 ## Q30: Handling Concurrency in EF Core with RowVersion
 * **Asked At:** Wells Fargo, Morgan Stanley, Barclays, Nagarro.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Prevent the Last-Write-Wins bug using Optimistic Concurrency with a `[Timestamp]` `RowVersion` byte array. EF Core adds `WHERE RowVersion = @original` to updates; if another user updated first, affected rows is 0, and EF Core throws `DbUpdateConcurrencyException`."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1894,7 +1894,7 @@ catch (DbUpdateConcurrencyException)
 
 ## Q31: async and await Internals: Does it Create a New Thread?
 * **Asked At:** Asked in 95% of Indian technical rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Wells Fargo, Walmart, EPAM).
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "There is literally **zero thread running** while your database query or HTTP call is in flight. `async/await` doesn't spawn threads; it frees them up using OS kernel interrupts (IOCP) and turns your method into a state machine."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1946,7 +1946,7 @@ public async Task<IActionResult> GetExchangeRatesAsync()
 
 ## Q32: The Sync-over-Async Trap (.Result & .Wait Deadlocks)
 * **Asked At:** Morgan Stanley, Wells Fargo, Cognizant, Nagarro, EPAM, Walmart.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Calling `.Result` or `.Wait()` on an async task is an architectural crime—it holds a ThreadPool thread hostage doing nothing, which rapidly starves the ThreadPool and sends API latency from 20 milliseconds to 45 seconds."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -1992,7 +1992,7 @@ public async Task<IActionResult> GetDataGood()
 * **📊 Decision Guide:**
 | Method | Blocks Thread? | Throws | Recommended In Production? |
 | :--- | :--- | :--- | :--- |
-| **`await task`** | **No** (Yields thread) | Unwrapped original Exception | **Yes (Gold Standard)** |
+| **`await task`** | **No** (Yields thread) | Unwrapped original Exception | **Yes (Recommended Standard)** |
 | **`task.Result`** | **Yes** (Blocks thread) | `AggregateException` | **Strictly Forbidden** |
 | **`task.Wait()`** | **Yes** (Blocks thread) | `AggregateException` | **Strictly Forbidden** |
 | **`task.GetAwaiter().GetResult()`**| **Yes** (Blocks thread) | Unwrapped original Exception | Only in `Main()` or console entrypoints |
@@ -2001,7 +2001,7 @@ public async Task<IActionResult> GetDataGood()
 
 ## Q33: Task.WhenAll vs Task.WaitAll vs Task.WhenAny
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, HCL.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`Task.WhenAll` lets you run multiple async operations in parallel and await them together non-blockingly, cutting total latency down to the **single slowest task** instead of the sum of all tasks."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2055,7 +2055,7 @@ var dashboard = new UserDashboardDto(
 
 ## Q34: CancellationToken Propagation in Web APIs
 * **Asked At:** Wells Fargo, Walmart, EPAM, Nagarro, Persistent, Cognizant.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "If a user closes their browser or app, why waste 15 seconds of database CPU on an abandoned query? Passing `CancellationToken` lets the entire pipeline cooperatively abort instantly."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2105,7 +2105,7 @@ public async Task<IActionResult> GenerateReportAsync([FromQuery] int deptId, Can
 
 ## Q35: lock vs SemaphoreSlim in Asynchronous Code
 * **Asked At:** Asked in 85% of Indian senior technical rounds (TCS, Infosys, Cognizant, Wipro, Accenture, EPAM).
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "You cannot put an `await` inside a C# `lock`—it's a hard compiler error because `lock` requires the exact same thread to exit. To synchronize async code, we use **`SemaphoreSlim.WaitAsync()`**."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2171,7 +2171,7 @@ public class TokenService
 
 ## Q36: Repository Pattern & Unit of Work in EF Core Projects
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, Deloitte, Nagarro.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "A generic repository over EF Core is often redundant because `DbSet` is already a repository. But **Specific Domain Repositories** combined with **Unit of Work** are essential to stop raw LINQ queries from bleeding into business logic and to guarantee multi-table atomic commits."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2234,9 +2234,9 @@ public class CheckoutService
 ---
 
 ## Q37: Thread-Safe Singleton Pattern (Double-Check vs Lazy<T>)
-* **Asked At:** Asked in 90% of Indian senior rounds (Wells Fargo, Walmart, TCS, Infosys, Nagarro, EPAM).
-* **⚡ 10-Second Knockout Hook:**  
-  > "Forget manually writing double-check locking with `volatile` flags like it's 2005. The gold standard in modern C# is **`Lazy<T>`**—it's CLR-guaranteed thread-safe, initialized only on first use, and takes two lines of code."
+* **Asked At:** Frequently asked in Indian senior rounds (Wells Fargo, Walmart, TCS, Infosys, Nagarro, EPAM).
+* **⚡ 10-Second Opening Hook:**  
+  > "Forget manually writing double-check locking with `volatile` flags like it's 2005. The recommended standard in modern C# is **`Lazy<T>`**—it's CLR-guaranteed thread-safe, initialized only on first use, and takes two lines of code."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
   > "When I need a thread-safe singleton in C#—like a shared connection multiplexer for Redis or RabbitMQ—I reach for **`Lazy<T>`**.  
@@ -2280,13 +2280,13 @@ public sealed class RedisConnectionManager
 | Non-Thread Safe `if (inst == null)` | **NO** | Yes | Low | **Dangerous bug** |
 | Double-Checked Locking (`volatile`) | Yes | Yes | High | Legacy only |
 | Static Constructor / Field Initializer| Yes | When type loaded | Minimal | Good for simple types |
-| **`Lazy<T>`** | **Yes (CLR guaranteed)**| **Yes (On first use)** | **Minimal** | **Gold Standard for C#** |
+| **`Lazy<T>`** | **Yes (CLR guaranteed)**| **Yes (On first use)** | **Minimal** | **Recommended Standard for C#** |
 
 ---
 
 ## Q38: Factory Pattern vs Abstract Factory Pattern
 * **Asked At:** Accenture, Capgemini, Infosys, Cognizant, Nagarro, EPAM.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "**Factory Method creates one product**; **Abstract Factory creates an entire family of coordinated products** without exposing concrete classes."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2345,7 +2345,7 @@ public class AwsCloudFactory : ICloudServiceFactory
 
 ## Q39: CQRS & MediatR Pattern in Web APIs
 * **Asked At:** Wells Fargo, Morgan Stanley, Walmart, EPAM, Nagarro, Persistent, Cognizant.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "**CQRS** splits your application into **Commands** that mutate state and **Queries** that read state. **MediatR** turns your controllers into thin 2-line dispatchers, moving business logic into isolated handlers with pipeline behaviors."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2407,8 +2407,8 @@ public async Task<IActionResult> Create([FromBody] CreateOrderCommand cmd) =>
 ---
 
 ## Q40: Caching Strategies: IMemoryCache vs IDistributedCache (Redis)
-* **Asked At:** Asked in 90% of Indian senior rounds (TCS, Infosys, Cognizant, Wipro, Walmart, Wells Fargo).
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Frequently asked in Indian senior rounds (TCS, Infosys, Cognizant, Wipro, Walmart, Wells Fargo).
+* **⚡ 10-Second Opening Hook:**  
   > "**`IMemoryCache` lives in your API's process RAM** (sub-microsecond, but isolated per container pod). **`IDistributedCache` (Redis) is shared across all pods** (1–3ms, survives pod restarts and auto-scaling)."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2466,13 +2466,13 @@ public async Task<ProductDto?> GetProductAsync(int id, CancellationToken ct)
 | :--- | :--- | :--- | :--- | :--- |
 | **`IMemoryCache`** | Sub-microsecond | **No** (Local process RAM) | No | Static dropdowns, zip codes, config values. |
 | **`IDistributedCache` (Redis)**| 1–3 ms | **Yes** (Shared by all pods) | **Yes** | User sessions, shopping carts, volatile API models. |
-| **`HybridCache` (.NET 9)**| Sub-microsecond (L1) + 2ms (L2)| Yes (L1 local + L2 Redis)| Yes | Modern .NET gold standard for high traffic. |
+| **`HybridCache` (.NET 9)**| Sub-microsecond (L1) + 2ms (L2)| Yes (L1 local + L2 Redis)| Yes | Modern .NET recommended standard for high traffic. |
 
 ---
 
 ## Q41: Microservices Communication: Synchronous vs Asynchronous
 * **Asked At:** Capgemini, Accenture, Cognizant, Wipro, Infosys, Nagarro, Walmart, Wells Fargo.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "**Synchronous HTTP/gRPC** couples services temporally—if downstream is down or slow, your whole checkout crashes. **Asynchronous messaging (RabbitMQ/Kafka)** decouples them completely: you publish an event and walk away, guaranteeing eventual consistency."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2527,8 +2527,8 @@ await transaction.CommitAsync(); // Order + Event committed atomically!
 # MODULE 6: SQL SERVER FOR .NET DEVELOPERS (MANDATORY ROUND)
 
 ## Q42: Clustered vs Non-Clustered Index
-* **Asked At:** Literally 100% of Indian .NET Technical Rounds (TCS, Infosys, Cognizant, Wipro, Accenture, EPAM, Walmart, Wells Fargo).
-* **⚡ 10-Second Knockout Hook:**  
+* **Asked At:** Commonly asked across Indian .NET Technical Rounds (TCS, Infosys, Cognizant, Wipro, Accenture, EPAM, Walmart, Wells Fargo).
+* **⚡ 10-Second Opening Hook:**  
   > "A **Clustered Index *is* the table**—its leaf nodes are the physical data pages (strictly 1 per table). A **Non-Clustered Index is an external cheat sheet** pointing back to the data. We use `INCLUDE` to create a Covering Index and kill Key Lookups."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2586,13 +2586,13 @@ INCLUDE (TotalAmount, OrderDate);
 
 ## Q43: Finding the 2nd Highest / Nth Highest Salary
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini (The #1 SQL live coding challenge).
-* **⚡ 10-Second Knockout Hook:**  
-  > "Always answer with **`DENSE_RANK()`** inside a CTE. Never use `MAX()` subqueries or `TOP 2` because they fail on salary ties, and never use `RANK()` because it skips rank numbers."
+* **⚡ 10-Second Opening Hook:**  
+  > "Use `DENSE_RANK()` inside a CTE for the general case. `WHERE Salary < (SELECT MAX(Salary))` handles ties fine for 2nd-highest; `DENSE_RANK()` generalizes cleanly to any Nth highest."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
-  > "In technical rounds, the gold standard for finding the Nth highest value is a **Common Table Expression (CTE) with `DENSE_RANK()`**.  
+  > "In technical rounds, the recommended standard for finding the Nth highest value is a **Common Table Expression (CTE) with `DENSE_RANK()`**.  
   >  
-  > Many candidates suggest `RANK()`, but if two employees tie for the 1st highest salary of 100k, `RANK()` gives both Rank 1 and skips Rank 2, giving the next person Rank 3—so querying for `RankNum = 2` returns zero rows! `DENSE_RANK()` handles ties properly: both top earners get Rank 1, and the next highest salary consecutively receives Rank 2. For modern SQL Server 2012+, we can also use `OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY`, but `DENSE_RANK()` remains the universal enterprise answer."
+  > `WHERE Salary < (SELECT MAX(Salary))` handles ties fine for 2nd-highest; `DENSE_RANK()` generalizes cleanly to any Nth highest. If two employees tie for 1st highest, `RANK()` gives both Rank 1 and skips Rank 2, giving the next person Rank 3—so querying `RankNum = 2` returns zero rows! `DENSE_RANK()` handles ties properly: both top earners get Rank 1, and the next highest salary consecutively receives Rank 2. For modern SQL Server 2012+, we can also use `OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY`, but `DENSE_RANK()` remains the universal enterprise answer."
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
@@ -2609,7 +2609,7 @@ INCLUDE (TotalAmount, OrderDate);
 
 * **💻 Simple T-SQL Example:**
 ```sql
--- Gold Standard Solution: Handles ties cleanly for ANY Nth Highest!
+-- Recommended Standard Solution: Handles ties cleanly for ANY Nth Highest!
 WITH SalaryRankingCTE AS
 (
     SELECT EmployeeId, Name, Salary, DepartmentId,
@@ -2636,7 +2636,7 @@ WHERE RankNum = 2; -- Simply replace 2 with N for Nth highest!
 
 ## Q44: DELETE vs TRUNCATE vs DROP
 * **Asked At:** Asked in 95% of Indian technical screening rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Nagarro, EPAM).
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "`DELETE` is a row-by-row pencil eraser with full logging and triggers. `TRUNCATE` unclips all pages at once with minimal logging and resets identity. And contrary to the popular interview myth, **`TRUNCATE` CAN be rolled back** inside a transaction."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2694,21 +2694,21 @@ ROLLBACK TRANSACTION; -- Data is 100% recovered!
 
 ## Q45: UNION vs UNION ALL
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Capgemini, HCL.
-* **⚡ 10-Second Knockout Hook:**  
-  > "Always default to **`UNION ALL`** in production. `UNION` forces an expensive Distinct Sort operator in TempDB to strip duplicates, which spikes CPU and memory for no reason if your records are already unique."
+* **⚡ 10-Second Opening Hook:**  
+  > "Default to `UNION ALL` in production. UNION adds dedup — usually a Distinct Sort or Hash Aggregate. It uses a memory grant and spills to TempDB only if memory runs short."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
   > "Both operators combine result sets from multiple queries with matching column counts, but their execution plans are night and day.  
   >  
   > `UNION` performs an explicit deduplication step—it pushes rows into TempDB and executes a **Distinct Sort**, which causes high memory grants and disk spills. `UNION ALL` simply concatenates both result sets directly with zero sorting overhead.  
   >  
-  > In production code reviews, I flag every `UNION`: unless there is an explicit business requirement to eliminate duplicate rows between queries, `UNION ALL` is the mandatory senior default."
+  > In production code reviews, I flag every `UNION`: unless there is an explicit business requirement to eliminate duplicate rows between queries, `UNION ALL` is the recommended default."
 
 * **🎯 Exact Formal Definitions & Rubric Keywords Interviewers Want to Hear:**
   * **Exact Formal CS Definitions:**
-    * **`UNION`:** "Stacks two result sets vertically AND removes duplicate rows, paying for a distinct-sort operation (often in TempDB). Both sides need compatible columns."
+    * **`UNION`:** "Combines result sets vertically and removes duplicate rows. UNION adds dedup — usually a Distinct Sort or Hash Aggregate. It uses a memory grant and spills to TempDB only if memory runs short."
     * **`UNION ALL`:** "Stacks the result sets as-is - no deduplication, no sorting. Always faster; prefer it unless you truly need duplicates removed."
-  * **Keywords Interviewer Evaluates:** **Set Operators in Relational Databases**, **Duplicate Elimination Overhead**, **TempDB Distinct Sort Operator**, **Execution Plan Cost**, **When `UNION ALL` is the Mandatory Senior Default**.
+  * **Keywords Interviewer Evaluates:** **Set Operators in Relational Databases**, **Duplicate Elimination Overhead**, **TempDB Distinct Sort Operator**, **Execution Plan Cost**, **When `UNION ALL` is Preferred**.
   * **How to say it in your project:** "In our reporting query merging historical orders and active orders, using `UNION` caused a heavy Distinct Sort operator in the execution plan, spilling 250 MB into TempDB and taking 9 seconds. Because the two tables had non-overlapping primary keys, duplicate records were impossible; changing to `UNION ALL` eliminated the sort completely, returning results in 180ms."
 
 * **🧠 Everyday Analogies (Mental Models for Fast Recall):**  
@@ -2744,7 +2744,7 @@ SELECT CustomerId, City FROM CorporateCustomers;
 
 ## Q46: Primary Key vs Unique Key
 * **Asked At:** Capgemini, Accenture, Cognizant, Wipro, Infosys, Deloitte, Nagarro.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "A **Primary Key** is the core identity of a table—no NULLs allowed, strictly 1 per table, and creates a Clustered Index by default. A **Unique Key** enforces uniqueness on alternate fields—allows **one NULL** in SQL Server, and you can have multiple per table."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2789,7 +2789,7 @@ CREATE TABLE Customers (
 
 ## Q47: Stored Procedure vs User-Defined Function (UDF)
 * **Asked At:** TCS, Infosys, Cognizant, Wipro, Accenture, Nagarro, EPAM.
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "Use a **Stored Procedure** to execute business transactions and modify data (`INSERT/UPDATE`). Use an **Inline Table-Valued Function** for reusable calculations and filters you can embed directly inside `SELECT` and `JOIN` statements."
 
 * **⚡ 30-Second Senior Conversational Answer:**  
@@ -2854,7 +2854,7 @@ SELECT * FROM fn_GetActiveOrders(101);
 
 ## Q48: ACID Properties Explained with a Banking Scenario
 * **Asked At:** Asked in 95% of Indian technical rounds (TCS, Infosys, Cognizant, Wipro, Accenture, Walmart, Wells Fargo, EPAM).
-* **⚡ 10-Second Knockout Hook:**  
+* **⚡ 10-Second Opening Hook:**  
   > "**ACID is the bedrock of database reliability**: Atomicity means all-or-nothing; Consistency means rules are never broken; Isolation means concurrent users don't see half-baked data; Durability means committed data survives a power outage."
 
 * **⚡ 30-Second Senior Conversational Answer:**  

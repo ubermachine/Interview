@@ -384,7 +384,7 @@ public async Task<IActionResult> GetOrder(Guid id, AppDbContext db)
 
 ### Q4 (Wells Fargo / Walmart / Deloitte): "How do you protect ASP.NET Core APIs against SQL Injection (SQLi), Cross-Site Scripting (XSS), and Cross-Site Request Forgery (CSRF)? Why does EF Core FromSqlRaw cause SQLi if misused?"
 
-* **Why Interviewers Ask It:** These represent the holy trinity of web vulnerabilities. In banking (Wells Fargo) and retail (Walmart), an SQL injection flaw can dump customer credit cards, while XSS can hijack executive sessions. Interviewers want concrete proof of how you prevent them in modern C# and EF Core.
+* **Why Interviewers Ask It:** These represent the three most common web vulnerabilities. In banking (Wells Fargo) and retail (Walmart), an SQL injection flaw can dump customer credit cards, while XSS can hijack executive sessions. Interviewers want concrete proof of how you prevent them in modern C# and EF Core.
 
 * **⚡ 30-Second Senior Opening Pitch:**  
   > "We enforce defense-in-depth across the web stack. **SQL Injection** is systematically prevented by using LINQ or `FromSqlInterpolated`, which transforms string interpolations into safe parameterized `DbParameter` instances. A fatal mistake is passing interpolated strings into `FromSqlRaw`, which executes raw concatenated SQL text. **XSS** is prevented by contextual HTML encoding via `HtmlEncoder.Default` and strict Content-Security-Policy (CSP) headers. **CSRF** is neutralized using Anti-Forgery tokens (`AutoValidateAntiforgeryToken`) and `SameSite=Strict` cookies; Web APIs using stateless `Authorization: Bearer` headers are natively immune to CSRF because browsers never attach custom authorization headers automatically."
@@ -829,7 +829,7 @@ ENTRYPOINT ["dotnet", "MyApi.dll"]
 
 | Optimization Factor | What to Use | Why / Trade-offs | Action Steps & Snippet |
 | :--- | :--- | :--- | :--- |
-| **Layer Cache Optimization** | Copy `.csproj` $\rightarrow$ Restore $\rightarrow$ Copy source | Eliminates redundant NuGet package downloads on CI runners. | `COPY *.csproj ./` then `RUN dotnet restore` |
+| **Layer Cache Optimization** | Copy `.csproj` → Restore → Copy source | Eliminates redundant NuGet package downloads on CI runners. | `COPY *.csproj ./` then `RUN dotnet restore` |
 | **Container Hardening** | `USER app` (UID 1654) | Prevents container escape attacks granting host root access. | Add `USER app` before `ENTRYPOINT` |
 | **Base Image Size** | Alpine or Chiseled Ubuntu | Shrinks image from ~850MB (SDK) to ~100MB runtime. | `FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine` |
 
@@ -1453,7 +1453,7 @@ flowchart TD
 ### 6. Blue-Green, Canary Deployments & Expand-and-Contract Migrations
 
 #### ⚡ 30-Second Senior Pitch
-> "Modern zero-downtime releases balance release velocity with risk containment. **Blue-Green Deployment** provides instantaneous rollback by switching 100% of ingress router traffic between two identical environments. **Canary Deployment** utilizes progressive delivery (e.g., via ArgoCD or Istio) to shift fractional traffic (5% $\rightarrow$ 25% $\rightarrow$ 100%) while evaluating automated SLO metrics. Both strategies require **backward-compatible database schema migrations** using the Expand-and-Contract pattern."
+> "Modern zero-downtime releases balance release velocity with risk containment. **Blue-Green Deployment** provides instantaneous rollback by switching 100% of ingress router traffic between two identical environments. **Canary Deployment** utilizes progressive delivery (e.g., via ArgoCD or Istio) to shift fractional traffic (5% → 25% → 100%) while evaluating automated SLO metrics. Both strategies require **backward-compatible database schema migrations** using the Expand-and-Contract pattern."
 
 ```mermaid
 flowchart TD
