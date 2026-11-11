@@ -9,16 +9,16 @@
 
 ### Pages, Extents & Row Layout
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "SQL Server stores all data inside fixed **8 KB (8,192 bytes)** blocks called **Pages**. Because 96 bytes are reserved for the page header and 2 bytes per row for the slot array, the maximum usable space for fixed-length columns is **8,060 bytes per page**. If variable columns push a row over 8,060 bytes, SQL Server moves the overflow data off-page, leaving a 24-byte pointer."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * Think of an 8 KB page like a single page in a hardbound office ledger.
   * The top margin (**Page Header - 96 bytes**) contains the page number and pointers to the previous and next ledger pages.
   * The bottom margin (**Slot Array**) contains line numbers pointing upward to each recorded entry.
   * If a customer entry is too wide to fit on the page, the clerk writes a 24-byte sticky note (**Row-Overflow Pointer**) pointing to an attachment page!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **8 KB Data Page (8,192 Bytes):** The fundamental physical I/O transfer and storage allocation block in SQL Server; all reads and writes happen in 8 KB page units between disk and the RAM Buffer Pool.
   * **96-Byte Page Header:** The fixed metadata block at byte offset 0 of every page containing `m_pageId`, object ID, `m_prevPage`/`m_nextPage` doubly-linked list pointers, free space offsets (`m_freeData`), and page type flags (e.g., 1 = Data, 2 = Index).
   * **Usable Page Space (8,060 Bytes):** The maximum contiguous data payload per page (8,192 - 96 header - 36 system reserve = 8,060 bytes), establishing the hard physical limit for fixed-length column definitions on a single row.
@@ -93,7 +93,7 @@ flowchart TD
     -- Ensure modern uniform extent allocation across the database
     ALTER DATABASE CURRENT SET MIXED_PAGE_ALLOCATION OFF;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our settlement ledger table holding 15M records, five wide `NVARCHAR(2000)` columns caused rows to exceed 8,060 bytes, silently creating off-page `ROW_OVERFLOW_DATA` allocations. Fetching 100 records required over 450 page reads instead of 2. We vertically partitioned the large audit payloads into a separate 1:1 satellite table, allowing 40 core ledger rows to fit into each 8 KB page and cutting I/O by 95%."
 
 * **⚠️ Common Junior Mistake:** Creating tables with five `VARCHAR(4000)` columns and stuffing them with large payloads on the same row, triggering silent row-overflow allocations that turn a single row fetch into multiple disk I/O reads.
@@ -104,14 +104,14 @@ flowchart TD
 
 ### B-Tree Architecture: Clustered vs. Non-Clustered Indexes
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "In a clustered table, the table **is** the B-Tree—its leaf level contains the actual table data rows sorted by the clustering key. A non-clustered index is a separate, auxiliary B-Tree whose leaf nodes store the index keys plus a bookmark pointer (the clustered key or heap RID) back to the original row."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * **Clustered Index:** Like a telephone directory. The entries are sorted alphabetically by last name, and opening to a person's name gives you their complete address and phone number right there on that page.
   * **Non-Clustered Index:** Like the index at the back of a textbook. It lists topics alphabetically with page numbers, but you still have to flip back to the main chapters to read the full explanation!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **B-Tree (Balanced Tree) Architecture:** A balanced, multi-tier search tree consisting of a *Root Page*, *Intermediate Levels*, and a *Leaf Level*, maintaining O(log N) logarithmic traversal performance.
   * **Clustered Index:** An index structure where the leaf level *is the actual table data itself*; table rows are physically ordered by the clustering key columns (strictly one clustered index permitted per table).
   * **Non-Clustered Index:** An auxiliary B-Tree whose leaf nodes store only the indexed key columns plus a bookmark locator (the clustered key or heap RID) pointing back to the base data row.
@@ -183,7 +183,7 @@ flowchart TD
     -- If dealing with an existing fragmented heap in production, rebuild it immediately:
     ALTER TABLE dbo.OrderStagingQueue REBUILD;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our e-commerce order ingestion pipeline processing 1,200 orders per second, an unindexed staging heap accumulated over 400,000 forwarded records when order rows expanded during post-payment tracking updates. Simple queue scans slowed from 15 milliseconds to 14 seconds because the storage engine was hopping across random disk pages to resolve forwarding pointers. We rebuilt the table with a narrow `BIGINT IDENTITY` clustered key, eliminating forwarded records entirely and restoring sub-20ms queue reads."
 
 * **⚠️ Common Junior Mistake:** Creating high-churn staging tables as heaps under the false belief that "heaps insert faster", only to experience massive query latency spikes because row updates created thousands of forwarded records.
@@ -194,15 +194,15 @@ flowchart TD
 
 ### Index Seek vs. Index Scan & Key Lookup Elimination
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "An **Index Seek** navigates the B-Tree from root to leaf in logarithmic time (O(log N)) to locate matching rows directly. An **Index Scan** reads through every page on the leaf level from start to finish (O(N)). A **Key Lookup** occurs when a non-clustered seek matches rows but lacks columns requested in the query, forcing a random lookup into the clustered index for every single qualifying row."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * **Index Seek:** Using the textbook's back index to jump straight to page 142.
   * **Index Scan:** Reading the textbook page by page from cover to cover because no index exists or the index wasn't helpful.
   * **Key Lookup:** Finding 500 matching topics in the back index, but having to flip back and forth to page 142, page 310, and page 85 500 times to read the missing paragraphs!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Index Seek:** A logarithmic traversal (O(log N)) through the B-Tree from root to leaf, isolating qualifying row keys directly via binary search.
   * **Index Scan:** A linear traversal (O(N)) navigating through the leaf-level doubly-linked list (`m_prevPage` / `m_nextPage`), evaluating every single page on the leaf level.
   * **Key Lookup (Bookmark Lookup):** A scalar clustered index seek operation triggered for *every single qualifying row* returned by a non-clustered seek when requested projection columns are absent from the index.
@@ -244,7 +244,7 @@ flowchart TD
 
     -- RESULT: Query executes in 2 logical page reads via pure Index Seek. 0 Key Lookups!
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our food delivery platform, querying order history for repeat customers on a 25M row table was performing an Index Seek followed by 450 Key Lookups per user. During peak lunch traffic with 8,000 concurrent users, this caused millions of random 8 KB page reads, pinning storage I/O at 100%. We created a covering index with `INCLUDE (OrderDate, TotalAmount, RestaurantName, OrderStatus)`, which completely eliminated Key Lookups and dropped logical reads from 1,800 to just 2 pages per query."
 
 * **📌 Key Architectural Rule to Explain:**  
@@ -254,14 +254,14 @@ flowchart TD
 
 ## 2. SARGability Violations & Execution Plan Degradation
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "A query predicate is **SARGable** (*Search Argument Able*) when SQL Server can use an Index Seek to jump directly to qualifying rows. If you wrap an indexed column in a function, use mismatched data types, or add leading wildcards, the optimizer cannot traverse the B-Tree and is forced into a full Index Scan."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * Searching a phone directory for people whose last name begins with **"Sharma"** is instant (Index Seek).
   * But if someone asks you to find **"anyone whose last name ends in 'arma'"**, the alphabetical order is useless—you have to read every single name in the directory from beginning to end (Index Scan)!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **SARGable (Search Argument Able) Predicate:** A filter predicate written in the form `<column> <operator> <literal/parameter>` allowing the query optimizer to exploit B-Tree ordering and perform an Index Seek.
   * **Non-SARGable Expression:** Any predicate that applies a scalar function, mathematical operation, or leading wildcard (`%string`) to an indexed column, blinding the optimizer to B-Tree ordering and forcing an Index Scan.
   * **Implicit Data Type Conversion (`CONVERT_IMPLICIT`):** An internal engine conversion injected into the execution plan when comparing two mismatched data types, where SQL Server converts the lower-precedence type to the higher-precedence type (e.g., `VARCHAR` converted to `NVARCHAR`).
@@ -297,14 +297,14 @@ flowchart TD
       AND TransactionTimestamp < '2026-04-01 00:00:00.000';
     -- EXECUTION PLAN: Pure Index Seek reading only 18,200 qualifying rows in 12 milliseconds!
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our banking reconciliation pipeline with 30M transaction rows, a batch query was using `DATEDIFF(day, TransactionTimestamp, @TargetDate) = 0`. Because the column was wrapped in a scalar function, the engine could not calculate seek keys and scanned all 30M rows, taking 42 seconds. We refactored it into an explicit half-open interval `>= @TargetDate AND < DATEADD(day, 1, @TargetDate)`, turning the execution into a sub-15ms Index Seek."
 
 ---
 
 ### Case 2: Implicit Datatype Conversion (NVARCHAR vs. VARCHAR)
 
-* **⚡ 30-Second Interview Pitch:**  
+**🗣️ Spoken answer (30–45 seconds)**  
   "In SQL Server's data type precedence rules, `NVARCHAR` ranks higher than `VARCHAR`. If an indexed column is `VARCHAR` but the application passes an `NVARCHAR` parameter (the default in EF Core and ADO.NET strings), SQL Server converts the column values on every single row using `CONVERT_IMPLICIT`, destroying SARGability and triggering a full scan!"
 
 * **💼 Concrete Real-World Production Example:**
@@ -338,7 +338,7 @@ flowchart TD
     );
     // RESULT: Emits VARCHAR(10) parameter -> Instant Index Seek in 1ms!
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our KYC onboarding service with 12M customer records, C# strings defaulted to `NVARCHAR`, while the indexed PAN column was `VARCHAR(10)`. Because SQL Server's data type precedence rules convert the lower-precedence `VARCHAR` column to `NVARCHAR`, the engine injected `CONVERT_IMPLICIT` across all 12M rows, triggering a full scan. Explicitly configuring `.IsUnicode(false)` in EF Core restored the Index Seek and brought auth latency down from 3.8s to 1ms."
 
 ---
@@ -373,7 +373,7 @@ flowchart TD
     FROM dbo.Products 
     WHERE CONTAINS(ProductName, 'iPhone AND 15');
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our e-commerce product catalog with 5M items, live product searches using `LIKE '%iPhone%'` bypassed B-Tree indexing and forced a 65,000-page scan per request. We implemented SQL Full-Text Search using `CONTAINS` and indexed prefix tokens, reducing search latency from 2.4 seconds to 8 milliseconds."
 
 ---
@@ -382,19 +382,19 @@ flowchart TD
 
 ### What is Parameter Sniffing?
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "When a stored procedure compiles for the first time, SQL Server **sniffs** the runtime parameter value to inspect index statistics and builds an execution plan tailored to that value. If the first run used an atypical value returning 5 rows, SQL Server caches a plan with Nested Loops; when subsequent calls pass values returning 2 million rows, reusing that narrow plan causes severe disk I/O and server freezes."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * Imagine booking transport for guests attending an Indian wedding reception.
   * The first guest arrives alone, so the travel desk books a 2-seater auto-rickshaw (Nested Loops Join + Key Lookup).
   * The next group arrives with 500 family members, but the travel desk blindly forces all 500 people into that same auto-rickshaw instead of hiring a Volvo bus (Hash Match Join)!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Parameter Sniffing:** The standard Query Optimizer behavior where the runtime values of input parameters passed during initial stored procedure compilation are inspected ("sniffed") to evaluate index statistics histograms and generate an execution plan.
   * **Cardinality Estimation (CE) Model:** The probabilistic mathematical algorithm SQL Server uses to estimate the number of rows that will be returned by each relational operator in an execution plan.
   * **Multi-Step Histogram:** A statistical distribution curve stored inside index metadata containing up to 200 steps with specific metrics: `RANGE_HI_KEY`, `EQ_ROWS` (exact matches), and `RANGE_ROWS` (rows between steps).
-  * **Density Vector:** A statistical measurement (1 / \text{number of distinct values}) representing the average uniqueness of a column; used by the optimizer when parameter sniffing is suppressed or values fall outside histogram steps.
+  * **Density Vector:** A statistical measurement (1 / number of distinct values) representing the average uniqueness of a column; used by the optimizer when parameter sniffing is suppressed or values fall outside histogram steps.
   * **Plan Cache:** In-memory hash table in the Buffer Pool storing compiled execution plans; subsequent calls reuse cached plans matching the parameterized query signature.
   * **Plan Forcing (Query Store):** The administrative override using `sp_query_store_force_plan` to lock the Query Optimizer to a specific, proven execution plan ID, bypassing dynamic compilation heuristics.
   * **Query Hints (`OPTIMIZE FOR`, `RECOMPILE`):** T-SQL compiler directives: `OPTIMIZE FOR UNKNOWN` forces density-vector compilation; `OPTION (RECOMPILE)` bypasses the plan cache to recompile fresh on every execution; `OPTIMIZE FOR (@var = val)` pins compilation to a designated representative value.
@@ -457,7 +457,7 @@ sequenceDiagram
         -- Picks a stable Clustered Index Scan or covering Hash Join that handles both 12 and 7.8M rows safely!
     END;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our shipment tracking database with 8M records, 98% of rows belong to India, while Iceland has only 12 rows. When an early-morning batch job for Iceland compiled the procedure first, SQL Server cached a Nested Loops Key-Lookup plan. When Indian peak traffic hit at 8 AM, the engine attempted 7.8M key lookups, pegging CPU at 100%. We resolved it by applying `OPTION (OPTIMIZE FOR UNKNOWN)` to compile against the average density vector."
 
 ---
@@ -526,15 +526,15 @@ EXEC sp_query_store_force_plan @query_id = 1420, @plan_id = 890;
 
 ### Lock Modes & Compatibility Matrix
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "SQL Server uses locks to maintain ACID transaction isolation: **Shared (`S`)** locks allow concurrent reads, **Exclusive (`X`)** locks prevent all concurrent access during writes, and **Update (`U`)** locks prevent conversion deadlocks during read-then-write workflows."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * **Shared Lock (`S`):** Multiple people reading a public noticeboard simultaneously.
   * **Exclusive Lock (`X`):** Taking down the noticeboard to repaint it; nobody can read or write until it's put back.
   * **Update Lock (`U`):** Standing at the noticeboard holding a marker pen, announcing: *"I'm reading this line and about to edit it; nobody else try to edit it right now!"*
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Shared Lock (`S`):** Acquired during read operations under pessimistic isolation; allows concurrent reads but blocks Exclusive (`X`) modifications; released immediately after page read in `READ COMMITTED`.
   * **Exclusive Lock (`X`):** Acquired during write operations (`INSERT`, `UPDATE`, `DELETE`); guarantees exclusive access by blocking all concurrent readers and writers until transaction completion (`COMMIT` or `ROLLBACK`).
   * **Update Lock (`U`):** An asymmetric hybrid lock acquired during the initial seek phase of an `UPDATE`/`DELETE` statement; only one `U` lock can be held on a resource simultaneously, preventing conversion deadlocks.
@@ -597,17 +597,17 @@ Intent Exclusive(IX) NO           NO            NO                YES           
     WHERE WalletId = @WalletId;
     COMMIT TRANSACTION;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our digital wallet balance transfer service handling 2,500 TPS, concurrent withdrawals reading with standard `SELECT` acquired Shared locks and then tried to convert to Exclusive locks, causing massive conversion deadlocks. By adding `WITH (UPDLOCK, ROWLOCK)` on the initial select, only one transaction can acquire the Update lock at a time. The second transaction waits before reading, completely eliminating the circular wait graph."
 
 ### Lock Escalation Mechanics
 
-* **⚡ 30-Second Interview Pitch:**  
+**🗣️ Spoken answer (30–45 seconds)**  
   "When a single query acquires more than **5,000 locks** on a single table or partition (under memory pressure), SQL Server automatically escalates those fine-grained row locks into a single monolithic **Table Lock (`X` or `S`)**, freezing all other concurrent queries on that table."
 
 * **🧠 Easy Mental Model:** Like a librarian who sees one student checking out 5,000 books, and instead of scanning them individually, decides to padlock the entire library doors for an hour!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Lock Escalation:** The automatic, single-statement conversion of thousands of fine-grained row or page locks into a single monolithic table-level lock (`X` or `S`) to reclaim lock manager memory.
   * **Lock Escalation Threshold (5,000 Locks):** The engine trigger point where a single query acquiring ~5,000 locks on a single table index or partition initiates an escalation check.
   * **Lock Manager Memory Footprint:** The internal memory allocation of 96 bytes per lock structure and 64 bytes per lock owner; unchecked fine-grained locks cause severe memory pool exhaustion.
@@ -646,22 +646,22 @@ Intent Exclusive(IX) NO           NO            NO                YES           
     -- Production safeguard: Disable table lock escalation for ultra-hot OLTP tables:
     ALTER TABLE dbo.UserSessions SET (LOCK_ESCALATION = DISABLE);
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our session management database with 20M rows, a monolithic delete script purged 350,000 expired tokens in one command. Once the query acquired 5,000 row locks, the engine escalated to an Exclusive Table Lock, blocking all live user authentications for 90 seconds. We replaced it with chunked deletes of 4,000 rows followed by a 50ms `WAITFOR DELAY`, keeping lock memory well below the escalation threshold and allowing production traffic to proceed uninterrupted."
 
 ---
 
 ### Deadlocks: Diagnosis & Resolution
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "A deadlock occurs when two or more transactions hold locks on separate resources and each waits for the other to release its lock, forming a circular dependency. SQL Server's Deadlock Monitor thread detects this cycle, picks the transaction with the lowest rollback cost as the **Deadlock Victim (Error 1205)**, and aborts it."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * Like two auto-rickshaws entering a narrow one-lane street in Bangalore from opposite ends.
   * Neither can move forward because the other is blocking the way, and neither driver is willing to reverse!
   * Traffic police (the SQL Deadlock Monitor) arrives, orders one auto-rickshaw to reverse (rollback), allowing the other to drive through.
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Deadlock Detection Engine (Deadlock Monitor):** A background thread that wakes up every 5 seconds (or exponentially faster down to 100ms when deadlocks occur) to search the lock graph for circular dependencies.
   * **Wait-For Graph (WFG):** A directed cyclic graph maintained by the lock manager where vertices represent active transactions and edges represent lock wait relationships.
   * **Deadlock Victim:** The transaction selected by SQL Server to be aborted and rolled back (emitting Error 1205) based on lowest `SET DEADLOCK_PRIORITY` or smallest transaction log rollback cost.
@@ -722,7 +722,7 @@ sequenceDiagram
     UPDATE dbo.Orders SET OrderStatus = 'FULFILLED' WHERE OrderId = 8841;   -- Locks Orders SECOND
     COMMIT TRAN;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our e-commerce checkout flow, the checkout service updated `Orders` then `InventoryStock`, while the warehouse service updated `InventoryStock` then `Orders`. Under flash sale concurrency, this reverse ordering caused 150 deadlocks per minute. We enforced strict global resource ordering across all repositories so all transactions lock `InventoryStock` first, then `Orders`, completely eliminating the circular wait graph."
 
 #### Capturing Deadlock Graphs via Extended Events
@@ -755,14 +755,14 @@ ORDER BY [DeadlockTime] DESC;
 
 ## 5. RCSI vs. Snapshot Isolation: TempDB Mechanics & Trade-Offs
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "Both **Read Committed Snapshot Isolation (RCSI)** and **Snapshot Isolation (SI)** eliminate reader-writer blocking by using **Row Versioning** in TempDB. Instead of readers acquiring shared locks that block writers, readers fetch the previously committed version of the row from the TempDB Version Store."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * Traditional locking is like asking a bank clerk to read your passbook while they are in the middle of writing in it with a pen—you are blocked from looking until they finish.
   * Under RCSI, the bank clerk gives you a clean **photocopy** of the passbook as it stood when you walked in the door. You read your copy peacefully, while the clerk continues writing in the original register uninterrupted!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Read Committed Snapshot Isolation (RCSI):** A database-level isolation configuration where reads use statement-level row versioning via TempDB without acquiring Shared (`S`) locks, completely eliminating reader-writer blocking.
   * **Snapshot Isolation (SI):** A transaction-level isolation mode requiring explicit opt-in (`SET TRANSACTION ISOLATION LEVEL SNAPSHOT`) where readers view a consistent snapshot as of the start of the transaction, enforcing optimistic write-conflict detection.
   * **Multi-Version Concurrency Control (MVCC):** The database engine paradigm where concurrent data modifications create timestamped immutable copies rather than locking in-place data structures.
@@ -810,7 +810,7 @@ flowchart TD
     -- Readers fetch previous row images from TempDB Version Store without blocking writers.
     -- Writers update in-place with X locks immediately. Trade latency stays under 4ms!
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our equity trading platform processing 4,000 orders/sec, heavy compliance risk reports under default Read Committed acquired Shared locks that blocked trade execution writes for up to 18 seconds. By enabling Read Committed Snapshot Isolation (RCSI) and provisioning 8 TempDB data files on NVMe storage to handle the 14-byte version store overhead, we eliminated reader-writer blocking entirely without changing a single line of application code."
 
 ### Differences Between RCSI and Snapshot Isolation
@@ -830,16 +830,16 @@ flowchart TD
 
 ## 6. Production Troubleshooting Playbook: Critical DMV Queries
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "Dynamic Management Views (DMVs) provide real-time diagnostic telemetry for SQL Server. Senior engineers use `sys.dm_exec_query_stats` to catch historical CPU and I/O hogs, `sys.dm_exec_requests` to identify live blocking chains, and `sys.dm_db_missing_index_*` to surface missing covering indexes."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * DMVs are like the intensive care patient monitor in a hospital:
   * `sys.dm_exec_requests` is the live ECG heartbeat showing what's happening right this second.
   * `sys.dm_exec_query_stats` is the long-term medical history showing cumulative health problems.
   * The missing index DMVs are the doctor's prescription for preventive health!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **Dynamic Management Views (DMVs):** Built-in administrative views and functions providing real-time telemetry on server state, query execution stats, active locks, and OS threads.
   * **Plan Handle & SQL Handle:** Binary hash tokens representing the cached compiled execution plan (`plan_handle`) and the underlying SQL statement text (`sql_handle`).
   * **Logical Reads vs. Physical Reads:** *Logical Reads* measure total 8 KB pages retrieved from the RAM Buffer Pool (cache hits); *Physical Reads* measure pages fetched directly from storage disk (cache misses).
@@ -870,7 +870,7 @@ flowchart TD
     CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
     ORDER BY [Avg_CPU_Microseconds] DESC;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, during a 98% CPU spike in our order service, running a DMV query against `sys.dm_exec_query_stats` with statement offsets immediately pointed to an unindexed `LIKE '%string%'` filter inside a legacy stored procedure that was burning 80% of total worker time. We captured the XML plan from cache and resolved it with a covering index without restarting the server."
 
 ---
@@ -893,7 +893,7 @@ flowchart TD
     CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) st
     WHERE r.blocking_session_id <> 0;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, during an exchange open outage where 350 sessions hung, querying `sys.dm_exec_requests` revealed that SPID 72 had an open uncommitted transaction from an ETL script running an unindexed `UPDATE` on `CustomerAccounts`, holding an Exclusive table lock. We identified the root blocker in 30 seconds and killed SPID 72, clearing the entire 350-session queue instantly."
 
 ---
@@ -918,7 +918,7 @@ flowchart TD
     JOIN sys.dm_db_missing_index_details d ON d.index_handle = g.index_handle
     ORDER BY [Improvement_Measure] DESC;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, when auditing our reporting database, the missing index DMV surfaced an improvement score of over 250,000 on our `Transactions` table. Rather than blindly accepting SSMS recommendations, we analyzed the equality and included columns, crafted a single covering index with `INCLUDE`, and reduced average query duration from 8.5 seconds to 12 milliseconds."
 
 ---
@@ -2103,13 +2103,13 @@ SQL Server query optimization proceeds through stages: Heuristic simplification,
 
 ### Scenario: Paged Order History Lookup with Dynamic Filtering
 
-* **⚡ 30-Second Interview Pitch (Say this first):**  
+**🗣️ Spoken answer (30–45 seconds)**  
   > "When designing high-concurrency paged APIs over multi-million row tables, never combine `SELECT *` with non-SARGable wrappers like `YEAR(Date)` or parameter-sniffing traps like `(@Param IS NULL OR Column = @Param)`. Create a composite covering index with `INCLUDE`, use strict half-open range checks, enforce pagination ceilings, and use `OPTION (RECOMPILE)` to eliminate dead-code branches."
 
-* **🧠 Easy Mental Model to Remember:**  
+**🧠 Memory hook**  
   * Like building a fast-track express checkout line: instead of dragging the customer's entire lifetime shopping history into the aisle and guessing which year they mean, you ask for an exact date boundary and hand them a pre-printed receipt with only the 50 items requested!
 
-* **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
+**🎯 Terms the interviewer listens for**
   * **SARGable Range Predicate:** Formatting date and status checks as explicit `>=` and `<` boundary comparisons so the optimizer matches index seek keys directly.
   * **Covering Non-Clustered Index:** Crafting indexes where search keys match filters and orderings (`CustomerId`, `OrderDate DESC`), while leaf `INCLUDE` holds projection fields, achieving zero Key Lookups.
   * **Keyset Pagination vs. Offset-Fetch:** Keyset pagination (`WHERE Id > @LastId ORDER BY Id FETCH NEXT @N`) traverses B-Trees logarithmically (O(log N)), while high-offset paging (`OFFSET 500000`) reads and discards 500,000 rows (O(N)).
@@ -2191,5 +2191,5 @@ SQL Server query optimization proceeds through stages: Heuristic simplification,
         OPTION (RECOMPILE); -- Lightweight recompile strips null branch conditions cleanly!
     END;
     ```
-  * **🗣️ What to Say in the Interview:**
+  **🗣️ Production experience soundbite:**
     > "For example, in our customer order history endpoint across 15M rows, a legacy procedure used `SELECT *`, `YEAR(OrderDate)`, and `(@Status IS NULL OR Status = @Status)`, which triggered full table scans and took 3.8 seconds. We created a composite covering index on `(CustomerId, OrderDate DESC)` with `INCLUDE (Status, TotalAmount, Currency)` and parameterized SARGable boundaries with `OPTION (RECOMPILE)`, cutting response time from 3.8 seconds to 4 milliseconds."

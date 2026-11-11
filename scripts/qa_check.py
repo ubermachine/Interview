@@ -24,6 +24,7 @@ BANNED_PATTERNS = [
     (r'\$\s*ge\s*\d*\s*\$', '$ge$ broken LaTeX'),
     (r'\$\s*M\s+imes\s+N\s*\$', '$M imes N$ broken LaTeX'),
     (r'[⋈⊎]', 'relational algebra symbol in markdown'),
+    (r'(?i)(?:\\text|ext)\{', 'broken LaTeX text command in markdown'),
 ]
 
 def check_files():

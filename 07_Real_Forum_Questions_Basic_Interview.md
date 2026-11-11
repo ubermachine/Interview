@@ -121,7 +121,7 @@
   * The packaging weighs 16 grams even though the cargo weighs only 1 gram!
 
 * **💬 Simple Explanation:**
-  * An empty C# class (`class Empty { }`) allocates **24 bytes** on the 64-bit heap ($8	ext{ bytes header} + 8	ext{ bytes MethodTable} + 8	ext{ bytes minimum alignment}$).
+  * An empty C# class (`class Empty { }`) allocates **24 bytes** on the 64-bit heap (8 bytes header + 8 bytes MethodTable + 8 bytes minimum alignment = 24 bytes).
   * An object with a single `bool` field (1 byte) still allocates **24 bytes** because of 8-byte word alignment padding.
   * Allocating millions of tiny objects wastes far more RAM on headers and padding than on actual business data.
 
@@ -264,7 +264,7 @@
 
 * **💬 Simple Explanation:**
   * A normal `Task<T>` is a class allocated on the managed heap every time an async method runs.
-  * If a method checks a cache and returns 99% of requests instantly from memory, allocating a `Task` object every time creates needless GC churn.
+  * If a method checks a cache and returns almost all requests instantly from memory (hot path), allocating a `Task` object every time creates needless GC churn.
   * `ValueTask<T>` is a struct. If completed synchronously, it returns with zero heap allocation!
   * If it runs asynchronously, it borrows an `IValueTaskSource` from a pool. Awaiting it twice causes undefined behavior and data corruption because the pooled instance has already been reset and handed to another thread.
 

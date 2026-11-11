@@ -3190,7 +3190,7 @@ ightarrow$ Rental Car ($100). The rental car API fails due to zero inventory.
     COMMIT TRANSACTION;
     ```
   * **🗣️ What to Say in the Interview:**
-    > "We select concurrency models based on contention levels. In low-contention scenarios like user profile edits, Optimistic Concurrency Control via SQL `rowversion` or Cosmos DB ETags maximizes throughput by avoiding read locks. However, in high-contention scenarios like flash sale inventory deduction, optimistic locking causes 'retry thrashing' where 99% of requests fail and retry repeatedly. In high-contention paths, we choose pessimistic locking via `WITH (UPDLOCK, ROWLOCK)` to queue competing writers cleanly."
+    > "We select concurrency models based on contention levels. In low-contention scenarios like user profile edits, Optimistic Concurrency Control via SQL `rowversion` or Cosmos DB ETags maximizes throughput by avoiding read locks. However, in high-contention scenarios like flash sale inventory deduction, optimistic locking causes 'retry thrashing' where competing requests collide and retry repeatedly. In high-contention paths, we choose pessimistic locking via `WITH (UPDLOCK, ROWLOCK)` to queue competing writers cleanly."
 
 
 * **📌 Deep Technical Mechanics & Architecture:**

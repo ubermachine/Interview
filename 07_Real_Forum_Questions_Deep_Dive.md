@@ -331,7 +331,7 @@ public class Point2DClass
 * **🎯 Must-Know Technical Terms & Buzzwords (The "Senior Interview Rubric"):**
   * **Object Header (8 Bytes on x64):** The metadata prefix at byte offset -8 storing the `SyncBlockIndex` (used by `lock(obj)` monitor sync), default cached hash code, and internal GC flags.
   * **MethodTable Pointer (8 Bytes on x64):** The pointer at byte offset 0 referencing the type's runtime metadata descriptor, interface maps, and virtual method dispatch table (vtable).
-  * **Minimum Object Overhead (16 Bytes):** The mandatory CLR header memory footprint ($8\text{ bytes Object Header} + 8\text{ bytes MethodTable Pointer}$) required by every heap-allocated reference type on 64-bit .NET.
+  * **Minimum Object Overhead (16 Bytes):** The mandatory CLR header memory footprint (8 bytes Object Header + 8 bytes MethodTable Pointer) required by every heap-allocated reference type on 64-bit .NET.
   * **Machine Word Byte Alignment (8-Byte Padding):** CLR memory layout rule requiring object sizes and field offsets to align along 64-bit (8-byte) boundaries for optimal CPU bus memory access.
   * **Value Type Memory Footprint:** Structs and primitives allocated directly on the call stack or inline inside parent objects, having zero Object Header or MethodTable pointer overhead unless boxed.
 
@@ -366,7 +366,7 @@ public class Point2DClass
   1. **Object Header (8 bytes):** Stores internal CLR bookkeeping data—specifically the `SyncBlockIndex` (used when you lock the object via `lock(obj)`), hash code cache, and GC status flags.
   2. **MethodTable Pointer (8 bytes):** Points to the type's metadata, method table (vtable for virtual methods), and interface implementation map.
   3. **User Fields & 8-Byte Alignment Padding:** Fields are aligned on 8-byte boundaries. If your class has just one `byte` field (1 byte), the CLR adds 7 bytes of empty padding!
-  * **Result:** The minimum size of any reference type object on 64-bit .NET is **24 bytes** ($8 + 8 + 1 + 7\text{ padding} = 24$).
+  * **Result:** The minimum size of any reference type object on 64-bit .NET is **24 bytes** (8 + 8 + 1 + 7 bytes padding = 24 bytes).
 
 * **⚠️ Common Junior Mistake:** Creating millions of tiny wrapper objects with a single `int` or `bool` property, unaware that the 16-byte CLR header bloats RAM consumption 400% compared to a struct.
 
@@ -1002,7 +1002,7 @@ public ValueTask<UserProfile?> GetUserAsync(Guid id)
 * **⚠️ Senior Trap & Cross-Question (What the interviewer will ask next):**
 * **The Senior Trap:** (1) Awaiting a `ValueTask<T>` more than once! (2) Awaiting a `ValueTask<T>` concurrently with `Task.WhenAll()`. (3) Calling `.Result` or `.GetAwaiter().GetResult()` before the operation has finished. Because `ValueTask<T>` can wrap a pooled `IValueTaskSource`, awaiting it twice accesses recycled memory, throwing an `InvalidOperationException`!
 * **Interviewer Cross-Question:** *"If `ValueTask<T>` is so fast, why doesn't Microsoft make every async method return `ValueTask<T>`?"*
-* **Senior Answer:** *"Because `ValueTask` is a 16-byte struct (larger than an 8-byte pointer to a Task), and passing it around adds CPU copy overhead. If a method completes asynchronously 99% of the time, `ValueTask` actually performs slower than `Task`. Only use `ValueTask` when > 90% of invocations complete synchronously (e.g. cache hits)."*
+* **Senior Answer:** *"Because `ValueTask` is a 16-byte struct (larger than an 8-byte pointer to a Task), and passing it around adds CPU copy overhead. If a method completes asynchronously almost every time, `ValueTask` actually performs slower than `Task`. Only use `ValueTask` on hot paths where operations frequently complete synchronously (such as cache hits)."*
 
 * **📊 "When to Use What & What Must Be Done" Quick Decision Guide:**
 
