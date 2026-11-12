@@ -129,25 +129,18 @@ public async Task<IActionResult> GetInvoice(Guid id, [FromServices] IAuthorizati
 
 
 **⚡ One-line answer**
-Authentication verifies identity while Authorization verifies permissions; JWTs transport cryptographically signed claims with zero clock skew.
+**Authentication** is verifying caller identity, while authorization evaluates permissions against populated claims.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "Authentication answers *'Who are you?'* by cryptographically validating credentials (e.g. verifying a JWT signature and hydrating `HttpContext.User`), while Authorization answers *'What are you permitted to do?'* by evaluating permissions and policies against those authenticated claims. A JWT is a Base64URL-encoded container with three parts: **Header** (algorithm, key ID), **Payload** (claims like `sub`, `iss`, `aud`, `exp`), and **Signature** (`HMACSHA256` or `RS256`). ASP.NET Core's `AddJwtBearer` validates these parts against the Identity Provider's JWKS. Setting `ClockSkew = TimeSpan.Zero` is critical because Microsoft's default adds a **5-minute grace period**, allowing expired tokens to remain valid for 300 extra seconds past their expiration timestamp."
+**🗣️ Spoken answer (30–45 seconds)**
+**Authentication** verifies digital identity by validating credentials, whereas **authorization** evaluates permissions to determine whether that authenticated user can access an endpoint. In ASP.NET Core, AddJwtBearer validates a JSON Web Token against an identity provider's JWKS endpoint, populating the **ClaimsPrincipal** in HttpContext. A JWT consists of a header, payload, and signature. By default, Microsoft adds five minutes of tolerance; we must explicitly set zero **ClockSkew**—the allowable time difference between servers—to eliminate the security window where expired tokens remain accepted.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"Authentication (AuthN) is the cryptographic verification of an entity's claimed digital identity, whereas Authorization (AuthZ) is the policy-based evaluation determining whether an authenticated identity has permission to perform a requested action on a target resource. A JSON Web Token (RFC 7519) is a compact, URL-safe, digitally signed claims container consisting of a JOSE Header, a Claims Payload, and a Cryptographic Signature. ClockSkew is the runtime tolerance allowance for clock drift between identity provider and API, which defaults to 5 minutes in Microsoft.AspNetCore.Authentication.JwtBearer and must be set to TimeSpan.Zero to eliminate expired token vulnerabilities."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **RFC 7519 JSON Web Token:** Standard defining compact, URL-safe container format for claims.
-    * **JOSE Header (alg, kid, typ):** JSON Object Signing and Encryption metadata defining the signing algorithm and Key ID.
-    * **Registered Claims (iss, aud, exp, nbf, sub):** Standardized JWT claims specifying issuer, audience, expiration time, not-before time, and subject.
-    * **Cryptographic Signature (RS256 / HS256):** Digital signature verifying token integrity. Asymmetric RS256 provides non-repudiation (private key signs, public key verifies), while symmetric HS256 uses a shared secret providing integrity and authenticity.
-    * **JWKS (JSON Web Key Set / RFC 7517):** Identity Provider endpoint (/.well-known/jwks.json) publishing public keys used by APIs to validate signatures dynamically.
-    * **TokenValidationParameters.ClockSkew = TimeSpan.Zero:** Explicit configuration eliminating the default 5-minute grace period that allows expired tokens to access APIs.
-    * **ClaimsPrincipal & ClaimsIdentity:** .NET runtime security models populated by UseAuthentication() and inspected by UseAuthorization().
-    * **Middleware Ordering:** Mandatory sequence in Program.cs: UseRouting() -> UseAuthentication() -> UseAuthorization() -> UseEndpoints().
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"In our banking microservices, we configure AddJwtBearer with asymmetric RS256 token validation against Keycloak's JWKS endpoint. We explicitly set ClockSkew = TimeSpan.Zero to eliminate the 5-minute security loophole where expired tokens can otherwise still access APIs."*
+- ⭐ **Authentication** — verifying digital identity by validating credentials or tokens
+- ⭐ **ClaimsPrincipal** — runtime security principal holding authenticated user identities
+- ⭐ **ClockSkew** — grace period tolerance for clock drift set to zero
+- **Authorization** — policy-based evaluation determining permitted actions on resources
+- **JWKS endpoint** — identity provider URL publishing public keys for token validation
+- **AddJwtBearer** — middleware handler validating JWT signatures and claims
 
 **🧠 Memory hook**  
   * **Authentication:** Showing your Government Passport and boarding pass at airport security. The officer verifies the biometric hologram and confirms your identity.
@@ -196,23 +189,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 **⚡ One-line answer**
-Policy-Based authorization decouples reusable requirements and handlers from controller attributes, replacing brittle role strings with extensible business specifications.
+**Policy-based authorization** is a decoupled framework evaluating requirements and claims handlers to enforce access rules.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "Role-Based authorization checks static strings (`User.IsInRole("Manager")`), which tightly couples code to directory roles. Claims-Based authorization checks individual key-value identity assertions (e.g., `Department = Finance`). **Policy-Based authorization** is the modern .NET standard that abstracts these into reusable requirements (`IAuthorizationRequirement`) evaluated by dedicated handlers (`AuthorizationHandler<T>`). This allows composing complex rules—such as requiring a specific role, department, working hours, and multi-factor authentication—behind a single clean attribute: `[Authorize(Policy = "ManagerOnly")]`."
+**🗣️ Spoken answer (30–45 seconds)**
+Role-based authorization checks fixed roles, while claims-based authorization inspects discrete identity attributes. To build flexible enterprise rules, **Policy-based authorization** decouples security policy definition from controller actions using requirements and handlers. We define an **IAuthorizationRequirement**—a data contract representing the condition that must be met—and implement an **AuthorizationHandler**—the class containing evaluation logic inspecting user claims or external databases. In Program.cs, we register the policy with AddAuthorization, then decorate endpoints with the Authorize attribute specifying that policy name.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"Role-Based Access Control (RBAC) evaluates static string memberships (IsInRole), creating brittle coupling to organizational titles. Claims-Based Authorization inspects discrete attribute key-value pairs issued by an authority. Policy-Based Authorization is ASP.NET Core's extensible specification architecture decoupling authorization requirements (IAuthorizationRequirement) and business handlers (AuthorizationHandler<T>) from routing attributes, evaluating multi-attribute contextual logic at runtime."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Decoupled Policy Architecture:** Separating authorization rule declarations in controllers from their evaluation logic in handlers.
-    * **IAuthorizationRequirement:** Marker interface representing the business specification being evaluated.
-    * **AuthorizationHandler<TRequirement>:** Execution unit containing business logic that inspects context.User and invokes context.Succeed(requirement).
-    * **context.Succeed() vs context.Fail():** context.Succeed() marks a requirement met; calling context.Fail() immediately guarantees access denial regardless of other handlers.
-    * **Imperative Resource-Based Authorization:** Injecting IAuthorizationService to evaluate entity ownership dynamically at runtime alongside user claims.
-    * **Fine-Grained Attribute-Based Access Control (ABAC):** Evaluating dynamic user attributes, environment factors (time/IP), and resource attributes simultaneously.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"We eliminated hardcoded roles across our microservices by implementing custom Policy-Based authorization handlers in .NET. Our handlers evaluate dynamic business criteria—such as checking that the user's branch ID claim matches the invoice's branch ID and that their single-transaction approval limit exceeds the order total."*
+- ⭐ **Policy-based authorization** — decoupled security model evaluating custom requirements and handlers
+- ⭐ **IAuthorizationRequirement** — interface marker defining business prerequisites for policy access
+- ⭐ **AuthorizationHandler** — class containing evaluation logic determining requirement satisfaction
+- **Role-based authorization** — basic security model checking coarse string roles on users
+- **Claims-based authorization** — security evaluation based on discrete identity name-value pairs
+- **context.Succeed** — handler method signaling that authorization requirements were met
 
 **🧠 Memory hook**  
   * **Role-Based:** A bouncer checking if your badge says "VIP". If the nightclub renames "VIP" to "Executive Guest", the bouncer denies entry until uniforms are re-stitched.
@@ -339,23 +327,18 @@ public async Task<IActionResult> UpdateProfile(UpdateUserRequest req, AppDbConte
 
 
 **⚡ One-line answer**
-Prevent BOLA by checking resource tenant ownership on every query, and prevent Mass Assignment using explicit Request DTOs instead of binding domain entities.
+**BOLA** is accessing another user's records by tampering IDs, prevented by verifying tenant ownership on every request.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "BOLA occurs when an API endpoint accepts an arbitrary resource ID (e.g. `/api/orders/{id}`) and returns data without validating that the authenticated user actually owns that resource, allowing attackers to access other customers' records by simply enumerating integers or GUIDs. Mass Assignment occurs when controllers bind incoming JSON payloads directly to domain or ORM entity models, allowing attackers to inject restricted properties like `IsAdmin: true` or `Balance: 100000`. We prevent BOLA by enforcing tenant/user ownership in every database query or using EF Core Global Query Filters, and eliminate Mass Assignment by strictly binding to dedicated Request DTOs."
+**🗣️ Spoken answer (30–45 seconds)**
+**BOLA** occurs when an API endpoint accesses records using caller-supplied keys without validating whether the authenticated user owns that entity. We prevent BOLA by enforcing **Tenant isolation**—filtering database queries with global query filters or explicit user ID predicates matched against JWT claims. Meanwhile, mass assignment allows attackers to over-post sensitive entity fields like IsAdmin. We eliminate this vulnerability by binding incoming JSON payloads strictly to a dedicated **DTO** (Data Transfer Object) rather than exposing domain database models directly.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"Broken Object-Level Authorization (OWASP API Security #1 / IDOR) occurs when an endpoint manipulates object identifiers in request paths or bodies without validating that the authenticated user possesses legitimate tenant/entity ownership of the target resource. Mass Assignment (Over-Posting) occurs when client-supplied JSON payloads automatically bind to internal domain entity properties (e.g., IsAdmin, Balance) due to naive ORM model binding."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **OWASP API Security Top 10 (#1 BOLA / IDOR):** The #1 security flaw in modern APIs where endpoints expose database IDs without tenant ownership validation.
-    * **Insecure Direct Object Reference (IDOR):** Direct exposure of database primary keys (e.g., /api/invoices/1042) enabling attackers to enumerate records of other tenants.
-    * **Tenant Isolation & Query Filtering:** Mandatory data access pattern appending WHERE TenantId = @TenantId to all SQL queries.
-    * **Mass Assignment / Over-Posting Attack:** Vulnerability where client JSON payloads bind to sensitive entity fields not intended for public modification.
-    * **Strict Request DTOs (Data Transfer Objects):** Banning domain entities in controller action parameters; exclusively binding dedicated input contracts.
-    * **AutoMapper Property Whitelisting:** Explicit property mapping forbidding blind copying of client values to domain models.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"To defend against BOLA, our repository queries always append the authenticated TenantId and UserId extracted from JWT claims (WHERE OrderId = @Id AND TenantId = @UserTenantId), ensuring users cannot access arbitrary GUIDs. To prevent Mass Assignment, our controllers exclusively accept dedicated Request DTOs, never domain models."*
+- ⭐ **BOLA** — broken object-level authorization allowing unauthorized data access via IDs
+- ⭐ **Tenant isolation** — architectural partition ensuring customers access only their data
+- ⭐ **DTO** — shaped data transfer object preventing over-posting vulnerabilities
+- **Mass assignment** — exploit binding client inputs to sensitive entity properties
+- **Global query filter** — Entity Framework mechanism automatically scoping queries by tenant
+- **OWASP API Security Top 10** — industry standard cataloging leading API security threats
 
 **🧠 Memory hook**  
   * **BOLA / IDOR:** A hotel where the keycard doesn't have an electronic lock chip, just a room number written on it in chalk. If you stay in room 301, but rub the chalk off and write 302, the door opens anyway because the hotel doesn't verify if room 302 belongs to you.
@@ -400,23 +383,18 @@ public async Task<IActionResult> GetOrder(Guid id, AppDbContext db)
 
 
 **⚡ One-line answer**
-Prevent SQLi with parameterized queries and EF Core LINQ, prevent XSS with automatic contextual HTML encoding, and prevent CSRF with anti-forgery tokens.
+**SQL injection** is code injection altering database queries, prevented by parameterized queries rather than string concatenation.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "We enforce defense-in-depth across the web stack. **SQL Injection** is systematically prevented by using LINQ or `FromSqlInterpolated`, which transforms string interpolations into safe parameterized `DbParameter` instances. A fatal mistake is passing interpolated strings into `FromSqlRaw`, which executes raw concatenated SQL text. **XSS** is prevented by contextual HTML encoding via `HtmlEncoder.Default` and strict Content-Security-Policy (CSP) headers. **CSRF** is neutralized using Anti-Forgery tokens (`AutoValidateAntiforgeryToken`) and `SameSite=Strict` cookies; Web APIs using stateless `Authorization: Bearer` headers are natively immune to CSRF because browsers never attach custom authorization headers automatically."
+**🗣️ Spoken answer (30–45 seconds)**
+**SQL injection** occurs when untrusted input concatenates directly into database commands, which happens if developers pass raw string interpolation into EF Core's FromSqlRaw. We eliminate SQL injection using a **Parameterized query**—a precompiled SQL execution plan treating inputs strictly as literal values. To mitigate **Cross-Site Scripting (XSS)**—injected client scripts executed in victim browsers—we enforce contextual HTML encoding and Content Security Policy headers. For state-changing cookie-based endpoints, we mandate SameSite cookie attributes and antiforgery tokens to block Cross-Site Request Forgery.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"SQL Injection occurs when untrusted input is concatenated directly into SQL command strings, altering query semantics and bypassing database access controls. Cross-Site Scripting (XSS) occurs when malicious JavaScript is injected into application views and executed in the security context of a victim's browser session. Cross-Site Request Forgery (CSRF) tricks an authenticated browser into submitting unauthorized requests to a trusted application using ambient credentials (cookies)."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Parameterized SQL Queries & FromSqlInterpolated:** EF Core query mechanism transforming interpolated strings into parameterized DbParameter objects at compile time.
-    * **FromSqlRaw Concatenation Anti-Pattern:** Vulnerability where developers use string interpolation ($) inside FromSqlRaw, exposing queries to direct SQL injection.
-    * **Context-Aware Output Encoding (HtmlEncoder):** Sanitizing HTML entities (<, >, &, ") before rendering untrusted text in views to neutralize XSS.
-    * **Content Security Policy (CSP):** HTTP response header restricting origins from which scripts, styles, and images can execute in the browser.
-    * **Anti-Forgery Tokens (IAntiforgery / [ValidateAntiForgeryToken]):** Cryptographic tokens verifying that incoming mutating requests originated from legitimate application forms.
-    * **Cookie Security Flags (HttpOnly, SameSite=Strict, SecurePolicy=Always):** Defense-in-depth flags preventing JavaScript cookie access and neutralizing cross-site forged requests.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"We completely eliminated SQLi by banning string concatenation in EF Core and using parameterized queries with FromSqlInterpolated. For web security, we store JWTs in memory or HttpOnly cookies with SameSite=Strict and enforce Content-Security-Policy headers to eliminate XSS and CSRF attack surfaces."*
+- ⭐ **SQL injection** — injecting SQL commands through unvalidated user input strings
+- ⭐ **Parameterized query** — query treating user input strictly as typed parameter values
+- ⭐ **Cross-Site Scripting (XSS)** — executing malicious client scripts inside victim browser contexts
+- **FromSqlInterpolated** — EF Core method safely parameterizing string-interpolated SQL statements
+- **Cross-Site Request Forgery (CSRF)** — unauthorized commands transmitted from a trusted user browser
+- **Content Security Policy (CSP)** — HTTP response header restricting authorized browser script execution
 
 **🧠 Memory hook**  
   * **SQL Injection:** Ordering at a drive-through restaurant and saying: *"Give me 1 burger; DROP TABLE Menu;-- "*. A vulnerable cashier repeats the whole sentence into the kitchen intercom, crashing the restaurant. A parameterized cashier puts your text into a sealed envelope labeled "Item Name" where it can never be executed as an instruction.
@@ -525,23 +503,18 @@ dotnet user-secrets list
 
 
 **⚡ One-line answer**
-CORS is a browser security mechanism requiring explicit origin headers, verified during preflight OPTIONS requests before authentication runs.
+**CORS** is an HTTP-header mechanism relaxing the Same-Origin Policy to permit cross-origin browser requests.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "CORS is a browser-enforced security mechanism implementing the **Same-Origin Policy (SOP)**. When a web application on `Origin A` tries to fetch resources from `Origin B`, the browser blocks the response unless `Origin B` explicitly includes matching `Access-Control-Allow-Origin` headers. For non-simple HTTP requests (such as `PUT`, `DELETE`, or requests carrying custom `Authorization` headers), the browser first dispatches an automated **preflight `OPTIONS` probe** to check permissions before sending the actual payload. In ASP.NET Core, `app.UseCors()` must be placed strictly after `app.UseRouting()` and before `app.UseAuthentication()`."
+**🗣️ Spoken answer (30–45 seconds)**
+The browser enforces the **Same-Origin Policy**—a boundary preventing scripts from requesting endpoints across differing domains, protocols, or ports. For complex HTTP requests carrying custom headers or non-standard content types, the browser automatically dispatches a **Preflight OPTIONS** probe to ask the server for permission. The server responds with **Access-Control-Allow-Origin** specifying authorized domains. In ASP.NET Core, UseCors must be placed after UseRouting so the endpoint is known, but before UseAuthentication and UseAuthorization so preflight checks are never rejected prematurely.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"CORS is a browser-enforced W3C security mechanism using HTTP headers to permit or restrict web applications running at one origin from requesting restricted resources on a different origin (domain, protocol, or port). The browser initiates preflight OPTIONS requests checking Access-Control-Allow-Origin, Access-Control-Allow-Methods, and Access-Control-Allow-Headers before dispatching mutating requests."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Same-Origin Policy (SOP):** Browser security sandbox restricting scripts from reading data from different origins (protocol, domain, port).
-    * **Preflight HTTP OPTIONS Handshake:** Initial browser request validating cross-origin permissions before sending POST, PUT, DELETE, or custom-header calls.
-    * **CORS Response Headers:** Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers, Access-Control-Allow-Credentials.
-    * **Middleware Ordering:** Placing app.UseCors() strictly between app.UseRouting() and app.UseAuthentication() so preflight OPTIONS requests return immediately.
-    * **Origin Whitelisting:** Production security requirement explicitly naming trusted domains (WithOrigins("https://app.bank.com")) while strictly banning AllowAnyOrigin.
-    * **Credentials & Wildcard Incompatibility:** Browsers reject responses containing both Access-Control-Allow-Origin: * and Access-Control-Allow-Credentials: true.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"In production, we strictly whitelist specific front-end origins in Program.cs and place app.UseCors() strictly between app.UseRouting() and app.UseAuthentication(). This guarantees that preflight OPTIONS requests return immediately with valid headers without being rejected by downstream authentication middleware."*
+- ⭐ **Same-Origin Policy** — browser control restricting interactions between differing web origins
+- ⭐ **Preflight OPTIONS** — browser probe verifying cross-origin permissions before complex requests
+- ⭐ **Access-Control-Allow-Origin** — HTTP response header designating permitted client origin domains
+- **CORS** — mechanism allowing servers to relax browser cross-origin constraints
+- **Middleware ordering** — sequential arrangement of pipeline handlers in Program.cs
+- **WithOrigins** — fluent ASP.NET Core method whitelisting specific client origins
 
 **🧠 Memory hook**  
   * Imagine sending an international cargo container to a foreign port. Before the cargo ship docks and unloads goods, the harbor authority sends a small patrol boat ahead (`OPTIONS` preflight probe) asking: *"Does this port accept medical supplies from India with customs code X?"*
@@ -586,23 +559,18 @@ app.MapControllers();    // 5. Executes endpoint logic
 
 
 **⚡ One-line answer**
-Manage secrets using User Secrets locally, environment variables in containers, and Azure Key Vault in production without committing credentials to source control.
+**Secret management** means isolating configuration credentials from source code using environment variables and external cloud vaults.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "Modern .NET implements a layered configuration provider architecture designed to decouple secrets from source code. In local development, we use **.NET Secret Manager (`dotnet user-secrets`)**, which stores secrets outside the repository in the local OS user profile (`%APPDATA%` or `~/.microsoft/usersecrets`). In Docker and Kubernetes, secrets are injected as **Environment Variables** or mounted secret volumes. In enterprise production, we standardize on **Azure Key Vault with `DefaultAzureCredential`**: the application accesses secrets via Azure Managed Identity with zero credentials or certificates hardcoded in source code or `appsettings.json`."
+**🗣️ Spoken answer (30–45 seconds)**
+Checking connection strings or API keys into source control risks permanent compromise through Git history. In local development, we use **User Secrets**—a developer tool storing credentials outside the project tree in the user profile directory. In containerized environments, credentials pass as environment variables. In enterprise production, we connect to **Azure Key Vault**—a managed cloud hardware security module storing encryption keys and certificates—using **Managed Identity**—a passwordless Azure Entra authentication mechanism—allowing our Web API to read secrets securely at startup without hardcoded credentials.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"Enterprise secret management is a defense-in-depth operational methodology ensuring credentials, private keys, and connection strings are injected dynamically into execution runtimes without persistent storage in source control, utilizing ephemeral developer user secrets locally, container environment variables in test/staging, and cloud hardware security modules (Azure Key Vault / AWS Secrets Manager) with managed identities in production."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Azure Key Vault:** Cloud HSM (Hardware Security Module) securely storing secrets, cryptographic keys, and SSL certificates.
-    * **Azure Managed Identity (System-Assigned / User-Assigned):** Passwordless Azure Active Directory identity tied to an AKS pod or App Service, eliminating client secrets entirely.
-    * **DefaultAzureCredential:** Azure.Identity SDK chain attempting Managed Identity, Environment Variables, and Azure CLI automatically.
-    * **.NET User Secrets Manager (dotnet user-secrets):** Local developer tool storing sensitive settings in user profile folders outside Git directories.
-    * **GitLeaks / Secret Scanning:** Automated SAST scanners running in CI/CD pipelines to detect hardcoded API keys and connection strings.
-    * **Least Privilege Access Policies:** Granting services get/list secret permissions only on designated Key Vault instances.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"In our production AKS cluster, we eliminated connection strings from configuration files entirely by using Azure Key Vault with Managed Identities via DefaultAzureCredential. During pod startup, secrets are resolved in-memory with automatic key rotation and zero secrets checked into Git."*
+- ⭐ **User Secrets** — developer storage keeping sensitive configuration outside project repositories
+- ⭐ **Azure Key Vault** — centralized cloud service safeguarding cryptographic keys and secrets
+- ⭐ **Managed Identity** — passwordless Azure Entra feature providing automatic credential management
+- **Defense in depth** — layered security strategy preventing unauthorized secret exposure
+- **Configuration provider** — .NET abstraction layering hierarchical settings from multiple sources
+- **Environment variables** — operating system key-value pairs injecting container runtime configuration
 
 **🧠 Memory hook**  
   * **`appsettings.json`:** A bulletin board in your apartment lobby. Anyone who walks through the lobby (anyone with Git access) sees what is pinned on it. Never pin your house keys or bank PIN there!
@@ -697,23 +665,18 @@ public class OrderApiTests : IClassFixture<WebApplicationFactory<Program>>
 
 
 **⚡ One-line answer**
-Unit tests isolate classes using mocks for fast regression feedback, while integration tests with WebApplicationFactory verify the full HTTP pipeline against real databases.
+**Testing Pyramid** is a strategy balancing fast, isolated unit tests at the base with realistic integration tests.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "The testing pyramid divides quality assurance into three tiers: **Unit Tests (70%)** test isolated business logic in sub-milliseconds using xUnit and NSubstitute without touching external networks or disks. **Integration Tests (20%)** test the entire ASP.NET Core pipeline—middleware, model binding, authorization, and real database SQL queries—using `WebApplicationFactory<Program>` paired with **Testcontainers** to spin up genuine ephemeral Docker database containers. We strictly ban EF Core's `UseInMemoryDatabase` because it doesn't enforce foreign keys, relational constraints, or database-specific SQL dialect translation."
+**🗣️ Spoken answer (30–45 seconds)**
+The **Testing Pyramid** guides test distribution, emphasizing numerous fast unit tests, moderate integration tests, and fewer end-to-end tests. We write **Unit tests** using xUnit and Moq to validate domain algorithms, business calculations, and edge cases in milliseconds by substituting dependencies. Conversely, integration tests verify full component interactions. Using **WebApplicationFactory**, we host the complete ASP.NET Core pipeline in memory, executing routing and authorization against real database instances spun up with Testcontainers to eliminate discrepancies caused by in-memory databases.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"The Testing Pyramid is a quality engineering paradigm advocating for a high volume of fast, isolated Unit Tests validating domain logic with test doubles (mocks/stubs), a moderate tier of Integration Tests validating component orchestration and database persistence using real infrastructure, and a minimal tier of End-to-End (E2E) tests validating complete business flows."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Test Pyramid Tiering:** 70% Unit Tests (fast, in-memory) -> 20% Integration Tests (real DB/containers) -> 10% End-to-End Tests (UI/full flow).
-    * **xUnit Test Framework:** The modern .NET test runner utilizing constructor/Dispose lifecycle and [Fact] / [Theory] parameterized tests.
-    * **NSubstitute / Moq Test Doubles:** Mocking libraries creating isolated test doubles for service interfaces in unit tests.
-    * **WebApplicationFactory<TProgram>:** In-memory test server (TestServer) hosting the full ASP.NET Core dependency injection container and middleware pipeline.
-    * **Testcontainers for .NET:** Docker-based test library automatically provisioning ephemeral PostgreSQL, SQL Server, and Redis containers during test execution.
-    * **Respawn Database State Reset:** High-performance database checkpoint reset tool restoring test databases to pristine states in 5ms without re-running migrations.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"We structure our test suite using 70% unit tests with xUnit and NSubstitute for domain entities, and 25% integration tests using WebApplicationFactory with Testcontainers running real PostgreSQL and Redis instances. This catches EF Core query translation bugs and migration issues before pull requests merge."*
+- ⭐ **Testing Pyramid** — architectural model balancing unit, integration, and UI testing layers
+- ⭐ **Unit tests** — fast tests executing isolated business classes with test doubles
+- ⭐ **WebApplicationFactory** — in-memory test harness hosting ASP.NET Core pipelines without network overhead
+- **Integration tests** — tests verifying end-to-end interaction across multiple architectural layers
+- **Testcontainers** — open-source library provisioning disposable Docker containers for integration tests
+- **Moq** — popular mocking framework creating isolated test doubles for C# interfaces
 
 **🧠 Memory hook**  
   * **Unit Testing:** Testing an aircraft's titanium bolt in a materials laboratory to verify it withstands 10,000 PSI. Fast, cheap, and isolated.
@@ -812,23 +775,18 @@ ENTRYPOINT ["dotnet", "MyApi.dll"]
 
 
 **⚡ One-line answer**
-Multi-stage Docker builds separate heavy compilation SDKs from minimal non-root runtime images to shrink image size and eliminate security vulnerabilities.
+**Multi-stage build** is a Docker pattern compiling binaries in an SDK image then running them inside minimal runtimes.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "A production Dockerfile follows a **multi-stage architecture** with two distinct stages: Stage 1 utilizes the heavy .NET SDK image (~850 MB) containing compilers, NuGet, and MSBuild to restore and publish optimized binaries. Stage 2 copies *only* the compiled `.dll` artifacts into an ultra-lightweight, hardened runtime image (~100 MB, e.g. Alpine or Chiseled). We run under the built-in unprivileged **non-root user (`app`, UID 1654)** listening on port 8080 to prevent container breakout exploits. We optimize layer caching by copying `.csproj` files and running `dotnet restore` *before* copying the remaining source code."
+**🗣️ Spoken answer (30–45 seconds)**
+In a production Dockerfile, a **Multi-stage build** decouples the heavy software development kit from deployment artifacts. Stage one compiles source code using the large .NET SDK image, whereas the final stage copies only published binaries into a lightweight runtime container. We enforce security by configuring a **Non-root user**—the built-in unprivileged app account in .NET 8—preventing container breakout attacks from obtaining host root access. Finally, adopting a **Chiseled runtime**—an ultra-minimal Ubuntu image stripped of shells and package managers—minimizes vulnerabilities and reduces image size.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"A multi-stage Docker build is a container optimization and security design pattern that utilizes separate build-time and runtime image stages—compiling source code using a heavy SDK image in early stages and copying only published, compiled release binaries into a lightweight, stripped-down runtime base image running as an unprivileged, non-root user."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Multi-Stage Build Architecture:** Docker pattern separating the build-time compiler environment from the production runtime container.
-    * **Layer Caching Optimization:** Copying .csproj and running dotnet restore before copying full source code to maximize Docker layer cache hits.
-    * **Minimal Runtime Images (Chiseled / Alpine):** Stripped-down Linux container images containing zero package managers, bash shells, or unneeded utilities.
-    * **Non-Root Execution (USER app / UID 1654):** Running container processes under unprivileged user accounts to block root container breakouts.
-    * **Attack Surface Minimization:** Removing build tools (dotnet SDK, compilers, curl) from final production runtime images.
-    * **Container Security Hardening:** Read-only root filesystems, resource limits (cgroups), and non-root execution.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"Our production Dockerfile uses a 2-stage build: a .NET 8 SDK image for dependency restore and compilation, and an ultra-lean mcr.microsoft.com/dotnet/aspnet:8.0-chiseled runtime image. Running as the unprivileged non-root app user shrinks our image size from 800MB to 110MB and blocks root privilege escalation vulnerabilities."*
+- ⭐ **Multi-stage build** — Dockerfile pattern isolating compilation environments from production artifacts
+- ⭐ **Non-root user** — unprivileged execution account mitigating container breakout security risks
+- ⭐ **Chiseled runtime** — minimal base image lacking package managers and command shells
+- **Attack surface** — total vulnerabilities exposed by unnecessary installed software components
+- **Docker layer caching** — build optimization caching restore steps by ordering csproj copying first
+- **Principle of least privilege** — security practice granting only essential permissions to processes
 
 **🧠 Memory hook**  
   * **Multi-Stage Build:** A luxury restaurant kitchen versus the dining hall. The kitchen backroom (Stage 1 SDK) has massive flour sacks, noisy dough mixers, meat grinders, and dirty pans. But the customer dining room (Stage 2 Runtime) receives only the finished, beautifully plated dish. You never bring the 50kg flour sack or industrial grinder to the customer table!
@@ -977,23 +935,18 @@ jobs:
 
 
 **⚡ One-line answer**
-Enterprise CI/CD pipelines automate building, unit/integration testing, SonarQube quality gates, and Docker image scanning before deploying to production.
+**CI/CD pipeline** means automated build, test, and deployment workflows validating code quality gates before release.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "An enterprise CI/CD pipeline consists of four automated stages: **1. Build & Lint:** Validates solution compilation and enforces zero compiler warnings. **2. Automated Test Execution:** Executes xUnit unit and integration tests, capturing code coverage reports. **3. SonarQube Quality Gate:** Performs static analysis scanning for security hotspots, code smells, and cyclomatic complexity; the pipeline hard-fails if code coverage is below 80% or any high-severity vulnerability exists. **4. Container Packaging & Deployment:** Builds a multi-stage Docker image, tags it with the immutable Git commit SHA, pushes it to Azure Container Registry (ACR), and updates Kubernetes manifests via GitOps or Helm."
+**🗣️ Spoken answer (30–45 seconds)**
+A modern **CI/CD pipeline** automates the progression from source commit to production deployment. On every pull request, the continuous integration stage restores packages, executes dotnet build, and runs automated tests with code coverage reporting. The build integrates a **SonarQube quality gate**—an automated compliance checkpoint enforcing thresholds for code smells, vulnerabilities, and test coverage—halting the pipeline if standards fail. Once merged, continuous deployment provisions infrastructure via Bicep and pushes Docker images to an Azure Container Registry for zero-downtime rolling **Deployment stages** across staging and production.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"Continuous Integration and Continuous Deployment (CI/CD) is an automated software delivery lifecycle wherein developer code commits trigger automated build, linting, unit/integration testing, static code analysis (SonarQube quality gates), container image compilation, and progressive blue-green or canary deployment across environments with zero manual interventions."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **CI/CD Pipeline Automation:** Declarative YAML pipelines (azure-pipelines.yml / GitHub Actions) automating verification from PR to production.
-    * **SonarQube Static Application Security Testing (SAST):** Automated code analyzer detecting code smells, security vulnerabilities, and technical debt.
-    * **Quality Gate Enforcement:** Automated pipeline criteria blocking PR merges if code coverage drops below 80% or new vulnerabilities are detected.
-    * **Multi-Stage Deployment Pipelines:** Build & Test Stage -> Container Image Push (ACR) -> Staging Deployment -> Production Approval Gate.
-    * **Artifact Immutability:** Building a Docker image once in CI and promoting the exact same SHA-pinned container digest across dev, staging, and prod.
-    * **Blue-Green & Canary Zero-Downtime Deployments:** Progressive deployment techniques routing traffic between idle/live environments or gradually shifting user percentages.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"Our GitHub Actions workflow automatically restores, builds, runs xUnit tests with code coverage, and executes a SonarQube quality gate on every pull request. If code coverage drops below 80% or any high-severity security vulnerability is detected, the PR merge is blocked automatically."*
+- ⭐ **CI/CD pipeline** — automated workflow continuously integrating, testing, and deploying software updates
+- ⭐ **SonarQube quality gate** — automated policy threshold enforcing code quality, coverage, and security
+- ⭐ **Deployment stages** — isolated pipeline phases releasing artifacts progressively across environments
+- **Continuous Integration (CI)** — practice of automatically building and testing changes on commit
+- **Continuous Deployment (CD)** — automated release of validated artifacts into production environments
+- **Artifact staging** — publishing versioned binaries and container images for downstream deployment
 
 **🧠 Memory hook**  
   * An automated car assembly plant.
@@ -1123,23 +1076,18 @@ app.MapHealthChecks("/healthz/ready", new() { Predicate = c => c.Tags.Contains("
 
 
 **⚡ One-line answer**
-Kubernetes runs containerized workloads in Pods managed by Deployments and Services, using Liveness probes to restart crashed pods and Readiness probes to route live traffic.
+**Kubernetes Deployment** is a declarative controller managing replicated Pods, rollouts, and self-healing across cluster worker nodes.
 
-**🗣️ Spoken answer (30–45 seconds)**  
-  > "A **Pod** is the smallest deployable compute unit in Kubernetes, wrapping one or more containers sharing an IP and network namespace. A **Deployment** manages declarative replication, scaling, and rolling updates for Pods. Networking is handled by **Services**: `ClusterIP` exposes pods internally, `NodePort` exposes a high port on node IPs, and `LoadBalancer` provisions cloud external IPs. An **Ingress** acts as a Layer 7 reverse proxy routing paths to Services with TLS termination. Crucially, **Liveness Probes** verify the container process is responsive (restarting it on failure), while **Readiness Probes** verify dependencies like databases (removing the pod from traffic on failure). A Liveness probe must **never** check external databases to avoid catastrophic cascading restart storms."
+**🗣️ Spoken answer (30–45 seconds)**
+In Kubernetes, a **Pod** is the smallest deployable compute unit wrapping one or more containers. We manage pods declaratively using a **Kubernetes Deployment**—a higher-level controller orchestrating self-healing, scaling, and rolling updates. Internal networking relies on Services like ClusterIP, while an **Ingress controller** acts as the layer-seven reverse proxy routing external HTTP traffic into the cluster. Application configuration is decoupled using ConfigMaps for plain settings and Secrets for base64 credentials, while liveness and readiness probes monitor process health and network traffic eligibility.
 
 **🎯 Terms the interviewer listens for**
-  * **Exact Formal CS / Architecture Definition:**  
-    > *"Kubernetes is an open-source container orchestration platform that automates deployment, scaling, and operational management of containerized workloads across compute clusters using declarative manifests defining Pods (atomic execution units), Deployments (replica management and rolling updates), Services (internal L4 load balancing), Ingress (external L7 routing), and Health Probes (Liveness and Readiness lifecycle controllers)."*
-  * **Rubric Keywords That Score Marks on the Interviewer's Evaluation Sheet:**
-    * **Pod vs. Deployment:** A Pod is the smallest deployable computing unit in K8s; a Deployment manages Pod replica counts, declarative rollouts, and rollbacks via ReplicaSets.
-    * **Kubernetes Services (ClusterIP vs NodePort vs LoadBalancer):** ClusterIP provides internal-only cluster VIP; NodePort opens a static node port; LoadBalancer provisions external cloud LB.
-    * **Ingress Controller:** L7 reverse proxy (e.g., NGINX / Traefik) routing external HTTP/HTTPS traffic to internal cluster services based on host and path rules.
-    * **ConfigMaps vs. Secrets:** ConfigMaps store plain text environment configuration; Secrets store base64-encoded credentials mounted as env vars or volumes.
-    * **Liveness Probe (/healthz/live):** Monitors process responsiveness; failure causes Kubernetes kubelet to kill and restart the container.
-    * **Readiness Probe (/healthz/ready):** Monitors dependency health (DB/Kafka); failure removes pod IP from Service endpoints without restarting the process.
-  * **"How to Say It in Your Project" (Exact Production Experience Phrasing):**  
-    > *"In our AKS deployment, we separate Liveness and Readiness probes in ASP.NET Core: the Liveness probe (/healthz/live) only checks local process responsiveness to prevent cascading restart storms, while the Readiness probe (/healthz/ready) verifies database and Kafka connectivity before routing traffic to the pod."*
+- ⭐ **Pod** — smallest deployable execution unit containing one or more containers
+- ⭐ **Kubernetes Deployment** — declarative controller managing pod replication, scaling, and rolling updates
+- ⭐ **Ingress controller** — application-layer reverse proxy routing external HTTP traffic to cluster services
+- **ClusterIP** — internal Kubernetes service type exposing pods within cluster boundaries only
+- **ConfigMap** — API object storing non-confidential configuration data as key-value pairs
+- **Readiness probe** — kubelet probe gating network traffic until container initialization completes
 
 **🧠 Memory hook**  
   * **Pod:** A shipping container on a cargo freighter holding your cargo.

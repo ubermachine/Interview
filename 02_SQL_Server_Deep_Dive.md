@@ -49,17 +49,18 @@
 *Commonly asked at: Amazon, Microsoft, TCS, Cognizant*
 
 **⚡ One-line answer**
-For the second highest salary, a subquery filtering below the maximum works simply, while DENSE_RANK generalizes cleanly to the Nth salary.
+**DENSE_RANK** is a window function assigning sequential ranks without skipping numbers when duplicate values occur.
 
 **🗣️ Spoken answer (30–45 seconds)**
-To find the second highest salary, filtering with WHERE Salary < (SELECT MAX(Salary)) handles ties cleanly. For any arbitrary Nth highest salary, we use DENSE_RANK inside a common table expression. Unlike the RANK function, DENSE_RANK never skips rank positions when duplicate salaries occur. In one of my projects, junior developers used RANK, which returned empty sets when duplicate top salaries existed. DENSE_RANK provides predictable ranking regardless of duplicate values.
+A **CTE** is a named temporary result set providing clean query readability. Inside the CTE, **DENSE_RANK** is a **window function**—a calculation performed across related rows—that assigns consecutive rank numbers without gaps for tied salaries. Unlike RANK, which skips numbers after duplicate values, DENSE_RANK guarantees predictable sequential ordering. In my project, filtering WHERE Rnk = 2 on the CTE reliably isolates the second highest salary even when multiple employees share identical top pay.
 
 **🎯 Terms the interviewer listens for**
-- Ranking function [DENSE_RANK] ⭐: Window function assigning consecutive ranks without gaps.
-- Common table expression [CTE] ⭐: Named temporary result set used for readability.
-- Rank gap [RANK vs DENSE_RANK] ⭐: RANK skips numbers after ties; DENSE_RANK does not.
-- Subquery filter: Inner query selecting the maximum scalar value.
-- Offset paging [OFFSET-FETCH]: ANSI syntax skipping rows and fetching next.
+- ⭐ **DENSE_RANK** — window function assigning consecutive ranks without gap numbers
+- ⭐ **CTE** — named temporary result set defined using the WITH clause
+- ⭐ **Window function** — function calculating results across a set of related rows
+- **PARTITION BY** — clause restarting rank calculations per distinct group
+- **Rank gap** — skipped numbers occurring in RANK during duplicate ties
+- **OFFSET-FETCH** — ANSI syntax skipping rows and fetching specific records
 
 **🧠 Memory hook**
 Olympic medals with ties: DENSE_RANK awards Silver after tied Golds. RANK skips Silver and awards Bronze directly.
@@ -98,17 +99,18 @@ DENSE_RANK evaluates over the window specification using a Segment and Sequence 
 *Commonly asked at: Cognizant, Wipro, Accenture, Capgemini*
 
 **⚡ One-line answer**
-Partitioning rows by business keys using ROW_NUMBER inside a CTE allows safe identification and deletion of duplicate rows exceeding rank 1.
+**ROW_NUMBER** is a window function assigning sequential integers to rows partitioned by duplicate business keys.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The standard approach partitions records across duplicate business columns using the ROW_NUMBER window function inside a common table expression. Each duplicate group receives sequential numbering ordered by identity or timestamp. The outer DELETE statement targets rows where the row number is greater than 1, preserving the initial record. In one of my projects, running this within a batch loop prevented excessive transaction log growth. It cleanly eliminates duplicates without creating temporary staging tables.
+We use **ROW_NUMBER**, which is a **window function**—a calculation evaluated across related row subsets—to rank records. Using **PARTITION BY**, meaning dividing the result set into distinct groups per business key, we number duplicates sequentially by ID. We wrap this query in a common table expression and issue a DELETE targeting records where row number exceeds one. In my project, executing this pattern in chunked batches avoided transaction log exhaustion while safely preserving the primary surviving record of each duplicate group.
 
 **🎯 Terms the interviewer listens for**
-- Window partitioning [PARTITION BY] ⭐: Divides result set into distinct partitions for ranking.
-- Sequential ranking [ROW_NUMBER] ⭐: Assigns unique incrementing numbers within each partitioned group.
-- CTE deletion target ⭐: Deletes directly from CTE view targeting underlying table.
-- Idempotent cleanup: Script safely reruns without altering unique surviving records.
-- Log batching: Chunking delete statements to avoid log file exhaustion.
+- ⭐ **ROW_NUMBER** — window function assigning sequential incrementing numbers to rows
+- ⭐ **PARTITION BY** — clause dividing rows into distinct groups for ranking
+- ⭐ **Window function** — function calculating results across a set of rows
+- **CTE deletion target** — deleting directly from a CTE to modify base table
+- **Idempotent cleanup** — script safely rerunning without altering unique records
+- **Log batching** — chunking modifications to avoid transaction log exhaustion
 
 **🧠 Memory hook**
 Finding duplicates with ROW_NUMBER is like giving queue tokens to people with the same name. You serve token 1 and send the others home.
@@ -148,17 +150,18 @@ A CTE update or delete operates directly on the underlying base table. The optim
 *Commonly asked at: Microsoft, Amazon, TCS, Infosys*
 
 **⚡ One-line answer**
-Joins combine tables based on matching predicates, and SQL Server evaluates NULL comparisons to UNKNOWN, meaning NULL never joins with NULL.
+**Three-valued logic** means SQL Server evaluates NULL comparisons to UNKNOWN, so NULL values never join with each other.
 
 **🗣️ Spoken answer (30–45 seconds)**
-SQL Server joins correlate records across tables using equality predicates. INNER JOIN returns matching rows only. OUTER joins preserve unmatched rows by supplying NULL attributes. In SQL Server, equality comparisons with NULL yield UNKNOWN rather than TRUE. Therefore, NULL values never match each other in joins. In one of my projects, using COALESCE in join logic prevented dropped financial records during billing runs.
+In SQL Server, joins evaluate **relational equality predicate**—matching criteria connecting related column values between tables. Joins adhere to **three-valued logic**, meaning any comparison involving NULL yields UNKNOWN rather than TRUE or FALSE. Because of this, NULL never equals NULL, and missing values fail join conditions unless handled explicitly. An **outer join** is a query operation that preserves unmatched rows by supplying NULL for missing attributes. In my project, using COALESCE in join logic prevented dropped financial records when foreign keys contained nulls.
 
 **🎯 Terms the interviewer listens for**
-- Relational equality predicate ⭐: Join criteria evaluating matching columns between tables.
-- Three-valued logic [UNKNOWN] ⭐: Boolean state where NULL comparisons produce neither TRUE nor FALSE.
-- Outer preservation [OUTER JOIN] ⭐: Preserves rows from designated table when no match exists.
-- Cartesian product [CROSS JOIN]: Produces all possible combinations between two relation streams.
-- Physical join operators: Engine operators: Nested Loops, Hash Match, and Merge Join.
+- ⭐ **Three-valued logic** — boolean evaluation where NULL comparisons yield UNKNOWN status
+- ⭐ **Relational equality predicate** — join criteria matching column attributes between tables
+- ⭐ **Outer join** — join preserving unmatched records by padding missing columns
+- **INNER JOIN** — join returning strictly rows matching on both sides
+- **Nested Loops** — physical join operator iterating outer rows against inner seeks
+- **Hash Match** — physical join operator hashing build input in memory
 
 **🧠 Memory hook**
 Joining on NULL is like matching two envelopes with missing addresses. The post office cannot assume two blank envelopes belong to the same recipient.
@@ -196,17 +199,18 @@ SQL Server join evaluation adheres to ANSI SQL-92 standards. When ANSI_NULLS is 
 *Commonly asked at: Amazon, TCS, Cognizant, Barclays*
 
 **⚡ One-line answer**
-UNION ALL concatenates result sets directly without sorting, while UNION removes duplicates using an expensive distinct sort or hash aggregate.
+**UNION ALL** is a set operator that concatenates result sets directly without sorting or duplicate removal.
 
 **🗣️ Spoken answer (30–45 seconds)**
-UNION ALL stacks rows with no deduplication or sort operations. In contrast, UNION adds deduplication through a distinct sort or hash aggregate operator. If the query memory grant runs short, that sort operation spills directly into TempDB disk. In one of my projects, replacing unnecessary UNION operators with UNION ALL cut query latency significantly. We reserve UNION strictly for cases where business logic demands eliminating duplicate records.
+**UNION ALL** is a **set operator**—a command combining query result sets—that concatenates streams directly without sorting or filtering duplicates. In contrast, UNION executes an expensive **distinct sort**—an execution plan operator ordering rows to purge duplicate records. If query workspace memory runs out, that sort causes a **TempDB spill**, meaning intermediate sort rows overflow to disk storage. In my project, replacing UNION with UNION ALL on pre-filtered streams eliminated sort spills and cut execution latency from twelve seconds to under one second.
 
 **🎯 Terms the interviewer listens for**
-- Stream concatenation [UNION ALL] ⭐: Combines rows directly with zero sorting overhead.
-- Distinct sort [UNION] ⭐: Execution plan operator sorting rows to eliminate duplicates.
-- TempDB spill [Sort Warning] ⭐: Disk spill occurring when memory grant is insufficient.
-- Memory grant [Workspace Memory]: RAM allocated before query execution for sort operations.
-- Hash aggregate: Alternative operator hashing rows to deduplicate streams.
+- ⭐ **UNION ALL** — set operator combining result sets without deduplication sorting
+- ⭐ **Distinct sort** — execution operator ordering records to eliminate duplicate rows
+- ⭐ **TempDB spill** — overflow of sort or hash work to disk
+- **Set operator** — SQL command combining multiple queries into one stream
+- **Memory grant** — workspace RAM allocated upfront for sort operations
+- **Hash aggregate** — alternative physical operator grouping and deduplicating rows
 
 **🧠 Memory hook**
 UNION ALL is stapling two printed documents together. UNION is reading both documents word for word and crossing out duplicate paragraphs.
@@ -246,17 +250,18 @@ UNION uses either a Sort (Distinct Sort) or Aggregate (Hash Aggregate) physical 
 *Commonly asked at: TCS, Accenture, HCL, LTIMindtree*
 
 **⚡ One-line answer**
-Stored procedures perform procedural tasks with data modifications and transactions, while user-defined functions compute values and must be side-effect-free.
+**Stored procedure** is a precompiled procedural block that can modify data, manage transactions, and return multiple results.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Stored procedures execute procedural statements, perform data modifications, and manage database transactions. They can return multiple result sets or output parameters, but cannot be joined inside SELECT queries. In contrast, a user-defined function must be side-effect-free with no modifications on database tables and no transactions. However, a function does not have to be deterministic; functions like GETDATE are fully allowed. In one of my projects, we use inline table-valued functions for clean composability.
+A **stored procedure** is a precompiled procedural routine that can execute DML statements and manage transactions with BEGIN and COMMIT. In contrast, a user-defined function computes values and must be strictly **side-effect-free**, meaning it cannot modify database tables or alter session state. Scalar functions often cause RBAR—row-by-row iteration that blocks parallelism. To avoid this, we use an **inline Table-Valued Function (iTVF)**, which is a set-based UDF the optimizer inlines directly into the calling execution plan without iterative row penalties.
 
 **🎯 Terms the interviewer listens for**
-- Side-effect-free [No DML] ⭐: Functions cannot insert, update, or delete table data.
-- Non-deterministic function [GETDATE] ⭐: Functions returning varying results like GETDATE are allowed.
-- Inline table-valued function [iTVF] ⭐: Table function expanded inline into calling query plan.
-- Scalar UDF inlining: SQL Server engine feature inlining scalar functions.
-- Transaction control [BEGIN TRAN]: Stored procedures can manage transactions; functions cannot.
+- ⭐ **Stored procedure** — precompiled procedural block modifying data and controlling transactions
+- ⭐ **Side-effect-free** — relational rule preventing functions from modifying table state
+- ⭐ **Inline Table-Valued Function (iTVF)** — set-based UDF the optimizer inlines into outer query
+- **RBAR** — row by agonizing row iterative execution pattern
+- **Scalar UDF inlining** — SQL Server engine feature embedding scalar functions
+- **Deterministic function** — function always returning identical results for given inputs
 
 **🧠 Memory hook**
 A stored procedure is an automated factory that modifies materials and produces shipments. A function is a desktop calculator that computes a formula without altering stock.
@@ -294,17 +299,18 @@ Scalar UDFs historically forced row-by-row iteration (RBAR) and blocked parallel
 *Commonly asked at: Amazon, Microsoft, Wells Fargo, Barclays*
 
 **⚡ One-line answer**
-Use CTEs for query readability, Table Variables for tiny non-parallel datasets, and Temp Tables for large datasets needing statistics and indexes.
+**Temporary table** means a physical table created in TempDB with statistics, indexes, and parallel execution support.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A CTE provides syntactic readability during query execution with zero persistence or statistics. A table variable resides in TempDB and memory, but lacks column distribution statistics. Because of this, the optimizer estimates single-row cardinality for table variables. A temporary table persists physically in TempDB, providing full statistics and parallel execution plans. In one of my projects, replacing large CTEs with temp tables eliminated repeated subquery executions.
+A **CTE** is a non-persisted syntactic view that expands inline into the main query without statistics. A **table variable** is a lightweight table structure residing in TempDB that lacks distribution statistics, causing the optimizer to estimate a default single-row cardinality. In contrast, a **temporary table** means a physical table created in TempDB supporting full column statistics, secondary indexes, and parallel execution plans. In my project, replacing large recursive CTEs with indexed temporary tables cut batch execution from minutes to seconds.
 
 **🎯 Terms the interviewer listens for**
-- Common table expression [CTE] ⭐: Non-persisted syntactic expression expanding into main query.
-- Temporary table [#Table] ⭐: Physical table in TempDB with statistics and indexing.
-- Table variable [@Table] ⭐: Lightweight table structure lacking column statistics.
-- Cardinality estimation error: Optimizer estimates 1 row for table variables.
-- Re-evaluation overhead: Referencing a CTE multiple times re-executes underlying query.
+- ⭐ **Temporary table** — physical TempDB table with full column statistics and indexes
+- ⭐ **Table variable** — lightweight TempDB table structure lacking column distribution statistics
+- ⭐ **CTE** — named temporary result set defined inline without physical persistence
+- **Cardinality estimation** — optimizer row prediction determining physical execution operators
+- **TempDB** — system database providing workspace for temporary objects
+- **Inline expansion** — optimizer re-evaluating CTE definitions for every query reference
 
 **🧠 Memory hook**
 A CTE is a bookmark in a book. A table variable is a sticky note on your monitor. A temporary table is a complete scratch notepad with an index.
@@ -344,17 +350,18 @@ SQL Server 2019 introduced Table Variable Deferred Compilation, compiling execut
 *Commonly asked at: Infosys, Wipro, Tech Mahindra, Morgan Stanley*
 
 **⚡ One-line answer**
-A primary key uniquely identifies rows and rejects all NULLs, while a unique key permits strictly one NULL in SQL Server.
+**Primary Key** is an entity integrity constraint that uniquely identifies rows and strictly rejects all NULLs.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A primary key enforces entity integrity by uniquely identifying each table row while strictly rejecting NULL values. By default, SQL Server creates a clustered index on the primary key. A unique key constraint also enforces uniqueness, but SQL Server permits strictly one NULL value across the column. Each table allows only one primary key, but multiple unique keys are supported. In one of my projects, we use unique keys on email addresses.
+A **Primary Key** is an **entity integrity** constraint—a rule ensuring every table record has a distinct non-null identity. By default, SQL Server automatically creates a **clustered index** on the primary key column to physically order rows. In contrast, a unique key enforces column uniqueness while permitting exactly one NULL value across the entire column. A table allows only one primary key but multiple unique keys. In my project, we place unique keys on user emails and alternate business identifiers.
 
 **🎯 Terms the interviewer listens for**
-- Entity integrity [Primary Key] ⭐: Rule stating table rows must have unique identity.
-- Nullability rule [One NULL] ⭐: SQL Server permits exactly one NULL per unique key.
-- Clustered default [PK Index] ⭐: Primary key creates a clustered index by default.
-- Unique index [Non-Clustered]: Unique constraint creates unique non-clustered index by default.
-- Alternate key: Candidate key chosen as unique constraint instead of primary.
+- ⭐ **Primary Key** — constraint uniquely identifying rows while rejecting all NULL values
+- ⭐ **Entity integrity** — relational rule requiring unique identity for every record
+- ⭐ **Clustered index** — table's physical row order stored as a B-tree
+- **Unique key** — constraint enforcing uniqueness while permitting exactly one NULL
+- **Nullability rule** — SQL Server standard allowing one NULL in unique constraint
+- **Alternate key** — candidate key column enforced through a unique constraint
 
 **🧠 Memory hook**
 A primary key is like an employee badge number that everyone must have. A unique key is a passport number which is unique, but optional for some.
@@ -392,17 +399,18 @@ ANSI SQL standards allow multiple NULL values in unique constraints, but SQL Ser
 *Commonly asked at: Infosys, Wipro, Accenture, Wells Fargo*
 
 **⚡ One-line answer**
-DELETE removes specific rows with full logging, TRUNCATE deallocates pages with minimal logging, and DROP completely removes table structure and data.
+**TRUNCATE** is a DDL command that deallocates entire pages with minimal logging and resets identity seeds.
 
 **🗣️ Spoken answer (30–45 seconds)**
-DELETE is a data manipulation command that logs every row deletion and fires delete triggers. In contrast, TRUNCATE is a data definition command that deallocates entire pages and extents with minimal logging. SQL Server pages are 8 KB and extents are 64 KB, containing 8 pages. TRUNCATE resets table identity values to their seed and cannot take a WHERE clause. In one of my projects, truncating staging tables saved transaction log growth.
+**TRUNCATE** is a DDL command executing **page extent deallocation**—freeing whole 64 KB storage blocks rather than deleting individual rows. This allows **minimal logging**, meaning the engine logs only page pointers instead of individual row data. Conversely, DELETE is a DML statement logging every deleted row and firing triggers without resetting the identity counter. DROP destroys both the table structure and data permanently. In my project, using TRUNCATE on bulk staging tables prevented transaction log bloat and finished in milliseconds.
 
 **🎯 Terms the interviewer listens for**
-- Page deallocation [TRUNCATE] ⭐: Deallocates 8 KB pages and 64 KB extents directly.
-- Row-by-row logging [DELETE] ⭐: Writes every individual deleted record to transaction log.
-- Identity reset [Seed Reseed] ⭐: TRUNCATE resets identity back to seed; DELETE does not.
-- DDL vs DML: TRUNCATE is DDL command; DELETE is DML statement.
-- Trigger execution: DELETE fires triggers; TRUNCATE never activates triggers.
+- ⭐ **TRUNCATE** — DDL command deallocating pages with minimal log overhead
+- ⭐ **Page extent deallocation** — freeing whole 64 KB storage extents at once
+- ⭐ **Minimal logging** — recording page pointer changes rather than full row data
+- **Identity seed reset** — resetting auto-increment counters back to starting value
+- **Row-by-row logging** — writing every individual deleted record to transaction log
+- **DROP** — DDL command permanently deleting table schema and data
 
 **🧠 Memory hook**
 DELETE is erasing individual lines with an eraser. TRUNCATE is ripping out notebook pages. DROP is throwing the entire notebook into a shredder.
@@ -438,17 +446,18 @@ TRUNCATE deallocates extents by updating Index Allocation Map (IAM) and Page Fre
 *Commonly asked at: TCS, Infosys, Cognizant, Wipro*
 
 **⚡ One-line answer**
-Normalization structures relational schemas to remove data redundancy and update anomalies by decomposing tables from 1NF through BCNF.
+**Normalization** is the systematic decomposition of database tables to eliminate redundancy and prevent update anomalies.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Database normalization progressively eliminates data redundancy and update anomalies. First Normal Form requires atomic column values and unique row identification. Second Normal Form eliminates partial dependencies, requiring all non-key attributes to depend on the entire primary key. Third Normal Form removes transitive dependencies, ensuring non-key attributes depend strictly on the primary key alone. Boyce-Codd Normal Form extends this rule by requiring every determinant attribute to be a candidate key. In one of my projects, normalizing customer addresses stopped duplicate update anomalies.
+**Normalization** organizes relational schemas to eliminate redundancy. **1NF** means atomic attributes without repeating groups or arrays. **2NF** means eliminating partial dependency, ensuring non-key attributes depend on the entire composite primary key. **3NF** means eliminating transitive dependency, where non-key columns must not depend on other non-key columns. Boyce-Codd Normal Form requires every determinant to be a candidate key. In my project, decomposing customer shipping addresses into 3NF normalized tables resolved duplicate update anomalies across our e-commerce order management system.
 
 **🎯 Terms the interviewer listens for**
-- Atomic attributes [1NF] ⭐: Columns hold single scalar values without repeating groups.
-- Partial dependency [2NF] ⭐: Non-key column depends on only part of composite key.
-- Transitive dependency [3NF] ⭐: Non-key column depends on another non-key column.
-- Boyce-Codd [BCNF]: Stricter form where every determinant is a candidate key.
-- Modification anomaly: Inconsistencies during insert, update, or delete operations.
+- ⭐ **Normalization** — decomposing tables to eliminate redundancy and update anomalies
+- ⭐ **1NF** — rule requiring atomic column values and unique row identification
+- ⭐ **2NF** — rule eliminating non-key attribute partial dependencies on composite keys
+- **3NF** — rule eliminating transitive dependencies between non-key attributes
+- **BCNF** — stricter normal form where every determinant is candidate key
+- **Update anomaly** — data inconsistency arising from redundant unnormalized records
 
 **🧠 Memory hook**
 Normalization is organizing your wardrobe: socks in one drawer, shirts in another. Denormalization is keeping a full outfit together for quick morning dressing.
@@ -490,17 +499,18 @@ The classic normalization saying states that non-key columns must depend upon th
 *Commonly asked at: Infosys, Wipro, HCL, Cognizant*
 
 **⚡ One-line answer**
-AFTER triggers execute after statement operations and constraints succeed, while INSTEAD OF triggers replace the triggering statement entirely.
+**AFTER trigger** means a trigger executing after statement operations and declarative constraints have successfully completed.
 
 **🗣️ Spoken answer (30–45 seconds)**
-An AFTER trigger executes after statement modifications and table constraints succeed. It runs within the active transaction context, reading inserted and deleted memory tables. An INSTEAD OF trigger executes in place of the modifying statement entirely. It bypasses base table changes and is widely used on complex views. Triggers always fire once per statement, not per individual row. In one of my projects, we use AFTER triggers strictly for audit logging.
+An **AFTER trigger** means a post-execution trigger that runs only after all DML operations and table constraints succeed. An **INSTEAD OF trigger** is an intercepting trigger that replaces the triggering DML statement completely with custom logic. Triggers access **inserted and deleted tables**, which are memory pseudo-tables holding pre-modification and post-modification rows for the batch. Triggers fire once per statement, not per row. In my project, we use AFTER triggers strictly for audit logging and INSTEAD OF triggers to enable writes on complex views.
 
 **🎯 Terms the interviewer listens for**
-- Post-modification trigger [AFTER] ⭐: Fires after base statement and declarative constraints succeed.
-- Interception trigger [INSTEAD OF] ⭐: Replaces original DML statement completely with custom logic.
-- Memory pseudo-tables [Inserted/Deleted] ⭐: Temporary memory structures holding pre- and post-modification rows.
-- Updatable views: INSTEAD OF triggers allow DML on multi-table views.
-- Set-based execution: Triggers fire once per statement, not per individual row.
+- ⭐ **AFTER trigger** — trigger firing after DML statement and constraints succeed
+- ⭐ **INSTEAD OF trigger** — trigger intercepting and replacing triggering statement entirely
+- ⭐ **Inserted and deleted tables** — memory pseudo-tables holding batch row modification states
+- **Set-based execution** — triggers executing once per statement across all affected rows
+- **Updatable view** — multi-table view enabled for writes via INSTEAD OF trigger
+- **Audit logging** — recording historical data changes for compliance and tracking
 
 **🧠 Memory hook**
 An AFTER trigger is a security guard checking your receipt as you exit. An INSTEAD OF trigger is a concierge who takes your ticket and parks your car for you.
@@ -543,17 +553,18 @@ Inserted and deleted pseudo-tables are backed by the version store or transactio
 *Commonly asked at: TCS, Infosys, Cognizant, Barclays*
 
 **⚡ One-line answer**
-A clustered index physically sorts table rows on disk, while a non-clustered index creates a separate pointer structure referencing those rows.
+**Clustered index** means the table's physical row order stored as a B-tree, one per table.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A clustered index physically orders table rows across data pages [leaf nodes]. Because the base rows are stored directly, each table can have only one clustered index. Non-clustered indexes build auxiliary search trees [secondary B-Trees] holding key columns and pointers [row locators]. In one of my projects, we cluster on a sequential identity column to stop page splits. We then use non-clustered indexes with included columns to avoid secondary lookups.
+A **clustered index** means the table's physical row order stored directly on disk as a B-tree leaf level. A **non-clustered index** is a separate pointer structure holding sorted keys that reference the underlying rows. Each table can have only one clustered index because rows can be physically sorted only once. In my project, we cluster on a sequential identity to prevent page splits and add non-clustered indexes with a **covering index**—an index storing all requested columns—to eliminate key lookups completely.
 
 **🎯 Terms the interviewer listens for**
-- Data pages [Leaf Nodes] ⭐: Physical storage pages containing base table rows.
-- Row locator [RID or Key] ⭐: Pointer linking secondary index rows to base records.
-- Covering index [INCLUDE] ⭐: Index containing all columns needed by a query.
-- B-Tree hierarchy: Balanced tree structure organizing index navigation levels.
-- Bookmark lookup: Secondary read to base table for extra columns.
+- ⭐ **Clustered index** — table's physical row order stored as a B-tree
+- ⭐ **Non-clustered index** — separate B-tree pointer structure referencing underlying data rows
+- ⭐ **Covering index** — index containing every column requested by the query
+- **B-tree** — balanced tree structure organizing physical index levels
+- **Row locator** — RID or clustering key pointing to base rows
+- **Key lookup** — additional read jumping back to the base table
 
 **🧠 Memory hook**
 A clustered index is like a phone book sorted alphabetically. A non-clustered index is the index at the back of a textbook pointing to page numbers.
@@ -590,17 +601,18 @@ Leaf pages in a clustered index are linked by a doubly-linked list. Non-clustere
 *Commonly asked at: Amazon, Microsoft, Barclays, Cognizant*
 
 **⚡ One-line answer**
-An Index Seek navigates B-Tree levels directly, an Index Scan reads entire leaf pages, while a Key Lookup fetches missing columns from the base table.
+**Index seek** means navigating B-tree intermediate levels in logarithmic time to locate qualifying rows directly.
 
 **🗣️ Spoken answer (30–45 seconds)**
-An Index Seek navigates B-Tree levels directly to locate rows in logarithmic time. An Index Scan reads all leaf pages of an index sequentially. A Table Scan reads an entire heap table from disk. Key Lookups occur when secondary indexes satisfy filters but lack selected columns. The engine then fetches base table rows using row locators. In one of my projects, covering indexes eliminated key lookups completely.
+An **index seek** means navigating B-tree intermediate levels in logarithmic time to jump directly to target rows. In contrast, an **index scan** is a sequential read traversing all leaf pages of an index from start to finish. A table scan reads an entire heap table without indexes. A **key lookup** is an additional random read into the base table when a non-clustered index lacks selected projection columns. In my project, adding covering indexes eliminated key lookups and cut disk I/O significantly.
 
 **🎯 Terms the interviewer listens for**
-- Index Seek [Logarithmic Search] ⭐: Navigates B-Tree structure directly to qualified keys.
-- Index Scan [Sequential Read] ⭐: Reads through every page of an index leaf level.
-- Key Lookup [Bookmark Lookup] ⭐: Base table lookup to retrieve unindexed projection columns.
-- Table Scan: Reads every allocated data page in an unindexed heap.
-- Covering index [INCLUDE]: Index housing all query columns to prevent secondary lookups.
+- ⭐ **Index seek** — navigating B-tree levels directly to locate matching rows
+- ⭐ **Index scan** — sequentially reading all leaf pages of an index
+- ⭐ **Key lookup** — secondary read to base table for unindexed columns
+- **Table scan** — reading every allocated data page in a heap
+- **B-tree** — balanced tree structure organizing index navigation hierarchy
+- **Covering index** — index containing all query columns to prevent lookups
 
 **🧠 Memory hook**
 An Index Seek flips straight to chapter five. An Index Scan reads the entire book index. A Key Lookup checks the index, then fetches another volume.
@@ -637,17 +649,18 @@ The tipping point where the optimizer switches from a Non-Clustered Seek plus Ke
 *Commonly asked at: Amazon, Microsoft, Barclays, JPMorgan Chase*
 
 **⚡ One-line answer**
-Covering indexes store query projection columns in non-clustered leaf pages via the INCLUDE clause, satisfying queries completely without base table lookups.
+**Covering index** means a non-clustered index storing all requested query columns on leaf pages via the INCLUDE clause.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A covering index provides all attributes requested by a query from leaf pages. Placing non-filter columns in the INCLUDE clause stores them at leaf level. This prevents intermediate B-Tree node bloat. It bypasses index key size limits while eliminating key lookups to base tables. In one of my projects, adding included columns cut logical reads from thousands to three. This stabilized response times on high-throughput lookup queries.
+A **covering index** means an index containing every column requested by a query directly on its leaf pages. By appending non-filter columns using the **INCLUDE clause**, meaning storing non-key attributes strictly on leaf levels without enlarging intermediate B-tree nodes, we bypass key size limitations. This achieves **key lookup elimination**, meaning avoiding secondary random I/O reads against the base table. In my project, adding included columns cut logical reads from four thousand down to two on high-throughput customer lookups.
 
 **🎯 Terms the interviewer listens for**
-- Covering index ⭐: Index housing all columns requested by calling query.
-- Non-key column [INCLUDE] ⭐: Stores attributes only at leaf level of B-Tree.
-- Key lookup elimination ⭐: Avoids secondary random I/O reads against base table.
-- Intermediate node bloat: Keeping non-key columns off index root prevents bloat.
-- Key size limit [1,700 bytes]: Maximum allowed byte width for composite index keys.
+- ⭐ **Covering index** — index storing all requested query columns on leaf pages
+- ⭐ **INCLUDE clause** — storing non-key attributes strictly at the B-tree leaf level
+- ⭐ **Key lookup elimination** — avoiding secondary random I/O reads against base tables
+- **Intermediate node bloat** — page size expansion in upper B-tree index levels
+- **Key size limit** — 1,700-byte maximum allowed width for composite index keys
+- **Write amplification** — extra storage I/O incurred maintaining indexes during writes
 
 **🧠 Memory hook**
 A covering index is having all answers printed directly on an invoice summary, so the accountant never needs to retrieve heavy paper files from the warehouse.
@@ -683,17 +696,18 @@ Non-key columns can include data types like VARCHAR(MAX) that are prohibited in 
 *Commonly asked at: Microsoft, Amazon, TCS, Infosys*
 
 **⚡ One-line answer**
-A query is SARGable when search predicates isolate the indexed column cleanly, enabling the engine to execute an efficient B-Tree Index Seek.
+**SARGable** means a search predicate is formatted to allow direct B-tree index seeks.
 
 **🗣️ Spoken answer (30–45 seconds)**
-SARGable stands for Search Argument Able. A predicate is SARGable when the engine can leverage an index directly to seek target rows. Wrapping an indexed column inside a function prevents the optimizer from calculating range boundaries on the B-Tree. This forces the storage engine to evaluate the function across every row using a full scan. In one of my projects, rewriting date functions into explicit boundaries transformed multi-second table scans into sub-millisecond index seeks.
+A predicate is **SARGable**, meaning search argument able, when SQL Server can leverage an index directly to seek qualifying rows. Wrapping an indexed column in a function causes a **non-SARGable predicate**, meaning an expression preventing the optimizer from calculating B-tree seek boundaries. This forces a full **index scan**, evaluating every row sequentially. In my project, refactoring YEAR(OrderDate) = 2026 into an explicit half-open range OrderDate >= '2026-01-01' AND OrderDate < '2027-01-01' transformed multi-second table scans into sub-millisecond index seeks.
 
 **🎯 Terms the interviewer listens for**
-- Search argument able [SARGable] ⭐: Predicates formatted to allow direct B-Tree index seeks.
-- Function wrapping [Non-SARGable] ⭐: Applying scalar functions to indexed columns disables seeks.
-- Range boundary [Half-Open Interval] ⭐: Comparing clean date boundaries using greater-than and less-than.
-- Leading wildcard: LIKE operator with leading percent sign forces full scans.
-- Index scan degradation: Engine scans every row when seek predicates cannot evaluate.
+- ⭐ **SARGable** — search argument able predicate enabling direct index seeks
+- ⭐ **Non-SARGable predicate** — expression preventing optimizer from calculating B-tree seek bounds
+- ⭐ **Index scan** — sequential read across all pages of an index
+- **Half-open interval** — date boundary using greater-than and strictly less-than
+- **Leading wildcard** — LIKE search starting with percent sign forcing scans
+- **Index seek** — jumping directly to matching rows via B-tree
 
 **🧠 Memory hook**
 Finding 'Smith' in a telephone book is fast. Finding 'everyone whose name ends with ith' requires reading every single name from beginning to end.
@@ -732,17 +746,18 @@ When a function wraps a column, the optimizer cannot produce seek keys for the s
 *Commonly asked at: Microsoft, Amazon, Barclays, Wells Fargo*
 
 **⚡ One-line answer**
-Parameter sniffing occurs when SQL Server optimizes a stored procedure using parameters from initial execution, causing poor performance when subsequent parameters have skewed distributions.
+**Parameter sniffing** means the optimizer compiles and caches an execution plan based on initial runtime parameter values.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Parameter sniffing occurs when the optimizer compiles a procedure plan for initial parameters. If that first call supplies an atypical parameter, that plan enters the cache. Subsequent calls with different data distributions reuse this suboptimal plan. This causes unexpected CPU spikes and high read counts. In one of my projects, we resolved sniffing using OPTIMIZE FOR UNKNOWN on hot procedures. This stabilized performance across varying inputs.
+**Parameter sniffing** means the query optimizer inspects input parameters during initial procedure compilation and caches a plan tailored to those values. When tables exhibit **data distribution skew**, meaning wildly uneven row counts across different filter values, subsequent executions using different inputs reuse that suboptimal plan. This causes sudden CPU spikes and **plan cache instability**, where procedure runtimes swing unpredictably. In my project, we resolved parameter sniffing by applying OPTIMIZE FOR UNKNOWN, which compiles against column density averages to ensure stable, predictable performance.
 
 **🎯 Terms the interviewer listens for**
-- Initial compilation sniff ⭐: Optimizer binds initial parameter values to build cached plan.
-- Data distribution skew ⭐: Uneven row counts across different parameter values in table.
-- Plan cache instability ⭐: Procedure runs fast or slow depending on initial parameters.
-- Query Store plan forcing: Forces known stable execution plan regardless of sniffed values.
-- Local variable assignment: Assigning parameters to local variables bypasses sniffing.
+- ⭐ **Parameter sniffing** — optimizer caching plans tailored to initial execution parameter values
+- ⭐ **Data distribution skew** — uneven row counts across different column values in tables
+- ⭐ **Plan cache instability** — stored procedure performance fluctuating wildly across parameter calls
+- **OPTIMIZE FOR UNKNOWN** — hint compiling plan based on average column density
+- **OPTION (RECOMPILE)** — hint compiling fresh plan on every procedure execution
+- **Query Store plan forcing** — pinning a proven execution plan to prevent regressions
 
 **🧠 Memory hook**
 Parameter sniffing is dispatching a bicycle because the first parcel was a letter, then sending that same bicycle when the next delivery is twenty heavy refrigerators.
@@ -782,17 +797,18 @@ Assigning a parameter to a local variable prevents the optimizer from sniffing t
 *Commonly asked at: Microsoft, Amazon, Barclays, Cognizant*
 
 **⚡ One-line answer**
-Nested Loops excels on small indexed outer rows, Merge Join scans pre-sorted streams, and Hash Match handles large unsorted inputs requiring memory grants.
+**Nested Loops** is a physical join operator iterating outer input rows against inner index seeks.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The optimizer selects physical join operators based on volume, indexes, and sort order. A Nested Loops join iterates through outer rows and probes inner index seeks. A Merge Join simultaneously scans pre-sorted input streams in a single pass. It requires zero memory grants and runs with high efficiency. A Hash Match join builds an in-memory hash table for large unsorted datasets. In one of my projects, missing indexes forced expensive hash joins that spilled to TempDB.
+The optimizer selects join operators based on row volume, indexes, and sort order. A **Nested Loops** join iterates through qualifying outer rows to probe an inner index. In contrast, a **Merge join operator** simultaneously scans two pre-sorted input streams in a single efficient pass without memory grants. A **Hash Match join** builds an in-memory hash table for large, unsorted datasets, requiring workspace memory. In my project, creating missing indexes transformed slow hash joins into sub-millisecond nested loops joins.
 
 **🎯 Terms the interviewer listens for**
-- Nested Loops join ⭐: Probes inner index iteratively for each qualifying outer row.
-- Merge join operator ⭐: Simultaneously scans pre-sorted input streams in single pass.
-- Hash Match join ⭐: Builds in-memory hash table from build input to probe.
-- Build and probe phases: Two-phase hash algorithm requiring memory workspace grant.
-- Pre-sorted stream requirement: Merge join requires inputs ordered by clustered keys or sort.
+- ⭐ **Nested Loops** — physical join iterating outer rows against inner index seeks
+- ⭐ **Merge join operator** — physical join simultaneously scanning two pre-sorted input streams
+- ⭐ **Hash Match join** — physical join hashing build input to probe unsorted data
+- **Memory grant** — workspace RAM allocated upfront for hash table operations
+- **Pre-sorted stream requirement** — engine requiring sorted inputs for merge join processing
+- **TempDB hash spill** — disk overflow occurring when hash tables exceed memory grants
 
 **🧠 Memory hook**
 Nested loops is looking up numbers in a phone book one by one. Merge join is zipper teeth interlocking. Hash match is sorting mail into post office boxes.
@@ -829,17 +845,18 @@ If the memory grant for a Hash Match join is undersized, the hash table cannot f
 *Commonly asked at: Microsoft, Amazon, Barclays, TCS*
 
 **⚡ One-line answer**
-SQL Server builds histograms with up to 200 steps; cardinality errors occur when data modifications outpace update thresholds or correlation assumptions fail.
+**Statistics** means metadata objects containing distribution histograms and density vectors that guide query optimization.
 
 **🗣️ Spoken answer (30–45 seconds)**
-SQL Server generates statistics objects containing density vectors and histograms capped at 200 steps. The optimizer relies on statistics to estimate cardinalities and choose join operators. Cardinality estimation errors arise when statistics become stale or column correlations fail. Ascending identity keys also lead to single-row estimation miscalculations. In one of my projects, updating statistics with full scan fixed bad join choices. Regular maintenance ensures accurate cost estimates.
+**Statistics** are metadata objects containing density vectors and a **histogram**, which is a distribution curve with up to 200 steps modeling data values. The optimizer uses these objects for **cardinality estimation**, meaning predicting row counts to choose optimal join and index operators. Statistics become stale when row modifications cross the dynamic update threshold, roughly the square root of 500 times table rows. In my project, scheduling nightly maintenance with full scans prevented stale statistics and stopped unexpected execution plan regressions.
 
 **🎯 Terms the interviewer listens for**
-- Histogram distribution [200 Steps] ⭐: Records value frequencies and step boundaries across column values.
-- Cardinality estimation [CE] ⭐: Predicted row count guiding optimizer plan choices and memory.
-- Density vector ⭐: Measures uniqueness of column combinations for grouping estimates.
-- Ascending key problem: Newly inserted identity keys exceeding highest histogram step.
-- Predicate independence assumption: Optimizer assumes separate WHERE filters are mathematically independent.
+- ⭐ **Statistics** — metadata objects modeling column value distributions and densities
+- ⭐ **Histogram** — distribution model storing frequencies across up to 200 intervals
+- ⭐ **Cardinality estimation** — predicted row counts guiding execution operator selection
+- **Dynamic update threshold** — row modification threshold triggering automatic background statistics updates
+- **Density vector** — metric measuring column uniqueness for multi-column index grouping
+- **Ascending key problem** — new identity values falling outside current histogram maximum range
 
 **🧠 Memory hook**
 Statistics are like a road map. If road construction adds five new bypasses, an outdated map sends thousands of vehicles down a narrow dirt alley.
@@ -876,17 +893,18 @@ The threshold to trigger auto-update statistics on modern SQL Server is dynamic:
 *Commonly asked at: Amazon, Microsoft, Wells Fargo, Barclays*
 
 **⚡ One-line answer**
-ACID properties ensure transactions are atomic, consistent with constraints, isolated from concurrent anomalies, and durable across system crashes.
+**ACID** means atomicity, consistency, isolation, and durability, guaranteeing reliability for all database transactions.
 
 **🗣️ Spoken answer (30–45 seconds)**
-ACID properties guarantee reliability for database transactions. Atomicity ensures all operations succeed or the entire transaction rolls back. Consistency maintains database schema rules and foreign key integrity. Isolation guarantees that each transaction sees a consistent view, and the isolation level decides which anomalies are allowed. Serializability specifically gives the same result as if transactions ran one after another. Durability writes committed changes to disk via write-ahead logging before reporting success.
+**ACID** guarantees transactional integrity across relational databases. **Atomicity** means an all-or-nothing guarantee where all operations succeed or the entire transaction rolls back. Consistency maintains schema rules and constraints. An **isolation level** controls how much concurrent transactions see of each other's uncommitted modifications. **Write-ahead logging** is a durability mechanism where transaction log records flush to disk before dirty data pages commit to storage. In my project, wrapping account debits and credits in atomic transactions prevented partial transfers during sudden network crashes.
 
 **🎯 Terms the interviewer listens for**
-- Atomicity [All-or-Nothing] ⭐: Guarantees entire transaction completes or rolls back completely.
-- Consistent view [Isolation] ⭐: Isolation level controls allowed concurrency anomalies and views.
-- Write-ahead logging [WAL] ⭐: Log records flush to disk before data pages commit.
-- Serializability anomaly: Highest isolation yielding results identical to sequential execution.
-- Database integrity [Consistency]: Preserves rules, constraints, and valid state transitions.
+- ⭐ **ACID** — transactional guarantees of atomicity, consistency, isolation, and durability
+- ⭐ **Atomicity** — all-or-nothing execution ensuring complete success or full rollback
+- ⭐ **Write-ahead logging** — flushing transaction log records before data page commits
+- **Isolation level** — rules controlling visibility of concurrent transaction changes
+- **Durability** — guarantee that committed transactions survive server crashes
+- **Consistency** — maintaining schema integrity constraints and valid database states
 
 **🧠 Memory hook**
 ACID is a bank transfer: either money moves completely, account rules hold, concurrent users see clean balances, and recorded receipts survive power failures.
@@ -930,17 +948,18 @@ SQL Server ensures durability by forcing synchronous flushes of the log buffer t
 *Commonly asked at: Microsoft, Amazon, Barclays, JPMorgan Chase*
 
 **⚡ One-line answer**
-Isolation levels control concurrency trade-offs between performance and anomalies, including dirty reads, non-repeatable reads, and phantom records.
+**Isolation level** means the concurrency boundary controlling what uncommitted or modified data concurrent transactions can view.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Transaction isolation levels govern what uncommitted or modified data concurrent transactions can view. Under READ UNCOMMITTED, dirty reads can occur. READ COMMITTED prevents dirty reads by holding shared locks during row reads. REPEATABLE READ holds shared locks until transaction completion, preventing non-repeatable reads. SERIALIZABLE adds key-range locking to eliminate phantom records completely. In one of my projects, enabling Read Committed Snapshot Isolation allowed non-blocking reads while guaranteeing committed data views.
+An **isolation level** controls the trade-off between concurrency throughput and data anomalies. Under READ COMMITTED, shared locks prevent a **dirty read**, meaning viewing uncommitted data that is subsequently rolled back. REPEATABLE READ prevents a **non-repeatable read**, meaning rereading rows and discovering modified values from concurrent transactions. SERIALIZABLE acquires key-range locks to eliminate phantom records. In my project, enabling Read Committed Snapshot Isolation eliminated reader-writer blocking while guaranteeing committed data views.
 
 **🎯 Terms the interviewer listens for**
-- Dirty read anomaly ⭐: Reading uncommitted data that is subsequently rolled back.
-- Non-repeatable read ⭐: Rereading a row finds updated data from another transaction.
-- Phantom read anomaly ⭐: Concurrent transaction inserts new qualifying rows into range.
-- Key-range locking [SERIALIZABLE]: Locks ranges of keys to prevent concurrent insertions.
-- Read Committed Snapshot [RCSI]: Row versioning isolation providing non-blocking committed reads.
+- ⭐ **Isolation level** — rules controlling visibility of concurrent transaction data modifications
+- ⭐ **Dirty read** — reading uncommitted data that is subsequently rolled back
+- ⭐ **Non-repeatable read** — rereading rows and finding updated values from another transaction
+- **Phantom read anomaly** — concurrent transactions inserting new rows into scanned ranges
+- **Key-range locking** — locks placed on key intervals preventing concurrent insertions
+- **Read Committed Snapshot (RCSI)** — non-blocking isolation serving committed rows from TempDB
 
 **🧠 Memory hook**
 Isolation levels are like hotel rooms: from a shared dormitory with zero privacy to a high-security vault where nobody else can enter the entire floor.
@@ -980,17 +999,18 @@ SERIALIZABLE uses Key-Range Lock modes like RangeS-S and RangeS-U, locking both 
 *Commonly asked at: Microsoft, Amazon, Barclays, Wells Fargo*
 
 **⚡ One-line answer**
-Deadlocks occur when two or more sessions hold conflicting locks while waiting for resources held by the other, forming a cyclic blocking dependency.
+**Deadlock** means two or more transactions forming a cyclic dependency where each waits for locks held by the other.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A deadlock occurs when two transactions hold locks while requesting resources held by each other. Because neither transaction can advance, a cyclic lock dependency forms. SQL Server detects the cycle and terminates the session with lower rollback cost. The terminated session receives Error 1205 as the deadlock victim. Extended Events capture deadlock graphs for diagnosis. In one of my projects, consistent resource ordering and UPDLOCK hints eliminated deadlocks.
+A **deadlock** occurs when concurrent transactions hold locks while mutually requesting resources held by each other, creating a **cyclic lock dependency** where neither session can advance. SQL Server detects the cycle and selects the transaction with the lowest rollback cost as the **deadlock victim**, terminating it with Error 1205. Using an **update lock hint (UPDLOCK)** serializes read-then-write transactions, preventing conversion deadlocks entirely. In my project, enforcing consistent alphabetical table access ordering across all procedures eliminated production deadlocks.
 
 **🎯 Terms the interviewer listens for**
-- Cyclic lock dependency ⭐: Two sessions mutually waiting for resources locked by each other.
-- Deadlock victim [Error 1205] ⭐: Transaction chosen by engine to terminate and roll back.
-- Update lock hint [UPDLOCK] ⭐: Acquires update lock early to prevent conversion deadlocks.
-- Deadlock priority: SET DEADLOCK_PRIORITY sets preference for victim selection.
-- Consistent resource ordering: Accessing database tables in identical order across all procedures.
+- ⭐ **Deadlock** — cyclic blocking condition where transactions wait on each other's locks
+- ⭐ **Cyclic lock dependency** — mutual blocking relationship between concurrent database sessions
+- ⭐ **Deadlock victim** — transaction chosen by engine to terminate and roll back
+- **Update lock hint (UPDLOCK)** — acquiring update locks early to prevent conversion deadlocks
+- **Deadlock priority** — session configuration setting preference for victim selection
+- **Error 1205** — specific SQL Server error returned to aborted deadlock sessions
 
 **🧠 Memory hook**
 A deadlock is two cars meeting on a one-lane bridge: neither driver can move forward, and neither is willing to reverse until a police officer orders one back.
@@ -1027,17 +1047,18 @@ SQL Server runs an internal lock monitor thread every 5 seconds (or as fast as 1
 *Commonly asked at: Microsoft, Amazon, Barclays, Morgan Stanley*
 
 **⚡ One-line answer**
-SQL Server acquires granular Shared, Update, and Exclusive locks, escalating to a full table lock when a single statement exceeds roughly 5,000 locks.
+**Lock escalation** means SQL Server converting roughly 5,000 fine-grained row or page locks into a single table lock.
 
 **🗣️ Spoken answer (30–45 seconds)**
-SQL Server acquires granular locks at row, page, and table levels to manage concurrency. Shared locks permit concurrent readers, Exclusive locks prevent concurrent access during writes, and Update locks prevent conversion deadlocks. Intent locks communicate lower-level hierarchy locking. When a single query acquires roughly five thousand locks on a single table or index, SQL Server triggers lock escalation. It replaces individual row locks with a single exclusive table lock. In one of my projects, batching updates prevented escalation.
+SQL Server concurrency uses **granular lock modes**, acquiring Shared locks for reads, Update locks for conversion safety, and Exclusive locks for writes. When a single statement acquires roughly five thousand fine-grained locks, the engine triggers **lock escalation**, converting row and page locks into a single table lock to conserve memory. To coordinate lock hierarchies, SQL Server uses **intent locks**, signaling to parent containers that lower-level row locks exist. In my project, batching large deletes below 4,000 rows prevented lock escalation and eliminated table-level blocking.
 
 **🎯 Terms the interviewer listens for**
-- Granular lock modes [S, U, X] ⭐: Shared for reads, Update for intent, Exclusive for writes.
-- Intent locks [IS, IX, IU] ⭐: Placed on parent containers to indicate lower-level locking.
-- Lock escalation threshold [~5,000] ⭐: Engine threshold converting fine-grained locks to table lock.
-- Lock escalation disable: ALTER TABLE SET LOCK_ESCALATION = DISABLE prevents escalation.
-- Chunked batch modification: Processing updates in smaller batches under 5,000 rows.
+- ⭐ **Lock escalation** — converting ~5,000 fine-grained locks into a single table lock
+- ⭐ **Granular lock modes** — fine-grained concurrency locks including Shared, Update, and Exclusive
+- ⭐ **Intent locks** — hierarchical locks placed on parents indicating child locks exist
+- **Lock escalation threshold** — ~5,000 lock acquisition trigger converting to table lock
+- **Exclusive lock (X)** — lock preventing concurrent access during data modifications
+- **Chunked batch modification** — processing updates in small batches under 5,000 rows
 
 **🧠 Memory hook**
 Row locks are like placing reserved signs on individual chairs. Lock escalation is roping off the entire banquet hall because too many chairs are reserved.

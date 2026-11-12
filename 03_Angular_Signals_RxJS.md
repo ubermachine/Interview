@@ -54,17 +54,18 @@ NgRx SignalStore provides lightweight, modular state management. Each state slic
 *Commonly asked at: TCS, Accenture, Cognizant, Infosys*
 
 **⚡ One-line answer**
-signal holds writable state, computed derives read-only cached values, and effect executes side effects on state changes.
+**Signal** is a reactive value container notifying consumers when its wrapped state changes.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The signals trio forms Angular's reactive foundation. A `signal()` holds writable state, updated via `.set()` or `.update()`. A `computed()` derives read-only state lazily, recalculating only when read and its dependencies changed. An `effect()` runs side effects like logging or localStorage synchronization, scheduled on browser microtasks. You should never write to signals inside effects to avoid infinite loops. In one of my projects, replacing manual state derivation with computed signals removed twenty state synchronization bugs.
+A **signal** is a reactive value container holding writable state updated via set or update methods. A **computed** signal derives read-only state lazily, recalculating only when read after dependencies change. An **effect** executes a side effect operation scheduled on browser microtasks, such as logging or synchronizing local storage. You must avoid writing to signals inside effects to prevent circular cascades. In my project, replacing manual state coordination with computed signals eliminated synchronization bugs across our cart checkout components.
 
 **🎯 Terms the interviewer listens for**
-- **signal()**: writable reactive state container primitive ⭐
-- **computed()**: lazily evaluated memoized derived signal ⭐
-- **effect()**: microtask scheduled reactive side effect operation ⭐
-- **Push-pull graph**: dirty flag propagation and lazy pulling
-- **Reactive context**: tracks dynamic dependencies during function execution
+- ⭐ **Signal** — reactive value container notifying consumers when wrapped state changes
+- ⭐ **Computed** — derived signal lazily caching values until dependencies update
+- ⭐ **Effect** — reactive operation executing side effects on browser microtasks
+- **Push-pull graph** — reactive algorithm combining dirty notifications with lazy reads
+- **Reactive context** — execution environment dynamically tracking accessed signal dependencies
+- **Writable signal** — signal exposing set and update modification methods
 
 **🧠 Memory hook**
 signal is an Excel number cell; computed is an Excel formula cell; effect is an email alert sent when totals change.
@@ -100,17 +101,18 @@ Computed nodes track producer versions. On read, if all upstream producer versio
 *Commonly asked at: Wipro, TCS, Capgemini, Persistent*
 
 **⚡ One-line answer**
-Signals check equality using Object.is; in-place array mutation keeps the same reference, so consumers never update.
+**Object.is** is the default reference equality algorithm signals use to decide whether to notify consumers.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Signals use reference equality [Object.is] to decide whether consumers need re-evaluation. Calling `items().push(item)` mutates the existing array in place without changing its memory reference. Because the old reference and new reference are identical, the signal drops notifications and dependent templates fail to re-render. You must create a new array reference using `.update()` with the spread operator. In one of my projects, fixing direct mutations resolved missing shopping cart item updates.
+Angular signals rely on **Object.is**, an equality comparison algorithm checking memory addresses to determine state changes. Directly calling push performs in-place mutation, preserving the identical array memory reference. Because the reference never changes, the signal drops dirty notifications, and dependent templates fail to re-render. To ensure updates, developers must execute an **immutable update**, meaning producing a brand-new array reference using the spread operator. We apply this inside the **update method**, modifying state via a pure transformation function. In my project, this fixed broken cart updates.
 
 **🎯 Terms the interviewer listens for**
-- **Object.is**: equality algorithm used for signal changes ⭐
-- **Immutable update**: producing new references without in-place mutation ⭐
-- **update()**: modifies signal value using a pure transformation ⭐
-- **Reference equality**: evaluates memory address identity of objects
-- **Dirty marking**: notifies downstream consumers of state changes
+- ⭐ **Object.is** — equality comparison algorithm checking memory addresses for changes
+- ⭐ **Immutable update** — producing new object references without mutating existing state
+- ⭐ **Update method** — signal method applying pure transformations to state
+- **Reference equality** — comparing object identity rather than deep contents
+- **Dirty notification** — signal signalizing downstream consumers that state changed
+- **Reactive consumer** — template or computed node listening to signal changes
 
 **🧠 Memory hook**
 Direct array push is writing a note inside an old book; immutable update is publishing a new edition with a fresh cover.
@@ -144,17 +146,18 @@ Signal nodes execute `equal(prevValue, nextValue)`. If true, the node returns wi
 *Commonly asked at: Cognizant, Accenture, TCS, Infosys*
 
 **⚡ One-line answer**
-untracked reads a signal value without registering it as a reactive dependency in the current context.
+**untracked** is an execution wrapper reading signal values without registering reactive dependencies in the current context.
 
 **🗣️ Spoken answer (30–45 seconds)**
-When an effect or computed executes, reading any signal registers that signal as a reactive dependency. Reading a signal inside `untracked()` accesses its current value while excluding it from dependency tracking. Consequently, subsequent mutations to that untracked signal will not trigger re-execution of the effect. This prevents circular dependency cascades and unintended re-runs. In one of my projects, untracked prevented infinite loops when logging analytics events alongside state updates.
+The **untracked** utility reads a signal value while bypassing dependency registration within the current **reactive context**, which is the active execution scope monitoring signal reads. Reading a signal inside untracked ensures subsequent mutations to that signal will not trigger re-execution of the surrounding effect or computed calculation. This prevents a **circular dependency**, meaning an infinite feedback loop caused by reciprocal signal updates. In my project, wrapping analytics logging inside untracked prevented infinite loops when recording user search query metrics.
 
 **🎯 Terms the interviewer listens for**
-- **untracked()**: reads signal values without dependency registration ⭐
-- **Reactive context**: execution scope tracking accessed signal producers ⭐
-- **Circular dependency**: infinite loop caused by reciprocal signal triggers ⭐
-- **Dynamic tracking**: registers dependencies accessed during branch execution
-- **Version checking**: determines whether computed signals need re-evaluation
+- ⭐ **untracked** — utility reading signals without registering reactive dependencies
+- ⭐ **Reactive context** — active execution scope tracking accessed signal producers
+- ⭐ **Circular dependency** — infinite feedback loop caused by reciprocal signal updates
+- **Dynamic tracking** — registering dependencies dynamically during conditional branch execution
+- **Version checking** — verifying producer version stamps before recomputing values
+- **Effect scheduling** — queuing reactive side effects on microtask queues
 
 **🧠 Memory hook**
 untracked is like glancing at the wall clock while cooking without setting an alarm for every second.
@@ -191,17 +194,18 @@ untracked temporarily sets the active reactive node context to null, reads the s
 *Commonly asked at: Capgemini, Infosys, Deloitte, TCS*
 
 **⚡ One-line answer**
-@defer lazily loads template sections on declarative triggers like viewport, interaction, hover, timer, or idle.
+**@defer** is a declarative template block that lazily loads and renders components based on specified triggers.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Deferrable views allow declarative, template-level code splitting for components, directives, and pipes. The `@defer` block downloads and renders its content only when a configured trigger fires. Common triggers include `on viewport` using IntersectionObserver, `on interaction` on user click, `on hover`, and `on idle`. Companion blocks include `@placeholder`, `@loading`, and `@error` for states. In one of my projects, deferring offscreen comment lists reduced initial load JavaScript by thirty-five percent.
+The **@defer** block is a declarative template feature enabling component-level code splitting without routing configurations. It downloads and renders markup only when configured triggers fire, such as **on viewport**, meaning loading the chunk when its placeholder enters the browser viewport via IntersectionObserver. Another common trigger is **on idle**, which defers download until the browser main thread is idle. Deferrable views include @placeholder, @loading, and @error blocks to handle asynchronous loading states. In my project, deferring offscreen comment sections cut initial bundle size by thirty-five percent.
 
 **🎯 Terms the interviewer listens for**
-- **@defer**: template block for lazy loading markup chunks ⭐
-- **on viewport**: loads chunk when placeholder enters viewport ⭐
-- **on idle**: loads chunk during browser idle time ⭐
-- **@placeholder**: markup displayed before deferred load begins
-- **@loading**: markup shown while the chunk is actively downloading
+- ⭐ **@defer** — template block enabling declarative lazy-loading of component markup
+- ⭐ **on viewport** — trigger downloading deferred chunks when entering browser viewport
+- ⭐ **on idle** — trigger downloading deferred content during browser idle time
+- **@placeholder** — markup rendered before deferred content begins downloading
+- **@loading** — template displayed while deferred chunk is fetching
+- **IntersectionObserver** — browser API detecting element visibility in viewport
 
 **🧠 Memory hook**
 @defer is ordering dessert only after finishing dinner rather than crowding the table at the start.
@@ -241,17 +245,18 @@ The compiler extracts inner components of @defer blocks into separate dynamic ch
 *Commonly asked at: Cognizant, Infosys, Deloitte, Capgemini*
 
 **⚡ One-line answer**
-forkJoin waits for all streams to complete; combineLatest emits on any update once all have emitted at least once.
+**forkJoin** is an RxJS combination operator waiting for all source streams to complete before emitting their final values.
 
 **🗣️ Spoken answer (30–45 seconds)**
-These combination operators handle multiple streams under different trigger policies. `forkJoin` waits for all source observables to complete and emits their final values in parallel, acting like `Promise.all`. `combineLatest` emits whenever any source emits, provided every source has emitted at least once. Selecting the wrong operator causes stale data or hung streams. In one of my projects, forkJoin parallelized three independent configuration API calls on startup.
+The **forkJoin** operator functions like Promise.all, waiting for every input observable to complete before emitting a single array containing each stream's final value. In contrast, **combineLatest** is an active combination operator that waits for each source to emit at least once, then emits a combined tuple whenever any source updates. Both operators require careful **stream completion**, meaning sources like HTTP requests or Subjects must finish or complete properly. In my project, using forkJoin for parallel master data endpoints ensured page rendering began with all reference payloads loaded.
 
 **🎯 Terms the interviewer listens for**
-- **forkJoin**: waits for all source streams to complete ⭐
-- **combineLatest**: emits latest values whenever any source updates ⭐
-- **Promise.all**: JavaScript promise combination equivalent to forkJoin ⭐
-- **Completion rule**: stream must complete before emitting in forkJoin
-- **Cold observable**: stream producing values upon subscription
+- ⭐ **forkJoin** — operator waiting for all streams to complete before emitting
+- ⭐ **combineLatest** — operator emitting combined values whenever any input stream updates
+- ⭐ **Stream completion** — observable lifecycle event signaling no further emissions occur
+- **Combination operator** — RxJS operator joining multiple streams into one
+- **Initial emission requirement** — combineLatest requiring at least one value per source
+- **Parallel HTTP requests** — executing multiple backend API calls concurrently
 
 **🧠 Memory hook**
 forkJoin waits for everyone to finish exams before leaving; combineLatest updates scores whenever any player scores.
@@ -289,17 +294,18 @@ forkJoin buffers the latest emission of each stream. When its completion countdo
 *Commonly asked at: TCS, Accenture, LTIMindtree, Persistent*
 
 **⚡ One-line answer**
-BehaviorSubject requires an initial seed value; ReplaySubject(1) replays one past value without requiring an initial value.
+**BehaviorSubject** is a multicast observable that requires an initial seed value and stores its current state in memory.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Both subjects replay cached data to late subscribers but differ in initialization and completion behavior. `BehaviorSubject` requires an initial seed value upon instantiation and always holds a current value synchronously accessible via `.getValue()`. `ReplaySubject(1)` does not require an initial value, remaining quiet until its first emission. Furthermore, when `BehaviorSubject` completes, late subscribers still receive its last value, whereas `ReplaySubject(1)` replays its buffered value even after completion. In one of my projects, ReplaySubject(1) handled one-shot auth tokens cleanly.
+A **BehaviorSubject** is a multicast stream requiring an initial **seed value** upon instantiation, always retaining its latest emission which late subscribers receive immediately. It also allows synchronous inspection of current state via getValue. In contrast, a **ReplaySubject** buffers emissions without requiring an initial value, waiting until the first value arrives before caching. Importantly, when a BehaviorSubject completes, new subscribers still receive its last cached value, whereas a ReplaySubject replays its configured buffer regardless of completion status. In my project, BehaviorSubject effectively managed global authentication tokens.
 
 **🎯 Terms the interviewer listens for**
-- **BehaviorSubject**: stores current value and requires an initial seed ⭐
-- **ReplaySubject(1)**: buffers one value without requiring an initial seed ⭐
-- **getValue()**: synchronously reads current value of BehaviorSubject ⭐
-- **Seed value**: initial value supplied during subject instantiation
-- **Late subscriber**: observer subscribing after initial stream emissions
+- ⭐ **BehaviorSubject** — multicast observable requiring initial seed and storing current value
+- ⭐ **ReplaySubject** — observable caching specified number of past emissions for subscribers
+- ⭐ **Seed value** — initial value required when constructing a BehaviorSubject
+- **getValue** — method synchronously reading current value of a BehaviorSubject
+- **Late subscriber** — observer subscribing after initial values have been emitted
+- **Multicasting** — sharing single underlying stream execution among multiple observers
 
 **🧠 Memory hook**
 BehaviorSubject is a clock always showing the current time; ReplaySubject(1) is a voice recorder replaying the latest message.
@@ -334,17 +340,18 @@ BehaviorSubject stores its current value in an internal `_value` field; ReplaySu
 *Commonly asked at: Infosys, Deloitte, Cognizant, TCS*
 
 **⚡ One-line answer**
-It happens when property bindings mutate after parent template verification; fix it by moving updates earlier or using signals.
+**ExpressionChangedAfterItHasBeenCheckedError** is a development-mode error thrown when template bindings mutate during verification passes.
 
 **🗣️ Spoken answer (30–45 seconds)**
-This development-only error enforces unidirectional data flow. In development mode, Angular runs a second verification pass after change detection. If a binding value differs from what was checked in the primary pass, Angular throws this error. It typically occurs when a child component modifies a parent property inside lifecycle hooks like `ngAfterViewInit`. The fix is moving mutations to `ngOnInit` or managing state via signals. In one of my projects, switching to signal inputs eliminated this error.
+In development mode, Angular runs a secondary **verification digest**, meaning an additional change detection pass verifying that template expressions remain stable. If a child component or lifecycle hook modifies a parent binding during this cycle, Angular throws **ExpressionChangedAfterItHasBeenCheckedError**, detecting **unidirectional data flow** violations. To resolve this, move state updates to ngOnInit, schedule updates asynchronously using Promise.resolve, or adopt Angular Signals, which update state reactively without triggering digest discrepancies. In my project, converting modal visibility flags to signals eliminated these change detection errors permanently.
 
 **🎯 Terms the interviewer listens for**
-- **Unidirectional data flow**: data flows downward from parent to children ⭐
-- **Verification pass**: development-only second check for binding stability ⭐
-- **ngAfterViewInit**: hook that frequently triggers late mutation errors ⭐
-- **queueMicrotask()**: postpones state mutations to subsequent event cycles
-- **ChangeDetectorRef**: provides manual control over change detection runs
+- ⭐ **ExpressionChangedAfterItHasBeenCheckedError** — error thrown when template bindings change during verification
+- ⭐ **Verification digest** — development check re-evaluating bindings to catch unstable mutations
+- ⭐ **Unidirectional data flow** — architectural rule requiring data flow from parent to child
+- **Change detection cycle** — process where Angular evaluates templates against component models
+- **Promise.resolve** — scheduling updates to next microtask to satisfy verification
+- **ngAfterViewInit** — lifecycle hook running after view templates initialize
 
 **🧠 Memory hook**
 It is like a bill inspector approving your grocery invoice, only for a cashier to add an item immediately after signing.
@@ -381,17 +388,18 @@ In debug mode, `ApplicationRef.tick()` runs `checkAndUpdate()` followed by a sec
 *Commonly asked at: Wipro, TCS, Accenture, HCL*
 
 **⚡ One-line answer**
-static true resolves queries before change detection in ngOnInit; static false resolves after template rendering in ngAfterViewInit.
+**static: true** means resolving a ViewChild DOM query before change detection runs, making it accessible in ngOnInit.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The static flag determines the query resolution phase. When `{ static: true }` is configured, Angular resolves the element before change detection, making it available in `ngOnInit`. This works only if the element is not wrapped in conditional blocks like `@if` or `*ngIf`. When `{ static: false }` is used, the query resolves after view rendering in `ngAfterViewInit`. Modern `viewChild()` signals eliminate this flag completely. In one of my projects, viewChild signals simplified dynamic canvas initialization.
+Specifying **static: true** directs Angular to resolve the query before change detection executes, making the element available inside ngOnInit. However, it works only when the element is never wrapped inside **conditional DOM**, such as @if blocks. In contrast, **static: false** is the default setting that resolves the query after template rendering completes, making references accessible inside ngAfterViewInit. In modern Angular, the new viewChild signal query replaces both options with reactive signals. In my project, using static: true on static canvas containers enabled early graphic context initialization.
 
 **🎯 Terms the interviewer listens for**
-- **static: true**: resolves query before change detection in ngOnInit ⭐
-- **static: false**: resolves query after template render in ngAfterViewInit ⭐
-- **Conditional DOM**: elements inside @if cannot resolve statically ⭐
-- **viewChild()**: modern signal-based DOM query primitive
-- **ElementRef**: wrapper around native DOM element instances
+- ⭐ **static: true** — configuration resolving ViewChild queries before change detection in ngOnInit
+- ⭐ **static: false** — default configuration resolving ViewChild queries after rendering in ngAfterViewInit
+- ⭐ **Conditional DOM** — template elements conditionally rendered via @if or structural directives
+- **ViewChild** — decorator or signal querying child DOM elements or components
+- **ngAfterViewInit** — component lifecycle hook executing after view initialization finishes
+- **ElementRef** — wrapper object referencing underlying native DOM element instances
 
 **🧠 Memory hook**
 static: true is checking your luggage before boarding; static: false is collecting luggage at the arrivals carousel after landing.
@@ -426,17 +434,18 @@ Static queries resolve during component view creation, whereas dynamic queries r
 *Commonly asked at: Cognizant, Accenture, TCS, Persistent*
 
 **⚡ One-line answer**
-Built-in @for lowers into native ɵɵrepeater instructions, enforcing tracking keys at compile time and bypassing directive class allocations.
+**@for block** is a compiler-native control flow block that optimizes list rendering and enforces tracking keys at compile time.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Modern `@for` replaces legacy `*ngFor` structural directives. Because `@for` is compiler-native, it requires zero module imports and generates low-level `ɵɵrepeater` instructions. It enforces a mandatory `track` expression at compile time, eliminating list reconciliation bugs where developers omitted `trackBy`. Furthermore, `@for` includes a native `@empty` block, eliminating companion `*ngIf` checks. In one of my projects, switching to `@for` sped up list rendering by forty percent.
+The modern **@for block** is built directly into the Angular compiler, eliminating directive class instantiation overhead. It mandates a **track expression**, meaning a compulsory compile-time key ensuring efficient DOM reconciliation when array items change. The compiler lowers @for into optimized low-level instructions rather than generic structural directive views. Additionally, it provides an integrated **@empty block**, meaning a built-in fallback template rendered whenever collections contain zero items. In my project, migrating high-frequency product grids from *ngFor to @for reduced list rendering latency by forty percent.
 
 **🎯 Terms the interviewer listens for**
-- **@for loop**: compiler-native list rendering control flow block ⭐
-- **track expression**: mandates unique identity key for list diffing ⭐
-- **@empty block**: renders fallback template when collection has zero items ⭐
-- **ɵɵrepeater**: compiler instruction for optimized list reconciliation
-- **trackBy function**: legacy class method for identifying array elements
+- ⭐ **@for block** — compiler-native control flow structure rendering repeated template collections
+- ⭐ **track expression** — mandatory unique key expression for optimizing DOM node diffing
+- ⭐ **@empty block** — built-in fallback template displayed when rendered collections are empty
+- **trackBy function** — legacy class method used to identify unique array elements
+- **DOM reconciliation** — algorithm updating only changed elements in DOM lists
+- **Structural directive** — legacy template directives prefixed with asterisks altering DOM structure
 
 **🧠 Memory hook**
 *ngFor was an outside contractor hired to set up a market stall; @for is a built-in automated vending machine.
@@ -474,17 +483,18 @@ The compiler lowers @for into ɵɵrepeaterCreate and ɵɵrepeater instructions, 
 *Commonly asked at: TCS, Cognizant, Wipro, Accenture*
 
 **⚡ One-line answer**
-Implement global error handling by providing a custom ErrorHandler class in provideZoneChangeDetection or application config.
+**ErrorHandler** is a centralized Angular class that intercepts unhandled exceptions across the entire application.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Angular routes all unhandled application exceptions through a centralized `ErrorHandler` class. By default, it prints error details to the browser console. To customize handling, create a class implementing `ErrorHandler` and override its `handleError(error: unknown)` method. Register it in `app.config.ts` using `{ provide: ErrorHandler, useClass: GlobalErrorHandler }`. Inside, log errors to external monitoring platforms. In one of my projects, a custom ErrorHandler captured unhandled exceptions and forwarded them to Sentry.
+Angular delegates all uncaught exceptions to the centralized **ErrorHandler** class, which prints diagnostics to the console by default. To customize handling, developers create a service implementing ErrorHandler and override its **handleError method**, which receives the unhandled exception. This service is provided at bootstrap in app.config.ts using provideErrorHandler. Inside handleError, we sanitize error stacks and forward telemetry to a remote **logging service**. In my project, this custom handler intercepted uncaught API and runtime exceptions, forwarding structured traces to Datadog for real-time production alerting.
 
 **🎯 Terms the interviewer listens for**
-- **ErrorHandler**: centralized class catching unhandled errors ⭐
-- **handleError()**: method executed when an unhandled exception occurs ⭐
-- **Logging service**: forwards error diagnostics to monitoring platforms ⭐
-- **Zone.js**: intercepts asynchronous errors and directs them to handler
-- **provideErrorHandler**: configures application-wide error handling
+- ⭐ **ErrorHandler** — centralized application class intercepting all unhandled runtime exceptions
+- ⭐ **handleError method** — core method receiving and processing unhandled application error instances
+- ⭐ **Logging service** — remote telemetry service collecting client-side crash and error diagnostics
+- **provideErrorHandler** — modern dependency injection helper providing custom global error handler
+- **Zone.js** — execution context capturing asynchronous errors and directing them to handler
+- **app.config.ts** — standalone application configuration file registering core dependency providers
 
 **🧠 Memory hook**
 A global ErrorHandler is a central security control room receiving alarms from every sensor across a building.
@@ -523,17 +533,18 @@ Zone.js catches errors originating in microtasks or DOM events, routing them thr
 *Commonly asked at: Infosys, Capgemini, Deloitte, TCS*
 
 **⚡ One-line answer**
-Renderer2 provides platform-independent DOM abstraction, whereas ElementRef.nativeElement couples code to the browser and risks XSS.
+**Renderer2** is a platform-independent abstraction service providing safe DOM manipulation across browser and server environments.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Directly manipulating DOM properties via `ElementRef.nativeElement` couples your application strictly to browser environments. It bypasses Angular security sanitization, introducing cross-site scripting vulnerabilities and breaking server-side rendering [SSR]. `Renderer2` provides a safe abstraction layer across platforms. It coordinates mutations through Angular's rendering engine, supporting Web Workers and server environments safely. In one of my projects, migrating DOM styling to Renderer2 enabled seamless SSR hydration.
+Direct access via ElementRef bypasses Angular's security layers and couples code strictly to the browser, breaking **server-side rendering (SSR)** where no DOM exists. In contrast, **Renderer2** is a platform-independent DOM abstraction service that safely routes mutations through Angular's rendering engine. This prevents vulnerabilities like cross-site scripting and ensures execution safety across Web Workers and node servers. It wraps modifications using a clean **DOM abstraction layer**. In my project, refactoring direct nativeElement style manipulations to Renderer2 enabled our dashboard components to hydrate seamlessly under Angular Universal.
 
 **🎯 Terms the interviewer listens for**
-- **Renderer2**: platform-independent DOM manipulation abstraction layer ⭐
-- **ElementRef**: direct wrapper around native browser DOM elements ⭐
-- **Server-side rendering**: rendering templates outside browser DOM context ⭐
-- **DomSanitizer**: cleans untrusted HTML bindings to block XSS
-- **Native element**: underlying browser HTML DOM node reference
+- ⭐ **Renderer2** — platform-independent abstraction service for performing safe DOM manipulations
+- ⭐ **Server-side rendering (SSR)** — rendering Angular component templates into HTML on backend servers
+- ⭐ **DOM abstraction layer** — architectural layer decoupling components from direct browser DOM APIs
+- **ElementRef** — wrapper class exposing direct references to native DOM nodes
+- **XSS prevention** — sanitizing DOM property updates to block malicious scripts
+- **Native element** — underlying browser HTML element instance accessed via nativeElement
 
 **🧠 Memory hook**
 Renderer2 is a universal remote control operating any TV model; nativeElement is rewiring the circuit board directly by hand.
@@ -570,17 +581,18 @@ On the server, Angular swaps the browser renderer with a DOM emulation engine, s
 *Commonly asked at: TCS, Accenture, Cognizant, Persistent*
 
 **⚡ One-line answer**
-Tree-shaking removes unused services from production bundles when declared via providedIn root instead of module provider arrays.
+**providedIn: 'root'** means declaring a service as an application-level singleton that modern bundlers can tree-shake when unreferenced.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Tree-shaking is a dead-code elimination process performed by bundlers like esbuild. When a service declares `@Injectable({ providedIn: 'root' })`, Angular marks it as tree-shakeable. The bundler examines the application's static dependency graph. If no component or service injects or references that service, the compiler excludes it from the final JavaScript output. Legacy `NgModule` provider arrays forced services into bundles unconditionally. In one of my projects, switching to providedIn root trimmed four hundred kilobytes of unused legacy services.
+Specifying **providedIn: 'root'** on an @Injectable decorator configures the service as an application-level singleton while enabling **dead-code elimination**, meaning bundlers can automatically strip unused code from production bundles. During build optimization, bundlers perform **static analysis** on the dependency graph. If no component or service injects the service, the compiler omits it from final output bundles. In contrast, registering services inside NgModule provider arrays forced them into bundles unconditionally. In my project, migrating legacy shared services to providedIn: 'root' trimmed four hundred kilobytes of unused bundle code.
 
 **🎯 Terms the interviewer listens for**
-- **providedIn: 'root'**: declares tree-shakeable application-level singleton ⭐
-- **Dead-code elimination**: bundler process stripping unreferenced exports ⭐
-- **Static analysis**: evaluating code import graphs at compile time ⭐
-- **Module provider array**: legacy non-tree-shakeable provider registration
-- **esbuild**: high-performance bundler analyzing dependency graphs
+- ⭐ **providedIn: 'root'** — metadata declaring tree-shakeable application-wide singleton services
+- ⭐ **Dead-code elimination** — build optimization process removing unreferenced code from bundles
+- ⭐ **Static analysis** — compiler inspection of import graphs to determine active dependencies
+- **Tree-shaking** — optimization removing unused export modules from compiled JavaScript bundles
+- **NgModule provider array** — legacy provider registration mechanism preventing automatic tree-shaking
+- **Application singleton** — service maintaining a single shared instance throughout application lifecycle
 
 **🧠 Memory hook**
 Tree-shaking is like pruning a tree in winter: any branch with zero fruit or leaves is cut away to lighten the trunk.
@@ -617,17 +629,18 @@ Angular compiles providedIn: 'root' into a static ɵprov property on the service
 *Commonly asked at: Infosys, Capgemini, Deloitte, TCS*
 
 **⚡ One-line answer**
-Content projection projects external markup into components using ng-content, using select attributes for multi-slot layouts.
+**Content projection** means projecting external HTML markup into a component template using ng-content placeholder tags.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Content projection allows consumers to inject custom HTML fragments into a component template. Single-slot projection uses a plain `<ng-content></ng-content>` tag. Multi-slot projection uses the `select` attribute with CSS selectors like classes, tag names, or attributes to distribute content into distinct designated slots. Projected nodes are instantiated in the parent's context and resolved during `ngAfterContentInit`. In one of my projects, multi-slot projection allowed our modal component to accept separate header, body, and footer content.
+**Content projection** is a template composition technique injecting external markup into component templates using the **<ng-content> tag**, which acts as a placeholder slot. To project content into specific layout sections, developers use **multi-slot projection**, which adds select attributes containing CSS class or attribute selectors to distribute projected elements into distinct slots. Projected nodes are compiled in the parent component's context and resolve during ngAfterContentInit. In my project, multi-slot projection allowed our shared dialog component to project dedicated header, body, and action footer fragments cleanly.
 
 **🎯 Terms the interviewer listens for**
-- **<ng-content>**: transclusion slot rendering external projected DOM ⭐
-- **Multi-slot projection**: distributing content via select CSS attributes ⭐
-- **ContentChild**: queries projected content elements within components ⭐
-- **ngAfterContentInit**: hook where projected content resolves fully
-- **Transclusion**: computer science term for inserting external markup
+- ⭐ **Content projection** — technique injecting consumer markup into designated component template slots
+- ⭐ **<ng-content> tag** — built-in placeholder element rendering external projected DOM fragments
+- ⭐ **Multi-slot projection** — distributing projected content into distinct slots using select attributes
+- **ContentChild** — decorator or signal querying projected child DOM elements
+- **ngAfterContentInit** — lifecycle hook executing after projected content finishes initial rendering
+- **Transclusion** — computer science concept of embedding external markup inside components
 
 **🧠 Memory hook**
 A multi-slot picture frame with distinct cutouts for the photograph, title plaque, and commemorative seal.
@@ -663,17 +676,18 @@ Angular tracks projected DOM nodes in the parent view tree, inserting pointers i
 *Commonly asked at: TCS, Accenture, LTIMindtree, Persistent*
 
 **⚡ One-line answer**
-Subject has no initial value; BehaviorSubject requires an initial seed value and always holds its current state.
+**Subject** is a multicast observable that emits events to active subscribers without storing or replaying previous values.
 
 **🗣️ Spoken answer (30–45 seconds)**
-RxJS subjects act as both observable event emitters and observer consumers. A plain `Subject` emits only future events to subscribers; late subscribers receive nothing. A `BehaviorSubject` requires an initial seed value, holds its current value, and immediately replays it to new subscribers. You can synchronously read the current value of a BehaviorSubject using `.getValue()`. In one of my projects, BehaviorSubject shared authenticated user states across routes.
+An RxJS **Subject** is a multicast observable that broadcasts values to current observers without holding an initial value or historical state, meaning late subscribers receive only future events. In contrast, a **BehaviorSubject** requires an **initial seed value** upon instantiation, always maintains its current value, and immediately emits it to any new subscriber. BehaviorSubject also exposes synchronous value inspection via getValue. In my project, we use Subject for transient event notifications like toast alerts, and BehaviorSubject to hold persistent state like user session details.
 
 **🎯 Terms the interviewer listens for**
-- **Subject**: multicast observable without historical value storage ⭐
-- **BehaviorSubject**: stores current value and requires an initial seed ⭐
-- **getValue()**: synchronously reads current value of BehaviorSubject ⭐
-- **Seed value**: initial value supplied during subject instantiation
-- **Multicasting**: distributing single emission to multiple subscriber observers
+- ⭐ **Subject** — multicast observable broadcasting values without caching past emissions
+- ⭐ **BehaviorSubject** — multicast observable storing current state and requiring initial seed
+- ⭐ **Initial seed value** — required starting value supplied during BehaviorSubject construction
+- **getValue** — method synchronously reading current value of a BehaviorSubject
+- **Multicasting** — distributing single stream execution to multiple observer subscribers
+- **Transient event** — one-off event notification not requiring persistence for late subscribers
 
 **🧠 Memory hook**
 Subject is live radio; BehaviorSubject is a digital clock showing current time.
@@ -708,17 +722,18 @@ BehaviorSubject overrides `_subscribe` to call `next()` immediately with its int
 *Commonly asked at: Accenture, TCS, Cognizant, Persistent*
 
 **⚡ One-line answer**
-Angular sanitizes untrusted bindings automatically; use DomSanitizer only to explicitly trust verified safe content.
+**DomSanitizer** is a security service that explicitly bypasses Angular's built-in sanitization for verified, trusted HTML content.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Angular treats all untrusted template values as dangerous by default. During binding compilation, Angular passes values through security contexts, stripping malicious script tags and inline handlers. If you must display safe HTML or trusted external URLs, use `DomSanitizer`. Methods like `bypassSecurityTrustHtml` tell Angular to skip sanitization. You should use it only after thoroughly validating input sources. In one of my projects, sanitizing third-party SVG icons prevented potential script injections.
+Angular provides automatic **XSS protection** by treating all untrusted template values as insecure, escaping executable scripts before rendering. It inspects values across designated **security context** categories, including HTML, styles, and resource URLs. When applications must render dynamic external markup, developers use **DomSanitizer** to bypass sanitization using methods like bypassSecurityTrustHtml. This bypass must be used cautiously and only on verified content. In my project, sanitizing server-generated SVG icons via DomSanitizer prevented script injections while allowing dynamic rendering of company brand graphics.
 
 **🎯 Terms the interviewer listens for**
-- **DomSanitizer**: service for bypassing Angular security sanitization ⭐
-- **Security context**: categorizes bindings like HTML, style, URL ⭐
-- **XSS protection**: stripping executable malicious scripts from markup ⭐
-- **bypassSecurityTrustHtml**: marks HTML string as safe for rendering
-- **Interpolation escaping**: automatically escapes HTML in template bindings
+- ⭐ **DomSanitizer** — service enabling explicit bypass of Angular security sanitization rules
+- ⭐ **XSS protection** — built-in template mechanism stripping malicious scripts from data bindings
+- ⭐ **Security context** — categorization evaluating risk levels for HTML, styles, and URLs
+- **bypassSecurityTrustHtml** — method marking trusted HTML strings to bypass template sanitization
+- **Contextual escaping** — automatic encoding of dynamic strings to prevent code execution
+- **SafeHtml** — wrapped security type indicating an HTML string has been trusted
 
 **🧠 Memory hook**
 Angular sanitization is airport luggage screening; DomSanitizer is issuing an express VIP pass to verified diplomatic cargo.
@@ -754,17 +769,18 @@ Angular's compiler maps bindings to contexts (HTML, STYLE, SCRIPT, URL, RESOURCE
 *Commonly asked at: Deloitte, Infosys, Capgemini, TCS*
 
 **⚡ One-line answer**
-Non-destructive hydration attaches event listeners to server-rendered DOM instead of destroying and re-rendering markup.
+**Non-destructive hydration** means the client attaches event listeners directly to server-rendered DOM without destroying and recreating HTML nodes.
 
 **🗣️ Spoken answer (30–45 seconds)**
-In legacy Angular SSR, the browser downloaded server-rendered HTML and immediately destroyed all DOM nodes to re-render client components. This caused noticeable screen flickering and lost form input states. Modern Angular uses non-destructive hydration enabled via `provideClientHydration()`. The client traverses the existing server DOM, matches components to nodes, and attaches event listeners in place. In one of my projects, enabling hydration reduced Largest Contentful Paint [LCP] by forty percent.
+In modern SSR, **non-destructive hydration** preserves server-rendered HTML by traversing the existing DOM tree and attaching event listeners in place. This achieves **DOM recycling**, completely avoiding the legacy behavior where client Angular wiped the DOM and re-rendered all components. Consequently, this eliminates page flickering and significantly reduces **Largest Contentful Paint (LCP)**. Hydration is enabled in application bootstrap via provideClientHydration. In my project, enabling non-destructive hydration on our e-commerce catalog improved our Core Web Vitals score and eliminated visual layout jumps during hydration.
 
 **🎯 Terms the interviewer listens for**
-- **provideClientHydration()**: enables non-destructive hydration in client bootstrap ⭐
-- **DOM recycling**: attaches events to existing nodes without recreation ⭐
-- **Flickering reduction**: prevents visible page flashes during page load ⭐
-- **Largest Contentful Paint**: Core Web Vital metric measuring visual load speed
-- **TransferState**: shares server-fetched data with client bootstrap
+- ⭐ **Non-destructive hydration** — technique attaching event listeners to existing server DOM nodes
+- ⭐ **DOM recycling** — reusing server-rendered DOM elements without tearing down and recreating
+- ⭐ **Largest Contentful Paint (LCP)** — Core Web Vital metric measuring visual page loading speed
+- **provideClientHydration** — function enabling modern non-destructive hydration at bootstrap
+- **Screen flickering** — visual flash caused by destroying and re-rendering DOM nodes
+- **TransferState** — service sharing server-cached data payloads with client runtime
 
 **🧠 Memory hook**
 Legacy hydration bulldozed a house to rebuild the same house; non-destructive hydration moves furniture into the existing house.
@@ -801,17 +817,18 @@ The server annotates DOM nodes with hydration IDs. On the client, Angular reconc
 *Commonly asked at: Capgemini, Cognizant, Persistent, Accenture*
 
 **⚡ One-line answer**
-runInInjectionContext allows executing functions requiring dependency injection outside standard lifecycle windows using an explicit injector.
+**runInInjectionContext** is an Angular function that executes code requiring dependency injection outside standard constructor lifecycle windows.
 
 **🗣️ Spoken answer (30–45 seconds)**
-In modern Angular, `inject()` is legally allowed only during class field initialization, constructor execution, or functional route guards. Calling `inject()` inside asynchronous callbacks like setTimeout or Promise resolutions throws error `NG0203`. `runInInjectionContext` allows you to manually establish an injection frame by passing an `EnvironmentInjector`. This restores the injector stack, allowing functional composables to resolve dependencies safely. In one of my projects, runInInjectionContext allowed asynchronous dialog helpers to inject notification services cleanly.
+In modern Angular, the inject function requires an active **injection context**, which exists normally only during class field initialization and constructor execution. Attempting to call inject inside asynchronous callbacks or lifecycle hooks throws error NG0203. To bypass this restriction, **runInInjectionContext** accepts an **EnvironmentInjector** and executes the target callback within a valid dependency context. This enables creating dynamic signal effects and resolving services inside asynchronous workflows. In my project, runInInjectionContext allowed dynamically instantiated dialog components to inject services inside async factory functions.
 
 **🎯 Terms the interviewer listens for**
-- **runInInjectionContext()**: manually restores injection context for callbacks ⭐
-- **EnvironmentInjector**: injector hierarchy for routes and application scope ⭐
-- **NG0203 error**: thrown when inject() is called outside context ⭐
-- **Injection context**: time window when dependency resolution is legal
-- **Functional composable**: reusable utility resolving dependencies dynamically
+- ⭐ **runInInjectionContext** — utility executing code within an explicit dependency injection context
+- ⭐ **Injection context** — runtime window where inject function is legally allowed to execute
+- ⭐ **EnvironmentInjector** — injector instance managing standalone and environment-level dependencies
+- **NG0203 error** — error thrown when calling inject outside an active injection context
+- **Functional composition** — building reusable logic using standalone injection functions
+- **inject function** — modern function retrieving dependency instances without constructor parameters
 
 **🧠 Memory hook**
 A temporary visitor security badge allowing a contractor to use workshop tools after hours.
@@ -849,17 +866,18 @@ Angular pushes the provided injector to the top of its internal injector stack, 
 *Commonly asked at: TCS, Wipro, Cognizant, Accenture*
 
 **⚡ One-line answer**
-take(1) completes on the first emission; first() errors if empty; single() errors if more or less than one value emits.
+**take(1)** is a filtering operator that emits the first value and completes without throwing an error if empty.
 
 **🗣️ Spoken answer (30–45 seconds)**
-These three operators take items from observable streams with different completion conditions. `take(1)` emits the first value and completes immediately; if the stream completes empty, it completes without error. `first()` emits the first matching item; if the stream completes without emitting, it throws an `EmptyError`. `single()` asserts that exactly one item matches; if zero or multiple items emit, it throws an error. In one of my projects, take(1) fetched single configuration snapshots cleanly.
+The **take(1)** operator subscribes to a source stream, emits its initial value, and immediately triggers **stream completion** without erroring if the source completes empty. In contrast, the **first operator** expects at least one emission; if the source completes without emitting, it throws an **EmptyError exception**. Both operators unsubscribe from the source stream after the first emission, preventing memory leaks on infinite streams. In my project, we use take(1) for optional configuration streams to avoid uncaught EmptyErrors when endpoints return empty streams.
 
 **🎯 Terms the interviewer listens for**
-- **take(1)**: emits first value and completes without empty error ⭐
-- **first()**: emits first value but throws EmptyError if empty ⭐
-- **single()**: errors if emission count is not exactly one ⭐
-- **Predicate function**: conditional callback filtering emitted values
-- **EmptyError**: exception thrown when expected values fail to emit
+- ⭐ **take(1)** — operator taking first emission and completing safely if empty
+- ⭐ **First operator** — operator emitting first value but erroring if stream completes empty
+- ⭐ **EmptyError exception** — error thrown by first operator when stream completes without emissions
+- **Stream completion** — lifecycle event where observable finishes and closes its subscription
+- **single operator** — operator expecting exactly one emission and erroring on duplicates
+- **Unsubscribe cleanup** — releasing observable resources automatically after first value arrives
 
 **🧠 Memory hook**
 take(1) takes the first bus leaving; first() demands at least one bus runs; single() insists only one bus exists on the route.
@@ -896,17 +914,18 @@ take(1) decrements an internal counter and unsubscribes from the source observab
 *Commonly asked at: Capgemini, Infosys, Deloitte, Cognizant*
 
 **⚡ One-line answer**
-The component host property declares host bindings cleanly in metadata, eliminating legacy decorator boilerplate.
+**Host property binding** is a component metadata property that binds attributes, classes, and listeners directly to host elements.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Angular components and directives often need to bind attributes or listen to events on their host DOM element. The legacy approach used `@HostBinding` and `@HostListener` decorators on class properties and methods. Modern Angular recommends declaring bindings inside the decorator `host` property. This approach centralizes template metadata, improves compiler optimizations, and avoids unnecessary class fields. In one of my projects, migrating to the host property simplified custom tooltip directives.
+Modern Angular recommends declaring host configurations via the **host property binding** inside component metadata instead of legacy decorators. This approach avoids decorating separate properties with **@HostBinding** for attributes and **@HostListener** for events. Centralizing bindings in the component decorator object improves readability, keeps component classes clean, and simplifies static analysis for compiler optimization. It also supports binding reactive signals directly to host styles. In my project, refactoring custom button directives to host property metadata eliminated repetitive decorator boilerplate and streamlined styling rules.
 
 **🎯 Terms the interviewer listens for**
-- **host property**: decorator metadata object configuring host element bindings ⭐
-- **@HostBinding**: legacy decorator binding host property to class field ⭐
-- **@HostListener**: legacy decorator binding host events to class method ⭐
-- **Host element**: the DOM node enclosing the component template
-- **Metadata centralization**: keeping component configuration inside decorator
+- ⭐ **Host property binding** — metadata object configuring host element classes, styles, and listeners
+- ⭐ **@HostBinding** — legacy property decorator binding component fields to host attributes
+- ⭐ **@HostListener** — legacy method decorator listening to DOM events on host elements
+- **Host element** — outer DOM element containing and encapsulating a component template
+- **Component metadata** — configuration object defined inside the @Component decorator
+- **Directive composition** — combining host behaviors directly within reusable directive classes
 
 **🧠 Memory hook**
 The host property is a component's nameplate on its front door, declaring rules clearly in one visible place.
@@ -947,17 +966,18 @@ The compiler parses the host metadata object into instruction nodes, applying up
 *Commonly asked at: TCS, Accenture, Wipro, HCL*
 
 **⚡ One-line answer**
-Input transforms automatically parse string attributes into booleans or numbers without manual setter boilerplate.
+**Input transforms** means built-in functions automatically coercing template attribute strings into strongly-typed component input values.
 
 **🗣️ Spoken answer (30–45 seconds)**
-When HTML attributes are applied without property brackets, browsers pass them as strings. Historically, developers wrote verbose getters and setters to convert empty string flags into true booleans. Angular provides built-in transform functions like `booleanAttribute` and `numberAttribute`. Passing `{ transform: booleanAttribute }` to an input converts `<app-btn disabled />` into a proper boolean. In one of my projects, input transforms removed forty lines of property coercion boilerplate.
+Angular **input transforms** format and coerce incoming template attributes using pure transformation functions. Built-in helpers include **booleanAttribute**, which coerces present empty attributes like `<my-btn disabled>` into boolean true, and **numberAttribute**, which parses string digits into numeric values. These transform functions eliminate the legacy pattern of writing repetitive getters and setters with manual type casting. They work seamlessly with modern **signal inputs**. In my project, applying booleanAttribute to dialog visibility inputs allowed consumers to write clean HTML attributes without explicit bracket bindings.
 
 **🎯 Terms the interviewer listens for**
-- **booleanAttribute**: coerces presence or string values to booleans ⭐
-- **numberAttribute**: coerces incoming string inputs into numeric types ⭐
-- **input() transform**: option configuring automatic value conversion ⭐
-- **Coercion boilerplate**: manual getters and setters converting types
-- **HTML attribute binding**: passing unbracketed strings from template markup
+- ⭐ **Input transforms** — functions automatically coercing template attribute values into target types
+- ⭐ **booleanAttribute** — built-in transform coercing presence of HTML attributes to boolean true
+- ⭐ **numberAttribute** — built-in transform parsing string attribute values into JavaScript numbers
+- **Signal input** — reactive component input declared using modern input signal function
+- **Type coercion** — converting data from one datatype to another automatically during binding
+- **Input transform option** — transform property defined inside input decorator or signal options
 
 **🧠 Memory hook**
 An input transform is a universal electrical adapter converting foreign wall plug voltages automatically into your device's voltage.
@@ -995,17 +1015,18 @@ Transforms execute during property binding evaluation, converting raw attribute 
 *Commonly asked at: TCS, Cognizant, Persistent, Capgemini*
 
 **⚡ One-line answer**
-router.navigate accepts route command arrays for relative path construction, while navigateByUrl requires an absolute URL string.
+**router.navigate** is a routing method accepting path command arrays to construct URLs relative to activated routes.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Angular provides two primary imperative navigation methods. `router.navigate()` accepts a command array, allowing relative navigation from the current `ActivatedRoute` using `./` or `../`. It parses path segments and merges query parameters flexibly. `router.navigateByUrl()` takes a complete absolute URL string starting from the root slash, replacing the entire navigation tree immediately. `navigateByUrl` is faster because it bypasses relative path calculation. In one of my projects, navigateByUrl handled external deep-link redirects efficiently.
+The **router.navigate** method accepts an array of URL segments and configuration parameters, allowing relative path navigation based on the current **ActivatedRoute**. It calculates target URLs by resolving relative dots against the active route hierarchy. In contrast, **router.navigateByUrl** accepts an absolute URL string or **UrlTree**, completely ignoring relative route context to navigate directly from the root. In my project, we use router.navigate for step-by-step wizard navigation relative to child routes, and router.navigateByUrl when redirecting users to absolute routes after authentication.
 
 **🎯 Terms the interviewer listens for**
-- **router.navigate()**: navigates based on provided command array parameters ⭐
-- **router.navigateByUrl()**: navigates directly using absolute URL string path ⭐
-- **Command array**: ordered list of route path segments and parameters ⭐
-- **Relative navigation**: resolving target paths relative to active route
-- **UrlTree**: internal data structure representing parsed application URL
+- ⭐ **router.navigate** — navigation method constructing URLs from command arrays and relative routes
+- ⭐ **router.navigateByUrl** — navigation method navigating directly to an absolute URL string
+- ⭐ **UrlTree** — internal Angular data structure representing parsed application route hierarchies
+- **ActivatedRoute** — service holding current route parameters and hierarchical location state
+- **Relative navigation** — navigating to child routes using relative segment commands like ./
+- **Absolute navigation** — navigating directly from application root using slash-prefixed URLs
 
 **🧠 Memory hook**
 navigate() is giving turn-by-turn driving directions from your current spot; navigateByUrl is entering an exact GPS destination address.
@@ -1038,17 +1059,18 @@ navigate() runs createUrlTree() merging relative activated route segments before
 *Commonly asked at: Cognizant, Infosys, Deloitte, TCS*
 
 **⚡ One-line answer**
-shareReplay(1) without refCount keeps the source subscription open forever, causing permanent memory leaks.
+**shareReplay(1)** is a multicasting operator that caches emissions for late subscribers but leaks memory without refCount true.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The `shareReplay` operator multicasts an observable stream, caching its latest emission for late subscribers. Calling `shareReplay(1)` without `refCount: true` keeps the internal subject subscribed indefinitely. It stays subscribed even after all consumer components unmount. This retains services and HTTP connections in memory permanently. Adding `{ bufferSize: 1, refCount: true }` ensures that when subscribers drop to zero, the source unsubscribes cleanly. In one of my projects, adding refCount fixed memory leaks in our navigation service.
+The **shareReplay(1)** operator multicasts a source stream, caching its latest emission for late subscribers. When executed without **refCount: true**, the underlying subject never unsubscribes from the source observable, even when all subscriber components unmount. This causes **subscription retention**, keeping services, components, and HTTP connections retained in memory permanently. Adding refCount: true ensures that when active subscriber counts reach zero, the source unsubscribes cleanly. In my project, configuring refCount on shared navigation observables resolved persistent memory leaks across route transitions.
 
 **🎯 Terms the interviewer listens for**
-- **shareReplay(1)**: multicasts and caches latest emissions for late subscribers ⭐
-- **refCount: true**: unsubscribes from source when subscriber count hits zero ⭐
-- **Subscription retention**: holding upstream observable connections open indefinitely ⭐
-- **Multicast stream**: sharing a single execution among multiple observers
-- **ReplaySubject buffer**: stores historical values to emit to new subscribers
+- ⭐ **shareReplay(1)** — operator multicasting and caching latest emission for future subscribers
+- ⭐ **refCount: true** — configuration ensuring automatic unsubscription when active subscriber count hits zero
+- ⭐ **Subscription retention** — keeping upstream observable connections active indefinitely causing memory leaks
+- **Multicast stream** — sharing a single execution among multiple subscriber observers
+- **ReplaySubject buffer** — internal buffer storing past emissions to replay to new observers
+- **Memory leak** — unreleased memory retained by orphan subscriptions after component destruction
 
 **🧠 Memory hook**
 shareReplay without refCount is leaving the garden hose running full blast after everyone has finished watering their plants.
@@ -1085,17 +1107,18 @@ When refCount is true, an internal subscriber reference counter tracks active ob
 *Commonly asked at: Infosys, Capgemini, TCS, Wipro*
 
 **⚡ One-line answer**
-Use functional ResolveFn for pre-fetching data before route transition, or prefer immediate navigation with signal-driven skeleton loading.
+**ResolveFn** is a functional routing resolver that pre-fetches data before an activated route transition completes.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Route resolvers pre-fetch data before a route transition completes. Modern Angular uses functional resolvers via `ResolveFn`. Resolvers prevent blank screens by delaying navigation until data arrives. However, slow network calls delay navigation transitions noticeably, hurting user experience. In modern reactive architecture, senior teams often bypass resolvers. Instead, they navigate immediately, render skeleton screens, and fetch data via Signal services reactively. In one of my projects, switching from resolvers to signal services made page transitions feel instant.
+In modern Angular, developers implement route resolvers using the functional **ResolveFn** type to fetch critical data before completing navigation. Resolvers prevent blank views by delaying page transitions until data arrives. However, slow network endpoints create a **route transition delay**, making the application feel unresponsive. Modern reactive applications often bypass resolvers entirely, navigating immediately to display a **skeleton screen** while fetching data reactively through signal-based services. In my project, replacing route resolvers with signal services and skeleton loaders reduced perceived page transition latency to zero.
 
 **🎯 Terms the interviewer listens for**
-- **ResolveFn**: functional route resolver pre-fetching route data ⭐
-- **Skeleton screen**: placeholder layout rendered during asynchronous loading ⭐
-- **Route transition delay**: delayed navigation caused by slow backend resolvers ⭐
-- **withComponentInputBinding**: binds resolved route data to signal inputs
-- **ActivatedRouteSnapshot**: contains route parameter state for resolvers
+- ⭐ **ResolveFn** — functional interface pre-fetching asynchronous data before route activation
+- ⭐ **Route transition delay** — lag during page navigation caused by blocking backend resolvers
+- ⭐ **Skeleton screen** — placeholder UI rendered while asynchronous data loads in background
+- **withComponentInputBinding** — router feature binding resolved route data directly to component inputs
+- **Perceived performance** — user experience speed enhanced by immediate navigation and loaders
+- **ActivatedRouteSnapshot** — object providing route parameters and state during resolver execution
 
 **🧠 Memory hook**
 A resolver is waiting in the restaurant lobby until food is cooked; signal streaming is sitting immediately while chefs prepare dishes.
@@ -1130,17 +1153,18 @@ When resolvers execute, the Router pauses the NavigationTransition until all res
 *Commonly asked at: Deloitte, Infosys, Capgemini, TCS*
 
 **⚡ One-line answer**
-NgOptimizedImage enforces explicit dimensions, generates responsive srcsets, lazy-loads non-priority images, and optimizes Core Web Vitals.
+**NgOptimizedImage** is a standalone directive enforcing web performance best practices like explicit dimensions and priority loading.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The `NgOptimizedImage` directive replaces raw `<img>` tags to improve visual load performance. It requires developers to declare explicit `width` and `height` attributes to prevent Cumulative Layout Shifts [CLS]. For above-the-fold hero images, the `priority` attribute preloads the image to optimize Largest Contentful Paint [LCP]. It automatically configures lazy loading for offscreen images and warns against broken aspect ratios in development mode. In one of my projects, adopting NgOptimizedImage boosted our Lighthouse performance score significantly.
+The **NgOptimizedImage** directive replaces standard img elements to optimize web vitals. It enforces explicit width and height attributes to prevent **Cumulative Layout Shift (CLS)**, where pages jerk during image loading. For above-the-fold hero images, developers apply the **priority attribute**, which preloads critical visual assets to optimize Largest Contentful Paint. The directive also generates responsive srcsets, lazy-loads non-priority images, and warns against improper aspect ratios. In my project, implementing NgOptimizedImage on our product catalog boosted our Lighthouse performance score from seventy to ninety-eight.
 
 **🎯 Terms the interviewer listens for**
-- **NgOptimizedImage**: standalone directive optimizing web image performance ⭐
-- **Cumulative Layout Shift**: Core Web Vital measuring unexpected page layout shifts ⭐
-- **priority attribute**: preloads critical above-the-fold hero image assets ⭐
-- **Largest Contentful Paint**: Core Web Vital metric measuring visual load speed
-- **Image loader**: custom provider formatting image URLs with CDN transforms
+- ⭐ **NgOptimizedImage** — directive enforcing performance best practices for web image loading
+- ⭐ **Cumulative Layout Shift (CLS)** — Core Web Vital metric measuring visual page layout stability
+- ⭐ **priority attribute** — directive attribute preloading critical above-the-fold hero image assets
+- **Largest Contentful Paint (LCP)** — Core Web Vital metric measuring visual load speed
+- **Responsive srcset** — HTML attribute serving appropriately sized image resolutions per device
+- **Image CDN loader** — custom provider configuring image transformations and optimizations
 
 **🧠 Memory hook**
 An interior designer who reserves wall space before heavy paintings arrive, preventing furniture rearrangement.
@@ -1174,17 +1198,18 @@ NgOptimizedImage dynamically generates preconnect link tags for CDN domains and 
 *Commonly asked at: Google, Microsoft, TCS, Accenture*
 
 **⚡ One-line answer**
-Signals detect circular dependencies dynamically during graph evaluation, throwing an error immediately to prevent infinite browser freezes.
+**Circular dependency** means an infinite reactive loop where signals mutually trigger and depend on each other's updates.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Angular Signals use a Directed Acyclic Graph [DAG] to model reactive dependencies. When a `computed()` signal or `effect()` reads a signal, the runtime registers a dependency edge. If an effect mutates a signal that it directly or indirectly depends upon, Angular detects this circular evaluation loop. The runtime halts execution and throws error `NG0600: Circular dependency detected in Signals`. To prevent circular loops, isolate non-reactive reads using `untracked()`. In one of my projects, untracked broke an accidental circular update between search inputs and analytics logs.
+Angular Signals organize reactive state within a **Directed Acyclic Graph (DAG)** to model dependencies. When a signal recalculates, the runtime traverses the graph to update consumers. If an effect mutates a signal that it directly or indirectly reads, a **circular dependency** occurs, creating an infinite update cycle. Angular dynamically detects this circular evaluation loop and immediately aborts execution with the **NG0600 error**, preventing browser freezes. To safely read signals without creating dependencies, isolate reads using untracked. In my project, untracked eliminated accidental circular loops in search filters.
 
 **🎯 Terms the interviewer listens for**
-- **Circular dependency**: infinite loop caused by reciprocal signal triggers ⭐
-- **Directed Acyclic Graph**: graph structure powering signal dependency tracking ⭐
-- **NG0600 error**: thrown when circular signal evaluation is detected ⭐
-- **untracked()**: reads signal values without dependency registration
-- **Reactive node version**: internal counter verifying freshness of cached states
+- ⭐ **Circular dependency** — infinite update loop caused by reciprocal signal triggers and dependencies
+- ⭐ **Directed Acyclic Graph (DAG)** — graph structure managing signal producer and consumer relationships
+- ⭐ **NG0600 error** — Angular runtime exception thrown when circular signal evaluation is detected
+- **untracked utility** — function reading signal values without registering reactive dependencies
+- **Reactive node version** — counter tracking state revisions to determine calculation freshness
+- **Infinite execution cycle** — continuous reciprocal re-evaluations locking the browser main thread
 
 **🧠 Memory hook**
 A circular dependency is two mirrors facing each other reflecting an infinite corridor of light.
@@ -1220,17 +1245,18 @@ The signals engine marks active nodes as `EVALUATING`. If an evaluating node is 
 *Commonly asked at: TCS, Cognizant, Deloitte, Wipro*
 
 **⚡ One-line answer**
-switchMap cancels stale requests; mergeMap runs parallel reads; concatMap queues writes sequentially; exhaustMap ignores concurrent submissions.
+**switchMap** is a flattening operator that cancels the previous inner observable and subscribes to the latest one.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Flattening operators handle higher-order observables based on specific concurrency requirements: `switchMap` cancels stale inner requests, making it ideal for typeahead search. `mergeMap` runs inner streams concurrently in parallel, making it ideal for independent reads. `concatMap` queues inner streams in strict order, making it ideal for sequential writes. `exhaustMap` ignores new triggers while an active inner stream runs, making it ideal for login and submit buttons. In one of my projects, exhaustMap eliminated duplicate checkout orders.
+RxJS flattening operators handle nested observables under different concurrency policies. **switchMap** cancels pending inner subscriptions upon new emissions, making it ideal for search typeaheads. **mergeMap** executes all inner observables concurrently without cancellation, perfect for independent parallel reads. **concatMap** queues inner streams sequentially, preserving strict execution order for financial transactions. Finally, exhaustMap ignores incoming emissions while an inner stream is active, effectively preventing duplicate button submits. In my project, using exhaustMap on payment submission buttons eliminated accidental double-charging bugs.
 
 **🎯 Terms the interviewer listens for**
-- **switchMap**: cancels stale in-flight streams for search ⭐
-- **mergeMap**: runs parallel independent child requests concurrently ⭐
-- **concatMap**: queues streams in sequential FIFO order ⭐
-- **exhaustMap**: ignores new inputs until current completes
-- **Higher-order stream**: observable emitting inner observable instances
+- ⭐ **switchMap** — operator cancelling previous inner observable when new emission arrives
+- ⭐ **mergeMap** — operator executing multiple inner observables concurrently in parallel
+- ⭐ **concatMap** — operator queuing inner observables to execute in strict sequential order
+- **exhaustMap** — operator ignoring new emissions while an inner observable is executing
+- **Flattening operator** — RxJS operator transforming stream of observables into single stream
+- **Inner observable** — nested observable stream created inside a projection function
 
 **🧠 Memory hook**
 switchMap is changing TV channels; mergeMap is multi-burner cooking; concatMap is ticket queueing; exhaustMap is an occupied restroom.

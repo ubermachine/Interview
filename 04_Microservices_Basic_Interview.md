@@ -27,18 +27,18 @@
 *Commonly asked at: TCS, Infosys, Cognizant, Wipro*
 
 **⚡ One-line answer**
-A monolith runs all domain features in a single process, whereas microservices split capabilities into autonomous services with private databases communicating over network protocols.
+**Microservices** means autonomous services organized around business domains with private databases, whereas a monolith runs in one single process.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A monolith bundles every feature into one deployable unit and shared database. Microservices split the application into autonomous services organized around business domains. Each service strictly owns its private database and communicates over APIs or messaging. In production, teams can deploy catalog updates independently without risking payment flows. If one service fails, the remaining system remains available and healthy. However, you trade single-server simplicity for distributed network latency and tracing overhead.
+A **monolith** is a single process running all application features on a shared database. In contrast, **microservices** are autonomous, independently deployable services organized around business domains. Each microservice encapsulates a **bounded context**, which is an autonomous domain boundary isolating models and logic. We enforce **database-per-service**, meaning private data persistence owned exclusively by one service. This guarantees **loose coupling**, where services interact solely through published network contracts, giving teams true deployment autonomy without cross-service schema lock-in.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Monolithic Architecture**: Single process containing all application business capabilities.
-- ⭐ **Microservices Architecture**: Autonomous, independently deployable services organized around domains.
-- ⭐ **Bounded Context**: Explicit boundary defining domain model ownership.
-- **Database-per-Service**: Persistence encapsulation preventing direct cross-service table access.
-- **Loose Coupling**: Services interact strictly through published contracts without dependencies.
-- **High Cohesion**: Related business logic changes together within same service.
+- ⭐ **Monolith** — single deployable process running all application features
+- ⭐ **Microservices** — autonomous, independently deployable services organized around domains
+- ⭐ **Bounded context** — autonomous domain boundary isolating models and data
+- **Database-per-service** — private data store owned exclusively by one service
+- **Loose coupling** — services interacting strictly through published network contracts
+- **Independent deployability** — releasing one service without redeploying dependent services
 
 **🧠 Memory hook**
 A monolith is a department store with one shared register; microservices are independent shopping mall stores, each managing its own checkout desk.
@@ -80,18 +80,18 @@ Independent microservices communicate across network sockets via TCP or HTTP/2 r
 *Commonly asked at: Wells Fargo, Barclays, Infosys, Capgemini*
 
 **⚡ One-line answer**
-Each microservice must own its private database to ensure loose coupling, independent schema migrations, and prevent cross-team locking bottlenecks in production.
+**Database-per-service** means each microservice exclusively owns its private database to prevent coupling and ensure independent schema migrations.
 
 **🗣️ Spoken answer (30–45 seconds)**
-In microservices, each service must exclusively encapsulate its own database. Direct cross-database queries or shared tables create hidden coupling across domain teams. When one team alters a column, dependent services break without warning. Sharing tables also creates database lock contention across independent services. Encapsulating persistence ensures services can evolve their schemas and scale independently. Teams also gain the freedom to select specialized storage engines like relational or document stores.
+The **database-per-service** pattern means a private persistence store owned exclusively by one microservice without external access. Sharing tables causes tight coupling and lock contention. Enforcing private persistence enables **schema evolution**, which is altering database structures without breaking external calling services. It also unlocks **polyglot persistence**, the practice of selecting specialized storage engines tailored for specific domain requirements like relational or document stores. To assemble cross-service views, we use **API composition**, assembling client responses in memory across multiple service endpoints without direct database joins.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Database-per-Service**: Architectural pattern where each service owns its persistence exclusively.
-- ⭐ **Polyglot Persistence**: Selecting different storage technologies tailored for specific domain requirements.
-- ⭐ **Encapsulation**: Hiding internal data structures behind strictly defined API boundaries.
-- **Schema Evolution**: Modifying database columns without impacting external calling services.
-- **Shared Database**: Tightly coupled pattern sharing tables across multiple service boundaries.
-- **API Composition**: Assembling responses in memory across multiple independent service calls.
+- ⭐ **Database-per-service** — private persistence store owned exclusively by one microservice
+- ⭐ **Schema evolution** — altering database structures without breaking external calling services
+- ⭐ **Polyglot persistence** — selecting specialized storage engines tailored for specific domain requirements
+- **API composition** — assembling client responses in memory across multiple service endpoints
+- **Data encapsulation** — hiding internal tables behind explicit public API contracts
+- **Shared database** — anti-pattern sharing tables directly across multiple service boundaries
 
 **🧠 Memory hook**
 HDFC Bank cannot run SQL queries directly on ICICI Bank tables; both banks exchange standardized messages while keeping ledgers private.
@@ -128,18 +128,18 @@ Enforcing a database boundary eliminates cross-database transactions. Queries ca
 *Commonly asked at: Morgan Stanley, Amazon, Swiggy, Wells Fargo*
 
 **⚡ One-line answer**
-Two-Phase Commit is usually avoided in distributed systems because it holds database locks across the network, amplifying latency and risking coordinator failure.
+**Two-Phase Commit** is a distributed consensus protocol holding database locks across network boundaries, causing latency amplification and coordinator bottlenecks.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Two-Phase Commit is usually avoided in distributed systems because it holds locks across the network. The coordinator asks all nodes to prepare, holding row locks until all participants vote. If a network delay occurs or a node stalls, locks remain open indefinitely. This exhausts database connection pools and blocks incoming user traffic. In distributed systems, network partitions make synchronous locking impractical. Modern systems prefer eventual consistency using compensating transactions rather than distributed locking.
+**Two-Phase Commit** is a distributed consensus protocol executing prepare and commit phases synchronously across nodes. It is avoided because it holds distributed locks across the network during both phases. This causes **latency amplification**, which is compounding round-trip network delays across multiple remote participants. A slow participant or **coordinator failure**, a crash freezing participant locks indefinitely, leads to **connection starvation**, depleting database connection pools. Modern distributed architectures avoid cross-network locking entirely, choosing **eventual consistency**, where data replicas converge over time through asynchronous messaging.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Two-Phase Commit**: Distributed consensus protocol executing prepare and commit phases synchronously.
-- ⭐ **Network Latency Amplification**: Compounding round-trip delays across multiple remote service coordinators.
-- ⭐ **Single Point of Failure**: System vulnerability where coordinator outage freezes all participant resources.
-- **Distributed Lock**: Exclusive resource lock held across distinct physical network machines.
-- **Connection Starvation**: Depletion of database connection pool threads waiting on locks.
-- **Eventual Consistency**: State convergence across distributed services over time without locks.
+- ⭐ **Two-Phase Commit** — distributed consensus protocol executing prepare and commit phases synchronously
+- ⭐ **Latency amplification** — compounding round-trip network delays across multiple remote participants
+- ⭐ **Eventual consistency** — data replicas converging to a consistent state over time
+- **Coordinator failure** — crash of central coordinator freezing participant locks indefinitely
+- **Connection starvation** — exhausting database connection pool threads waiting on locks
+- **Distributed lock** — exclusive resource lock held across distinct physical network machines
 
 **🧠 Memory hook**
 A dinner group where nobody can leave until every single person completes a mobile payment simultaneously; one dead battery traps everyone.
@@ -179,18 +179,18 @@ Under 2PC, each participant writes a commit record to its write-ahead log during
 *Commonly asked at: Swiggy, Flipkart, Walmart, JPMorgan*
 
 **⚡ One-line answer**
-The Saga pattern coordinates distributed transactions as a series of local database transactions, using compensating transactions on failure and idempotent retries for forward progress.
+**Saga** means a cross-service transaction coordinated as local steps with compensating rollbacks on failure.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The Saga pattern manages long-running distributed workflows using discrete local transactions. In choreography, services react autonomously to published domain events without a central coordinator. In orchestration, a dedicated state machine explicitly commands each participant service. If any step fails, the Saga runs compensating transactions to semantically undo completed steps. Forward progress relies on idempotent retries to handle transient network hiccups. Orchestration is preferred for complex enterprise workflows because it provides centralized state visibility.
+A **Saga** means a cross-service transaction coordinated as local steps with compensating rollbacks. In **choreography**, which is decentralized coordination where services autonomously publish and listen to events, there is no single controller. In **orchestration**, a central coordinator using a dedicated workflow state machine commands participants directly. If a step fails, the saga executes a **compensating transaction**, an explicit semantic undo operation reversing a previously committed local step. Orchestration is preferred for complex enterprise workflows because it provides centralized status visibility and avoids circular event loops.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Saga Pattern**: Sequence of local transactions updating services and publishing events.
-- ⭐ **Saga Orchestration**: Central coordinator commanding participant services through explicit message requests.
-- ⭐ **Saga Choreography**: Decentralized pub-sub flow where services react independently to events.
-- **Compensating Transaction**: Semantic undo operation reversing a previously committed local transaction.
-- **Idempotent Retries**: Repeating operations safely without duplicating business side effects.
-- **State Machine**: Explicit tracker maintaining current step, status, and rollback state.
+- ⭐ **Saga** — cross-service transaction coordinated as local steps with compensating rollbacks
+- ⭐ **Orchestration** — centralized coordination using a dedicated workflow state machine
+- ⭐ **Choreography** — decentralized coordination where services autonomously publish and listen to events
+- **Compensating transaction** — semantic undo operation reversing a previously committed local step
+- **State machine** — centralized component tracking execution status and compensation steps
+- **Idempotent retry** — repeating operations safely without duplicate business side effects
 
 **🧠 Memory hook**
 Choreography is a chaotic WhatsApp trip group where everyone texts updates; orchestration is a professional tour manager directing every booking step.
@@ -230,18 +230,18 @@ Sagas do not provide ACID isolation. Concurrent transactions can read intermedia
 *Commonly asked at: Barclays, TCS, Cognizant, Nagarro*
 
 **⚡ One-line answer**
-A compensating transaction is an application-level forward action that semantically reverses a committed local transaction, unlike a database rollback which undoes uncommitted writes.
+**Compensating transaction** means an application-level forward action that semantically reverses a previously committed local transaction.
 
 **🗣️ Spoken answer (30–45 seconds)**
-A database rollback undoes uncommitted writes in memory or transaction logs before a commit completes. Once a microservice commits data to its database, that transaction is permanent. A compensating transaction is a new business action that semantically reverses the previous action. For example, if a payment succeeds but inventory fails, the payment service issues a refund transaction. It does not delete the original charge row from the database. Instead, it creates an explicit refund record, preserving an accurate audit ledger.
+A **database rollback** is a storage engine abort discarding uncommitted write-ahead log operations before a transaction finishes. Once committed, data is permanent. A **compensating transaction** means a forward application action that semantically reverses a committed transaction. Instead of deleting rows, it applies a **semantic undo**, which is a business-level reversal creating compensating records like issuing a customer refund. This approach preserves an immutable **audit trail**, a chronological ledger recording both original charges and reversals, ensuring full financial traceability across microservice boundaries.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Compensating Transaction**: Explicit semantic undo operation executed after a transaction commits.
-- ⭐ **Database Rollback**: Storage engine abort discarding uncommitted write-ahead log operations.
-- ⭐ **Audit Trail**: Immutable historical ledger recording both operations and refunds.
-- **Forward Recovery**: Driving a failing distributed workflow forward toward consistent resolution.
-- **Semantic Undo**: Business-level reversal such as refunding a charged credit card.
-- **Local Transaction**: Atomic ACID unit executed strictly inside one database boundary.
+- ⭐ **Compensating transaction** — forward application action that semantically reverses a committed transaction
+- ⭐ **Database rollback** — storage engine abort discarding uncommitted write-ahead log operations
+- ⭐ **Semantic undo** — business-level reversal creating compensating records rather than deleting rows
+- **Audit trail** — immutable chronological ledger preserving both original operations and refunds
+- **Forward recovery** — driving a distributed saga forward through idempotent retries
+- **Local transaction** — atomic ACID operation executed strictly inside one database boundary
 
 **🧠 Memory hook**
 A database rollback is hitting Backspace before printing; a compensating transaction is printing a credit note after the invoice was already issued.
@@ -280,18 +280,18 @@ Database engines execute rollbacks by walking undo logs backwards to restore pre
 *Commonly asked at: PhonePe, Zepto, Goldman Sachs, EPAM*
 
 **⚡ One-line answer**
-The dual-write problem occurs when updating a database and publishing a message to a broker without atomicity, risking permanent data inconsistency on partial failure.
+**Dual-write problem** means modifying a database and publishing to a message broker without atomicity, risking permanent data inconsistency.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The dual-write problem happens when a service must modify a database and notify an external message broker. Because the database and message broker are separate distributed systems, they cannot share a local transaction. If you commit to the database first, a crash before messaging loses the event. Downstream microservices never learn about the update. If you publish to the broker first, a database error produces phantom events for operations that never existed. In production, this breaks order fulfillment and creates irreconcilable ledger mismatches.
+The **dual-write problem** means updating a database and publishing an event without distributed atomicity across systems. Because databases and brokers use separate connections, a **partial failure**, where one write succeeds while the other fails, corrupts state. If you commit the database first and crash, messages are lost forever. If you publish first and the database rolls back, you emit a **phantom event**, a message published for an operation that failed locally. This causes **data inconsistency**, a state divergence between database records and published events.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Dual-Write Problem**: Writing to two distinct distributed storage systems without atomic guarantees.
-- ⭐ **Partial Failure**: Distributed scenario where one system succeeds while another fails.
-- ⭐ **Data Inconsistency**: State mismatch between primary database tables and event brokers.
-- **Phantom Event**: Notification published for a business transaction that failed locally.
-- **Lost Notification**: Committed business data that was never broadcast to consumers.
-- **Atomic Transaction**: All-or-nothing guarantee provided strictly within one storage engine.
+- ⭐ **Dual-write problem** — writing to database and message broker without distributed atomic guarantees
+- ⭐ **Partial failure** — scenario where one system write succeeds while another fails
+- ⭐ **Phantom event** — notification published for an operation that failed locally
+- **Data inconsistency** — state divergence between primary database records and message brokers
+- **Transactional outbox** — saving domain data and events within one database transaction
+- **Atomic transaction** — all-or-nothing guarantee provided strictly within one storage engine
 
 **🧠 Memory hook**
 A restaurant waiter who takes your cash but forgets to hand the kitchen your food ticket before taking his lunch break; orders vanish.
@@ -330,18 +330,18 @@ TCP sockets to relational databases and Kafka brokers operate on separate OS fil
 *Commonly asked at: Wells Fargo, Walmart, Swiggy, Accenture*
 
 **⚡ One-line answer**
-The Transactional Outbox pattern saves outgoing messages into an outbox table in the same local transaction as business data, relaying them reliably to the broker.
+**Transactional outbox** means saving outgoing events into an outbox table in the same local transaction as business entities.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The Transactional Outbox pattern guarantees reliable messaging without distributed two-phase commit. Instead of publishing to Kafka directly, the service writes the domain entity and an outbox message into the same database transaction. This guarantees atomic persistence using local database ACID properties. An asynchronous publisher worker then reads unpublished outbox rows and relays them to the message broker. Change Data Capture can also tail the database transaction log directly. This eliminates lost notifications and ensures at-least-once delivery to downstream consumers.
+The **transactional outbox** pattern means saving domain entities and outbound events in one local transaction to guarantee atomicity. Instead of publishing directly to Kafka, the application writes both records within a single database commit. Next, **Change Data Capture**, a mechanism streaming database log changes directly into message brokers automatically, tails the transaction log to publish messages without polling overhead. Alternatively, a background worker polls and relays messages. This guarantees **at-least-once delivery**, ensuring every published record arrives at least once, completely eliminating lost messages during crashes.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Transactional Outbox Pattern**: Saving domain data and outbound events in one local transaction.
-- ⭐ **Change Data Capture**: Streaming database log changes directly into message brokers automatically.
-- ⭐ **At-Least-Once Delivery**: Messaging guarantee ensuring every published record arrives at least once.
-- **Local Transaction**: Atomic database commit ensuring all internal writes succeed together.
-- **Polling Publisher**: Background worker querying unprocessed outbox records using skip-locked semantics.
-- **Write-Ahead Log**: Database storage journal recording sequential page mutations before disk writes.
+- ⭐ **Transactional outbox** — saving domain entities and outbound events in one local transaction
+- ⭐ **Change Data Capture** — streaming database log changes directly into message brokers automatically
+- ⭐ **At-least-once delivery** — messaging guarantee ensuring every published record arrives at least once
+- **Polling publisher** — background worker querying unprocessed outbox records using skip-locked semantics
+- **Outbox table** — dedicated relational table storing serialized event payloads before dispatch
+- **Write-ahead log** — database storage journal recording sequential page mutations before disk writes
 
 **🧠 Memory hook**
 A chequebook with counterfoils; you write the check and record the stub in the same book before tearing out the payment.
@@ -380,18 +380,18 @@ Change Data Capture tools like Debezium connect as replication clients to the da
 *Commonly asked at: Swiggy, Paytm, Zepto, Infosys*
 
 **⚡ One-line answer**
-An idempotent consumer produces identical business state regardless of whether a message is processed once or multiple times, preventing duplicate operations like double charging.
+**Idempotent consumer** means a message receiver that produces identical system state regardless of repeated duplicate deliveries.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Message brokers like Kafka and RabbitMQ guarantee at-least-once delivery, not exactly-once delivery. Network retries, consumer restarts, and rebalancing frequently deliver duplicate messages to consumers. Downstream microservices must be idempotent so reprocessing produces the exact same state without duplicate side effects. Consumers implement deduplication using unique database constraints or fast distributed cache keys. When an incoming message ID already exists in the processed inbox table, the consumer acknowledges and skips execution. This safeguards systems against double debits and duplicate orders.
+An **idempotent consumer** means a message receiver producing identical system state despite repeated duplicate deliveries. Message brokers like Kafka guarantee **at-least-once delivery**, a messaging guarantee ensuring messages arrive but allowing potential duplicates from network retries or consumer rebalances. Without idempotency, duplicate events cause double-charging or phantom orders. To prevent this, consumers implement a **deduplication inbox**, which is a database table tracking processed message identifiers to prevent duplicate execution. When an incoming message ID already exists, the consumer acknowledges it and skips business logic immediately.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Idempotent Consumer**: Message receiver producing identical system state despite repeated duplicate deliveries.
-- ⭐ **At-Least-Once Delivery**: Broker guarantee ensuring messages arrive, allowing potential duplicate deliveries.
-- ⭐ **Deduplication Inbox**: Database table tracking processed message identifiers to prevent duplicate execution.
-- **Idempotency Key**: Unique client-supplied identifier used to detect duplicate incoming requests.
-- **Consumer Rebalance**: Kafka partition reassignment causing re-delivery of uncommitted batch messages.
-- **Natural Key**: Domain identifier used for unique database constraint enforcement.
+- ⭐ **Idempotent consumer** — message receiver producing identical system state despite repeated duplicate deliveries
+- ⭐ **At-least-once delivery** — messaging guarantee ensuring messages arrive, allowing potential duplicate deliveries
+- ⭐ **Deduplication inbox** — database table tracking processed message identifiers to prevent duplicate execution
+- **Idempotency key** — unique identifier used to detect and reject duplicate incoming requests
+- **Natural key** — unique business attribute preventing duplicate entries via database constraints
+- **Distributed cache** — high-speed key-value store performing atomic message existence checks
 
 **🧠 Memory hook**
 An elevator call button; pressing the button ten times illuminates the light once and brings the elevator to your floor only once.
@@ -431,18 +431,18 @@ In PostgreSQL or SQL Server, declaring `MessageId` as a unique clustered or B-Tr
 *Commonly asked at: Wells Fargo, EPAM, LTIMindtree, Nagarro*
 
 **⚡ One-line answer**
-CQRS separates read and write models into distinct data paths, allowing independent optimization, scaling, and schema modeling for updates versus queries.
+**CQRS** means separating command write models from query read models to optimize and scale them independently.
 
 **🗣️ Spoken answer (30–45 seconds)**
-CQRS separates write operations from read queries. The write side processes commands, validates rich business rules, and saves normalized data into a transactional store. The read side serves queries from denormalized views optimized for presentation screens. This eliminates complex relational joins on operational databases. In high-scale systems, writes emit domain events to synchronize read replicas asynchronously. While CQRS introduces eventual consistency between models, it allows write and read tiers to scale horizontally and independently.
+**CQRS** means separating command write operations from query read operations across distinct paths. The write side processes a **command**, an intent to mutate system state containing business payload and validation rules. The read side executes a **Query**, which is a read-only request retrieving data without modifying any underlying state. This pattern avoids complex relational joins by maintaining a **materialized view**, a pre-computed denormalized read model stored for sub-millisecond retrieval. Although it introduces eventual consistency, CQRS allows read and write models to scale horizontally and independently.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **CQRS**: Architectural pattern separating command write operations from query read operations.
-- ⭐ **Command**: Intention to mutate system state containing business payload and validation.
-- ⭐ **Query**: Read-only request retrieving data without modifying any underlying state.
-- **Materialized View**: Pre-computed denormalized read model stored for sub-millisecond retrieval.
-- **Eventual Consistency**: Asynchronous delay before write mutations appear on read projections.
-- **MediatR Pipeline**: In-process messaging mediator decoupling command and query dispatching logic.
+- ⭐ **CQRS** — architectural pattern separating command write operations from query read operations
+- ⭐ **Command** — intent to mutate system state containing business payload and validation
+- ⭐ **Query** — read-only request retrieving data without modifying any underlying state
+- **Materialized view** — pre-computed denormalized read model stored for sub-millisecond retrieval
+- **Eventual consistency** — asynchronous synchronization delay between write mutations and read projections
+- **Asymmetric scaling** — scaling read replicas and write nodes independently according to traffic
 
 **🧠 Memory hook**
 A newspaper publisher; reporters write and edit articles in the editorial office, while millions of readers read the printed, formatted paper.
@@ -483,18 +483,18 @@ Bypassing ORM change trackers on the query side eliminates snapshot allocation i
 *Commonly asked at: Cognizant, Wipro, TCS, Capgemini*
 
 **⚡ One-line answer**
-An API Gateway is a reverse proxy at the network edge providing unified routing, authentication offloading, rate limiting, and response aggregation for client applications.
+**API gateway** is a reverse proxy at the network edge providing routing, security, and protocol aggregation for clients.
 
 **🗣️ Spoken answer (30–45 seconds)**
-An API Gateway sits between external clients and backend microservices as a reverse proxy. It provides a single public domain endpoint, shielding internal network topologies. The gateway offloads cross-cutting concerns like TLS termination, JWT token validation, rate limiting, and CORS handling. This prevents every downstream service team from reinventing authentication logic. It also supports API composition, aggregating multiple microservice calls into one response for mobile clients. In modern .NET architectures, Microsoft YARP provides high-throughput reverse proxy routing.
+An **API gateway** is a single edge entry point reverse-proxying client traffic to backend microservices. Placing a **reverse proxy**, an intermediate edge server forwarding incoming client requests to backends, shields internal network topologies from public exposure. The gateway centralizes **cross-cutting concerns**, which are shared infrastructure features like authentication, TLS termination, and rate limiting. This offloads repetitive token validation and security policies from backend service teams. It can also aggregate multiple downstream responses into one payload, reducing mobile network round-trips and optimizing client bandwidth.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **API Gateway**: Edge reverse proxy routing external requests to internal microservices.
-- ⭐ **Cross-Cutting Concerns**: Shared infrastructure capabilities like authentication, logging, and rate limiting.
-- ⭐ **Reverse Proxy**: Server forwarding client network requests to backend destination servers.
-- **TLS Termination**: Decrypting HTTPS traffic at gateway edge before internal routing.
-- **BFF Pattern**: Backend-for-Frontend gateways tailored specifically for mobile or web clients.
-- **YARP**: Yet Another Reverse Proxy, Microsoft high-performance .NET reverse proxy.
+- ⭐ **API gateway** — single edge entry point reverse-proxying client traffic to backend microservices
+- ⭐ **Reverse proxy** — intermediate edge server forwarding incoming client requests to backends
+- ⭐ **Cross-cutting concerns** — shared infrastructure features like authentication, rate limiting, and telemetry
+- **TLS termination** — decrypting encrypted HTTPS traffic at gateway edge before routing
+- **BFF pattern** — backend-for-frontend gateways tailored specifically for individual client platform needs
+- **YARP** — Microsoft high-performance .NET reverse proxy library for routing traffic
 
 **🧠 Memory hook**
 An airport main reception desk; travelers check in and clear security once before proceeding to individual flight gates.
@@ -534,18 +534,18 @@ Microsoft YARP uses ASP.NET Core `System.IO.Pipelines` to stream HTTP bytes dire
 *Commonly asked at: Swiggy, Morgan Stanley, Barclays, Walmart*
 
 **⚡ One-line answer**
-Internal microservices use gRPC over HTTP/2 with Protocol Buffers because binary serialization delivers higher throughput, lower latency, and strict type safety over REST.
+**gRPC** is a high-performance remote procedure call framework using Protocol Buffers and HTTP/2 for low-latency service communication.
 
 **🗣️ Spoken answer (30–45 seconds)**
-Internal microservices prefer gRPC over REST for high-throughput service communication. REST uses human-readable JSON over HTTP/1.1, requiring heavy string parsing and opening new TCP connections per request. In contrast, gRPC uses binary Protocol Buffers over HTTP/2. This shrinks payload sizes significantly and enables multiplexing thousands of concurrent calls over a single TCP connection. Contracts are strictly enforced using Proto files, providing automatic cross-language client generation. In production, this cuts inter-service network latency and reduces server CPU serialization overhead.
+Internal microservices choose **gRPC**, a high-performance remote procedure call framework using Protocol Buffers and HTTP/2, over REST for internal communication. REST relies on text-based JSON over HTTP/1.1, requiring heavy CPU parsing and multiple TCP connections. In contrast, gRPC uses **Protocol Buffers**, a compact binary serialization format packing strongly typed structured data efficiently. Furthermore, gRPC leverages **HTTP/2 multiplexing**, which is sending multiple concurrent requests bidirectionally over a single persistent TCP connection. This eliminates head-of-line blocking, slashes CPU serialization costs, and minimizes inter-service network latency under heavy loads.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **gRPC**: High-performance remote procedure call framework using HTTP/2 and Protobuf.
-- ⭐ **Protocol Buffers**: Language-neutral binary serialization format compacting structured payload data.
-- ⭐ **HTTP/2 Multiplexing**: Sending concurrent requests bidirectionally over a single persistent TCP connection.
-- **Contract-First Design**: Defining interface contracts using proto files before implementing services.
-- **Head-of-Line Blocking**: Network delay where one slow request blocks subsequent requests.
-- **HPACK Header Compression**: Compressing HTTP headers to eliminate redundant network wire overhead.
+- ⭐ **gRPC** — high-performance remote procedure call framework using Protocol Buffers and HTTP/2
+- ⭐ **Protocol Buffers** — compact binary serialization format packing strongly typed structured data efficiently
+- ⭐ **HTTP/2 multiplexing** — sending multiple concurrent requests bidirectionally over a single TCP connection
+- **Contract-first design** — defining service schemas in proto files before generating client code
+- **Head-of-line blocking** — network transmission bottleneck where slow requests block subsequent packet streams
+- **HPACK compression** — header compression algorithm reducing repetitive HTTP header network overhead
 
 **🧠 Memory hook**
 REST is sending handwritten letters through postal mail; gRPC is two pilots talking in compressed military radio code over an open channel.
@@ -582,18 +582,18 @@ Protocol Buffers use varint encoding and tag-length-value binary formatting. Int
 *Commonly asked at: Wells Fargo, Infosys, Capgemini, Accenture*
 
 **⚡ One-line answer**
-The Circuit Breaker pattern prevents cascading system collapse by failing fast when a downstream dependency fails, automatically recovering when the service becomes healthy.
+**Circuit breaker** means a stability pattern that fails fast during downstream outages to prevent cascading system failures.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The Circuit Breaker pattern prevents cascading failures when downstream dependencies experience outages. In the Closed state, requests pass through normally while monitoring error rates. When consecutive failures exceed a configured threshold, the breaker trips to the Open state. In Open state, calls fail fast immediately without making network calls, shielding upstream thread pools from timeout exhaustion. After a cooldown duration, the breaker enters Half-Open state, allowing trial requests through. If trials succeed, it returns to Closed; if they fail, it reopens.
+A **circuit breaker** means a resilience pattern failing fast during dependency outages to prevent cascading failure. In the **closed state**, the normal operating condition routing requests while tracking error rates, traffic flows unimpeded. When failures exceed a threshold, the breaker trips to the **open state**, which is a tripped condition failing calls immediately without sending downstream network traffic. This shields thread pools from timeout exhaustion. After a cooldown period, it enters **half-open state**, a trial condition allowing limited canary calls to test dependency recovery before resuming normal operations.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Circuit Breaker Pattern**: Resilience pattern that detects failures and encapsulates failing logic.
-- ⭐ **Closed State**: Normal operational state routing requests and tracking failure rates.
-- ⭐ **Open State**: Tripped state failing calls immediately without reaching out downstream.
-- **Half-Open State**: Trial state sending limited canary requests to test recovery.
-- **Fail-Fast**: Rejecting calls instantaneously to avoid blocking threads on timeouts.
-- **Cascading Failure**: Chain reaction where one slow service exhausts threads across callers.
+- ⭐ **Circuit breaker** — resilience pattern failing fast to prevent cascading system collapse
+- ⭐ **Closed state** — normal operating condition routing requests while tracking error rates
+- ⭐ **Open state** — tripped condition failing calls immediately without sending downstream network traffic
+- **Half-open state** — trial condition allowing limited canary calls to test dependency recovery
+- **Cascading failure** — chain reaction where one slow service exhausts caller thread pools
+- **Fail-fast** — rejecting calls instantaneously to prevent blocking thread pools on timeouts
 
 **🧠 Memory hook**
 A household electrical breaker; it trips to cut electricity during a short circuit, preventing the entire house wiring from catching fire.
@@ -633,18 +633,18 @@ Polly tracks failure ratios within a rolling sampling window using lock-free ato
 *Commonly asked at: Swiggy, JPMorgan, Nagarro, EPAM*
 
 **⚡ One-line answer**
-Distributed tracing tracks the complete lifecycle of a request across microservices by propagating a unique Trace ID across all network hops via standard headers.
+**Distributed tracing** means tracking request execution across multiple microservices by propagating a unique correlation trace identifier.
 
 **🗣️ Spoken answer (30–45 seconds)**
-In microservices, a single user request traverses multiple independent services. Finding the root cause of an error in disconnected server logs is challenging. Distributed tracing assigns every incoming request a unique Trace ID at the gateway. Services propagate this identifier across HTTP or gRPC hops using W3C Trace Context headers. Each service records its local execution duration under a child Span ID. OpenTelemetry exports these traces to backends like Jaeger, allowing engineers to visualize latency bottlenecks across systems.
+**Distributed tracing** means a diagnostic observability method monitoring request lifecycles across distributed service boundaries. At the edge gateway, the system generates a **Trace ID**, a globally unique identifier correlating all operations across an end-to-end distributed transaction. Across services, each operation receives a **Span ID**, which is a unique identifier representing a single contiguous unit of execution. Using **context propagation**, injecting and extracting trace headers across network hops, **OpenTelemetry** exports linked spans to backends like Jaeger to pinpoint latency bottlenecks.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Distributed Tracing**: Diagnostic technique monitoring requests across distributed multi-service network boundaries.
-- ⭐ **Trace ID**: Globally unique identifier linking all operations across an end-to-end flow.
-- ⭐ **Span ID**: Unique identifier representing a single unit of contiguous service work.
-- **W3C Trace Context**: Standard HTTP header format propagating traceparent and tracestate headers.
-- **OpenTelemetry**: Vendor-neutral observability framework collecting metrics, logs, and distributed traces.
-- **Context Propagation**: Injecting and extracting trace metadata across network protocol boundaries.
+- ⭐ **Distributed tracing** — diagnostic observability method monitoring request lifecycles across service boundaries
+- ⭐ **Trace ID** — globally unique identifier correlating operations across an end-to-end transaction
+- ⭐ **Span ID** — unique identifier representing a single contiguous unit of service execution
+- **Context propagation** — injecting and extracting trace metadata across network protocol boundaries
+- **OpenTelemetry** — vendor-neutral observability framework standardizing traces, metrics, and logs
+- **W3C Trace Context** — standard specification defining HTTP headers for distributed trace propagation
 
 **🧠 Memory hook**
 A courier tracking barcode; the package retains one tracking number, while each warehouse scans a checkpoint stamp as it moves across cities.
@@ -683,18 +683,18 @@ The W3C `traceparent` header uses a four-field format: `00-4bf92f3577b34da6a3ce9
 *Commonly asked at: Flipkart, Swiggy, Wells Fargo, Walmart*
 
 **⚡ One-line answer**
-An end-to-end checkout flow coordinates inventory reservation, payment processing, and notification through an orchestrated Saga, triggering compensating rollbacks if any step fails.
+**Saga orchestrator** means a centralized coordinator managing multi-service workflows and executing compensating actions upon intermediate failures.
 
 **🗣️ Spoken answer (30–45 seconds)**
-The checkout flow begins when an API Gateway receives an order request and forwards it to the Order Service. The Order Service creates an order record in Pending state and starts a Saga orchestrator. First, the orchestrator reserves stock in the Inventory Service. Next, it commands the Payment Service to charge the customer. If the payment gateway fails, the orchestrator invokes a compensating transaction on the Inventory Service to release reserved stock. Finally, it updates the order status to Cancelled and notifies the customer via messaging.
+The checkout flow relies on a **Saga orchestrator**, a centralized coordinator managing multi-service workflows and executing compensating actions. The order service sets a **semantic state**, which is a business status flag like Pending or Cancelled managing intermediate progress. The orchestrator first calls inventory to reserve stock, then invokes payment. If the payment gateway fails, the orchestrator triggers a **compensating transaction**, an explicit semantic undo action reversing previously committed state by releasing reserved inventory. Finally, the order updates to Cancelled, ensuring data consistency across distributed boundaries without distributed locks.
 
 **🎯 Terms the interviewer listens for**
-- ⭐ **Saga Orchestrator**: Central service coordinating discrete transactional steps across business microservices.
-- ⭐ **Compensating Action**: Reversible undo operation executed when a downstream step fails.
-- ⭐ **Semantic Status**: Business state indicators like Pending or Cancelled managing intermediate progress.
-- **Idempotent Ingress**: Preventing duplicate order placement by checking unique client submission keys.
-- **Dead-Letter Queue**: Secondary queue capturing persistently failing messages for manual engineering triage.
-- **Transactional Outbox**: Storing events atomically alongside local domain mutations for guaranteed delivery.
+- ⭐ **Saga orchestrator** — centralized coordinator managing multi-service workflows and executing compensating actions
+- ⭐ **Compensating transaction** — semantic undo action reversing previously committed state after failures
+- ⭐ **Semantic state** — business status flags like Pending or Cancelled managing intermediate progress
+- **Idempotent consumer** — message handler producing identical state despite duplicate deliveries
+- **Transactional outbox** — atomically persisting domain entities and outbound events within local transactions
+- **Dead-letter queue** — secondary queue isolating persistently failing messages for manual engineering investigation
 
 **🧠 Memory hook**
 A wedding planner booking the church, banquet hall, and caterer; if the caterer cancels, the planner automatically refunds the hall and church bookings.

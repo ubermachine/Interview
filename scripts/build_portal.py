@@ -8,6 +8,15 @@ INDEX_FILE = os.path.join(WORKSPACE_DIR, 'index.html')
 
 manifest = [
     {
+        "id": "00_Terminology_Master_Key",
+        "filename": "00_Terminology_Master_Key.md",
+        "title": "00. Terminology Master Key",
+        "badge": "🔑 Term Key",
+        "type": "cheatsheet",
+        "icon": "🧠",
+        "domain": "00. Terminology & Recall"
+    },
+    {
         "id": "01_DotNet_Core_Basic_Interview",
         "filename": "01_DotNet_Core_Basic_Interview.md",
         "title": "01. .NET Core & C# (Basic Interview)",

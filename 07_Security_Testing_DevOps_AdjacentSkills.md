@@ -10,10 +10,11 @@
 ### 1.1 OAuth2 vs. OpenID Connect (OIDC) vs. JWT
 
 **⚡ One-line answer**
-OpenID Connect (OIDC) is built on top of OAuth2 to handle **Authentication** (verifying *who you are* via an ID Token), while OAuth2 handles **Authorization** (granting *access permissions* via an Access Token). The JWT is the tamper-proof, digitally signed bearer token that carries these identity and permission claims across our microservices.
+**OpenID Connect** is an identity protocol layered on OAuth2 to provide authentication, whereas OAuth2 provides delegated resource authorization.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "OpenID Connect (OIDC) is built on top of OAuth2 to handle **Authentication** (verifying *who you are* via an ID Token), while OAuth2 handles **Authorization** (granting *access permissions* via an Access Token). The JWT is the tamper-proof, digitally signed bearer token that carries these identity and permission claims across our microservices."
+We strictly separate identity from access. **OpenID Connect** is an identity verification protocol providing user authentication via ID tokens for client profiles. In contrast, **OAuth2** is a delegated authorization framework issuing scoped access tokens for APIs without sharing user credentials. The **JSON Web Token**, a digitally signed container format carrying identity and permission claims, serves as our access token. APIs treat this as a **Bearer token**, a security credential granting access to whoever presents it over TLS, validating the asymmetric signature against identity provider endpoints without calling databases.
+
 **🧠 Memory hook**
   * **OpenID Connect (Your Indian Passport / Aadhaar Card):** 
     * Proves **identity**. It tells the airport authority *who you are* (Name, Photo, Date of Birth). This is your **ID Token** (used only by the frontend client).
@@ -23,14 +24,12 @@ OpenID Connect (OIDC) is built on top of OAuth2 to handle **Authentication** (ve
     * When you reach the boarding gate, the security guard does not call the Ministry of External Affairs to check your passport again. He simply scans the **digital cryptographic barcode** on your boarding pass. The airport's public key confirms the pass is genuine, unexpired, and hasn't been altered with a pen!
 
 **🎯 Terms the interviewer listens for**
-  * **OAuth 2.0 Framework (RFC 6749):** The industry-standard delegated authorization framework enabling third-party clients to obtain scoped access to HTTP resources on behalf of an end-user.
-  * **OpenID Connect (OIDC):** An identity verification protocol layered directly over OAuth 2.0 that provides user authentication and returns a cryptographically signed `id_token`.
-  * **JSON Web Token (JWT / RFC 7519):** A compact, URL-safe, cryptographically signed container format representing claims transferred between distributed parties.
-  * **JWT 3-Part Architecture (`Header.Payload.Signature`):**
-    * **JOSE Header:** Base64URL-encoded JSON defining token metadata (`typ: "JWT"`) and cryptographic signing algorithm (`alg: "RS256"`).
-    * **Payload (Claims Set):** Base64URL-encoded JSON containing standard IANA Registered Claims (`sub`, `iss`, `aud`, `exp`, `nbf`, `iat`) and custom role/permission claims.
-    * **Cryptographic Signature:** The HMAC or RSA/ECDSA digital signature verifying that the token was signed by the trusted IDP and was not tampered with in transit.
-  * **Bearer Token Semantics (RFC 6750):** A security credential granting access to whoever possesses ("bears") it, requiring strict transport encryption (TLS 1.3) to prevent eavesdropping.
+- ⭐ **OpenID Connect** — identity verification protocol providing user authentication via ID tokens
+- ⭐ **OAuth2** — delegated authorization framework issuing scoped access tokens for APIs
+- ⭐ **JSON Web Token** — digitally signed container format carrying identity and permission claims
+- **Bearer token** — security credential granting access to whoever presents it over TLS
+- **ID token** — cryptographically signed token consumed by clients for identity verification
+- **Access token** — credential presented to APIs to authorize specific requested operations
 
 ```mermaid
 sequenceDiagram
@@ -284,21 +283,23 @@ When an incoming request with a `Bearer <token>` header hits an ASP.NET Core API
 ### 1.5 Proof Key for Code Exchange (PKCE) for Single Page Applications (RFC 7636)
 
 **⚡ One-line answer**
-Because Angular and mobile clients are public clients that cannot securely hide a `client_secret`, we use the OAuth 2.0 Authorization Code Flow with PKCE (Proof Key for Code Exchange). The client dynamically generates a cryptographic `code_verifier` and sends a hashed `code_challenge`, preventing malicious scripts or rogue apps from intercepting the authorization code.
+**PKCE** is an OAuth security extension preventing authorization code interception on public clients using cryptographic verifiers.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "Because Angular and mobile clients are public clients that cannot securely hide a `client_secret`, we use the OAuth 2.0 Authorization Code Flow with PKCE (Proof Key for Code Exchange). The client dynamically generates a cryptographic `code_verifier` and sends a hashed `code_challenge`, preventing malicious scripts or rogue apps from intercepting the authorization code."
+Because single-page applications are a **public client**, an application running in browsers unable to store secrets securely, they cannot protect credentials. We protect them using **PKCE**, which is an OAuth extension mitigating authorization code interception attacks on public clients. The client creates a **code verifier**, a high-entropy cryptographic random secret string generated locally by the client. It sends a SHA-256 hash during initial authorization. When redeeming the authorization code for tokens, the client proves ownership using the original verifier, defeating malicious code interception.
+
 **🧠 Memory hook**
   * Imagine you send a courier to collect an exam hall ticket. You create a secret password in your head (*"Tiger-99"*, the `code_verifier`).
   * You hash it with SHA-256 (*"a7f4b..."*, the `code_challenge`) and tell the school office: *"Only give my ticket to someone who can prove the original password matching this hash."*
   * When your courier arrives with the auth code, your app presents the raw secret password. The school office hashes it, confirms it matches, and hands over your Access Token. Even if a spy stole the auth code at the gate, they cannot redeem it without the secret password!
 
 **🎯 Terms the interviewer listens for**
-  * **PKCE (Proof Key for Code Exchange / RFC 7636):** An extension to the OAuth 2.0 Authorization Code flow designed to mitigate authorization code interception attacks on public clients.
-  * **Public Client:** An application (such as an Angular SPA or iOS/Android native app) whose source code is distributed publicly and therefore cannot keep a `client_secret` confidential.
-  * **`code_verifier`:** A high-entropy, cryptographically random string (43 to 128 characters using unreserved characters `[A-Z, a-z, 0-9, -, ., _, ~]`) generated locally by the client.
-  * **`code_challenge`:** The Base64URL-encoded SHA-256 hash of the `code_verifier` sent to the IDP in the initial authorization request (`code_challenge_method = "S256"`).
-  * **Authorization Code Interception Attack:** An exploit where a malicious app or browser extension intercepts the redirected auth code; neutralized by PKCE because the attacker lacks the original `code_verifier`.
+- ⭐ **PKCE** — OAuth extension mitigating authorization code interception attacks on public clients
+- ⭐ **Public client** — application running in browsers unable to store secrets securely
+- ⭐ **Code verifier** — high-entropy cryptographic random secret string generated locally by the client
+- **Code challenge** — Base64URL-encoded SHA-256 hash of the code verifier sent to IDP
+- **Authorization code interception** — exploit where malicious scripts intercept redirected authorization code tokens
+- **Authorization code flow** — multi-step OAuth grant exchanging credentials for tokens via redirects
 
 **💻 Code**
 * **The Scenario:** An Angular 18 Single Page Application authenticates users against Azure Active Directory / Keycloak.
@@ -340,24 +341,23 @@ Because Angular and mobile clients are public clients that cannot securely hide 
 ### 1.6 Web Vulnerability Defenses: CORS, SQL Injection (SQLi) & XSS
 
 **⚡ One-line answer**
-A senior defense-in-depth posture mandates parameterized queries and ORM abstractions to eliminate SQL injection, strict Content Security Policy (CSP) headers and input sanitization to block Cross-Site Scripting (XSS), and precise Cross-Origin Resource Sharing (CORS) whitelists with explicit preflight OPTIONS verification.
+**Defense-in-depth** means layering multiple defensive controls like parameterized queries, CSP headers, and CORS restrictions to stop web exploits.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "A senior defense-in-depth posture mandates parameterized queries and ORM abstractions to eliminate SQL injection, strict Content Security Policy (CSP) headers and input sanitization to block Cross-Site Scripting (XSS), and precise Cross-Origin Resource Sharing (CORS) whitelists with explicit preflight OPTIONS verification."
+We enforce a defense-in-depth strategy across web layers. To govern API access, browsers enforce **Cross-Origin Resource Sharing**, a browser security mechanism controlling which external domains access backend resources. To eradicate **SQL injection**, which is an exploit injecting malicious syntax into queries to alter database execution, we mandate parameterized queries and Entity Framework Core abstractions. Against **Cross-Site Scripting**, an attack injecting malicious executable scripts into another user's browser session, we implement strict output encoding and Content Security Policy headers, preventing unauthorized script execution and token theft.
+
 **🧠 Memory hook**
   * **CORS (The Visitor Badge Policy):** Prevents random unauthorized websites from secretly making requests to your internal intranet APIs using the user's browser credentials.
   * **SQL Injection (The Pre-Printed Banking Form):** Instead of writing a free-text letter where someone can write *"Transfer ₹100; also delete all records;"*, you use a pre-printed form with fixed parameter boxes that treat text purely as data, never as executable SQL commands!
   * **XSS (Sanitizing Mail Packages):** Scanning and stripping harmful scripts before displaying user-submitted comments on your website so other users' browsers aren't hijacked.
 
 **🎯 Terms the interviewer listens for**
-  * **Cross-Origin Resource Sharing (CORS):** A browser-enforced security mechanism using HTTP headers (`Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Credentials`) to dictate which external origins may access backend resources.
-  * **Preflight `OPTIONS` Request:** An automated HTTP `OPTIONS` probe dispatched by the browser before non-simple requests (e.g., requests with `Content-Type: application/json` or custom `Authorization` headers) to verify server permission.
-  * **SQL Injection (SQLi):** An exploit where malicious SQL syntax is injected into user input to alter database query execution; eradicated via parameterized queries, prepared statements, and EF Core command abstraction.
-  * **Cross-Site Scripting (XSS):** An attack executing malicious scripts in a victim's browser:
-    * **Stored XSS:** Malicious payload is permanently saved in a database and executed when viewed by other users.
-    * **Reflected XSS:** Payload is reflected immediately off a web server in an error message or search query.
-    * **DOM-based XSS:** Vulnerability in client-side JavaScript modifying the DOM without sanitization.
-  * **Content Security Policy (CSP):** An HTTP response header (`Content-Security-Policy: default-src 'self'`) restricting the domains from which scripts, styles, and images can be executed.
+- ⭐ **Cross-Origin Resource Sharing** — browser security mechanism controlling which external domains access backend resources
+- ⭐ **SQL injection** — exploit injecting malicious syntax into queries to alter database execution
+- ⭐ **Cross-Site Scripting** — attack injecting malicious executable scripts into another user's browser session
+- **Preflight OPTIONS** — automated probe sent by browsers verifying server permissions before requests
+- **Parameterized query** — database query treating user inputs strictly as typed data parameters
+- **Content Security Policy** — HTTP header restricting domains allowed to execute client scripts
 
 **💻 Code**
 * **The Scenario:** A public Web API processing financial search queries and customer profile updates.
@@ -414,21 +414,23 @@ Senior engineers are expected to design **reliable, non-flaky automated test sui
 ### 2.1 Integration Testing with `WebApplicationFactory<Program>` & Testcontainers
 
 **⚡ One-line answer**
-`WebApplicationFactory` boots your entire ASP.NET Core host and middleware pipeline in-memory using an optimized `TestServer` without binding to a physical TCP port. It lets us test real HTTP endpoints, authentication, model validation, and database operations end-to-end with sub-second execution speeds.
+**WebApplicationFactory** is an in-memory test host running ASP.NET Core middleware and endpoints without binding to physical sockets.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "`WebApplicationFactory` boots your entire ASP.NET Core host and middleware pipeline in-memory using an optimized `TestServer` without binding to a physical TCP port. It lets us test real HTTP endpoints, authentication, model validation, and database operations end-to-end with sub-second execution speeds."
+We write deterministic integration tests using **WebApplicationFactory**, an in-memory test hosting abstraction running real middleware pipelines without network ports. Rather than using in-memory SQLite, which masks SQL syntax and locking bugs, we pair it with **Testcontainers**, a library programmatically provisioning real Docker database containers for integration tests. This achieves full **dialect fidelity**, which is the requirement that tests execute against identical database engines used in production like SQL Server. We swap external third-party payment gateways using service descriptor replacement, providing ultra-fast, reproducible end-to-end testing in CI pipelines.
+
 **🧠 Memory hook**
   * Testing against an **In-Memory SQLite database** is like practicing cricket on a flat marble living room floor—it bounces easily, but it gives you zero preparation for a real turf pitch!
   * In-memory SQLite does not support SQL Server stored procedures, table locking, rowversion concurrency, CTEs, or JSON columns.
   * **Senior Standard:** Use `WebApplicationFactory` combined with **Testcontainers** to spin up a real, temporary Dockerized SQL Server or Postgres instance for 100% dialect fidelity.
 
 **🎯 Terms the interviewer listens for**
-  * **`WebApplicationFactory<TEntryPoint>`:** An ASP.NET Core test hosting abstraction that bootstraps an in-memory `TestServer` executing real middleware pipelines, DI containers, and controllers without opening physical OS network sockets.
-  * **In-Memory `TestServer`:** A lightweight, loopback HTTP server implementation processing `HttpRequestMessage` directly in memory for ultra-fast, deterministic integration testing.
-  * **Testcontainers:** An open-source library that programmatically provisions real, throwaway Docker containers (e.g., MS SQL Server, PostgreSQL, Redis, Kafka) during test suite startup, ensuring 100% database dialect fidelity.
-  * **Dialect Fidelity:** The architectural requirement that tests execute against the exact database engine and version used in production, avoiding hidden bugs masked by in-memory providers (e.g., SQLite vs SQL Server CTEs, JSON operators, and concurrency rowversions).
-  * **Service Descriptor Replacement:** The dependency injection pattern using `builder.ConfigureServices()` to swap out unmanaged external dependencies (e.g., Stripe, Twilio) with deterministic test doubles / mocks while preserving the rest of the application graph.
+- ⭐ **WebApplicationFactory** — in-memory test host running middleware pipelines without network ports
+- ⭐ **Testcontainers** — library programmatically provisioning real Docker database containers for tests
+- ⭐ **Dialect fidelity** — requirement that tests execute against identical production database engines
+- **In-memory TestServer** — lightweight loopback server processing HTTP requests directly in memory
+- **Service descriptor replacement** — dependency injection pattern swapping external dependencies with test doubles
+- **Optimistic concurrency token** — version column validating record modifications to detect concurrent update collisions
 
 **💻 Code**
 * **The Scenario:** Testing Order placement verifying database foreign keys, optimistic concurrency tokens (`RowVersion`), and payment mock responses.
@@ -571,20 +573,22 @@ Senior engineers are expected to design **reliable, non-flaky automated test sui
 ### 3.1 Production Multi-Stage Dockerfile for .NET Core API
 
 **⚡ One-line answer**
-A production Dockerfile must use **multi-stage builds** to separate the heavy compilation SDK environment (~800MB) from the lean runtime container (~100MB). We leverage layer caching by restoring project files first, build on Alpine Linux for a tiny attack surface, and strictly run as an unprivileged non-root user.
+**Multi-stage build** means separating heavy SDK compilation stages from lightweight runtime stages to produce minimal secure containers.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "A production Dockerfile must use **multi-stage builds** to separate the heavy compilation SDK environment (~800MB) from the lean runtime container (~100MB). We leverage layer caching by restoring project files first, build on Alpine Linux for a tiny attack surface, and strictly run as an unprivileged non-root user."
+Production Dockerfiles require a **multi-stage build**, a container design pattern decoupling SDK build tooling from lean production runtime images. In the build stage, we leverage **Docker layer caching**, a build optimization skipping unchanged instructions by copying dependency manifests before source code. In the final stage, we copy compiled binaries into an Alpine Linux runtime. Crucially, we enforce **non-root execution**, which is running containerized application processes under unprivileged user IDs to prevent breakout exploits. This shrinks image size and strips compilers and shells from production.
+
 **🧠 Memory hook**
   * **Stage 1 (The Kitchen Prep Area):** Has heavy cleavers, industrial dough mixers, sacks of flour, and vegetable peelings. This is the **.NET SDK** stage. You need all these tools to cook the meal.
   * **Stage 2 (The Customer's Dining Plate):** When the food is served to the customer, you do not bring the industrial dough mixer and potato peels to their dining table! You bring only the clean, finished dish on a porcelain plate. This is the **Lightweight Runtime** stage.
 
 **🎯 Terms the interviewer listens for**
-  * **Multi-Stage Build:** A container design pattern utilizing distinct `FROM` instructions to decouple SDK build-time tooling from the final production runtime container.
-  * **Docker Layer Caching:** The caching mechanism where Docker skips re-executing unchanged instructions, maximized by copying `.csproj` files and executing `dotnet restore` prior to copying application source code.
-  * **Alpine Linux / Distroless Base Images:** Minimalist, hardened container images lacking unneeded shells and package utilities, drastically shrinking image size and Common Vulnerabilities and Exposures (CVE) surface.
-  * **Non-Root Execution (`USER app`):** Enforcing the principle of least privilege by running containerized processes under an unprivileged user (UID 1654 / `app` in .NET 8+), defeating container breakout exploits.
-  * **Attack Surface Minimization:** The security architecture discipline of stripping compilers, debuggers, package managers, and root access from final deployment artifacts.
+- ⭐ **Multi-stage build** — container design pattern decoupling SDK build tooling from runtime images
+- ⭐ **Docker layer caching** — build optimization skipping unchanged instructions by copying manifests before code
+- ⭐ **Non-root execution** — running containerized application processes under unprivileged user IDs safely
+- **Alpine Linux base image** — minimalist hardened operating system image minimizing vulnerabilities and disk footprint
+- **Attack surface minimization** — removing compilers, shells, and package managers from production containers
+- **Distroless image** — container image containing strictly the application binary and runtime dependencies
 
 **💻 Code**
 * **The Scenario:** Packaging an enterprise ASP.NET Core Web API for deployment to an Azure Kubernetes Service (AKS) or Amazon EKS cluster.
@@ -646,10 +650,11 @@ ENTRYPOINT ["dotnet", "OrderService.Api.dll"]
 ### 3.2 Kubernetes Health Probes: Liveness vs. Readiness
 
 **⚡ One-line answer**
-A **Liveness probe** determines if the pod's process is frozen or deadlocked—if it fails, Kubernetes kills and restarts the container. A **Readiness probe** determines if the pod is ready to accept incoming user traffic—if it fails, Kubernetes temporarily stops routing traffic to the pod without killing it.
+**Liveness probe** is a health check restarting frozen containers, whereas a readiness probe pauses ingress traffic without killing pods.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "A **Liveness probe** determines if the pod's process is frozen or deadlocked—if it fails, Kubernetes kills and restarts the container. A **Readiness probe** determines if the pod is ready to accept incoming user traffic—if it fails, Kubernetes temporarily stops routing traffic to the pod without killing it."
+Kubernetes separates process health from traffic readiness. A **liveness probe** is a health check determining if an internal process is deadlocked to trigger container restarts. In contrast, a **readiness probe** is a health check verifying if a container is prepared to receive network ingress traffic. If readiness fails, Kubernetes removes the pod from load balancers without killing it. Liveness probes must never check remote databases, avoiding a **cascading restart storm**, which is an outage where failing dependencies trigger simultaneous pod restarts, crashing recovering databases upon reboot.
+
 **🧠 Memory hook**
   * **Liveness Probe (The Doctor Checking Pulse):** 
     * Is the patient alive or has their heart stopped completely? If the process has suffered a fatal deadlock or frozen thread pool, restart it immediately (CPR).
@@ -657,11 +662,12 @@ A **Liveness probe** determines if the pod's process is frozen or deadlocked—i
     * Has the kitchen finished prepping tables and warming up the ovens? If the chef is still loading data from the database or warming up the Redis cache, the waiter tells incoming diners: *"Please wait in the lobby, we are not seating guests yet."* The kitchen is alive, but not ready for orders.
 
 **🎯 Terms the interviewer listens for**
-  * **Liveness Probe:** A kubelet health check determining whether the container process is alive; failure results in container restart (SIGTERM / SIGKILL).
-  * **Readiness Probe:** A kubelet health check verifying if a container is prepared to receive network ingress; failure removes the pod IP from the Kubernetes Service Endpoints slice without killing the container.
-  * **Startup Probe:** A diagnostic check that temporarily overrides liveness/readiness probes during lengthy startup routines (e.g., initial DB migrations or JIT pre-compilation), preventing premature kill loops.
-  * **Cascading Restart Storm:** A fatal outage pattern caused by embedding remote database checks inside liveness probes, causing Kubernetes to restart every healthy pod during brief network hiccups and overwhelming the database upon reboot.
-  * **Horizontal Pod Autoscaler (HPA):** A Kubernetes controller adjusting replica counts automatically based on target CPU utilization, memory thresholds, or custom Prometheus metrics (e.g., request throughput).
+- ⭐ **Liveness probe** — health check determining if an internal process is deadlocked
+- ⭐ **Readiness probe** — health check verifying if a container is prepared for ingress
+- ⭐ **Cascading restart storm** — outage where failing dependencies trigger simultaneous pod restarts crashing databases
+- **Startup probe** — diagnostic check overriding liveness checks during lengthy initial startup routines
+- **Horizontal Pod Autoscaler** — controller adjusting pod replica counts dynamically based on resource metrics
+- **Service endpoints slice** — routing table tracking active ready pod IP addresses in Kubernetes
 
 | Probe | Purpose | Action on Failure | What it Should Check |
 | :--- | :--- | :--- | :--- |
@@ -757,21 +763,22 @@ app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
 ### 3.3 CI/CD Deployment Strategies: Blue-Green, Canary & Feature Toggles
 
 **⚡ One-line answer**
-Zero-downtime production releases require progressive deployment strategies. Blue-Green offers instantaneous traffic switching with zero-risk rollbacks, Canary deployments route 2-5% of real user traffic to validate telemetry before full promotion, and Feature Flags decouple code deployment from business feature release.
+**Blue-green deployment** means running two identical production environments to enable instantaneous zero-downtime cutovers and fast rollbacks.
 
 **🗣️ Spoken answer (30–45 seconds)**
-> "Zero-downtime production releases require progressive deployment strategies. Blue-Green offers instantaneous traffic switching with zero-risk rollbacks, Canary deployments route 2-5% of real user traffic to validate telemetry before full promotion, and Feature Flags decouple code deployment from business feature release."
+We achieve zero-downtime releases using progressive deployment strategies. A **Blue-green deployment** means a zero-downtime release methodology running two identical production environments with router cutover. It enables instantaneous traffic switching and immediate rollbacks. For critical APIs, we prefer a **Canary release**, which is a progressive delivery strategy routing a small percentage of production traffic to test telemetry before full rollout. Furthermore, we decouple deployments from feature releases using **feature flags**, runtime toggles enabling conditional activation of code paths without redeploying binaries, allowing dark launches and immediate kill-switches.
+
 **🧠 Memory hook**
   * **Blue-Green (Switching Tracks):** You have two parallel railway tracks. Blue is active. You test a new train completely on Green. Once verified, you pull the track switch—all incoming trains immediately run on Green. If anything squeaks, you flip the switch back to Blue in 1 second.
   * **Canary (The Coal Mine Bird):** Miners sent a canary bird into the mine first. If the canary thrived, miners entered. In software, you route 2% of user traffic to the Canary release. If error logs spike, you shut the gate before 98% of users ever notice.
 
 **🎯 Terms the interviewer listens for**
-  * **Blue-Green Deployment:** A zero-downtime release methodology running two identical production environments (Blue active, Green staging); cutover is instantaneous at the load balancer or ingress router.
-  * **Canary Release:** A progressive delivery strategy routing a small percentage of production traffic (e.g., 2% to 10%) to a new version, monitoring APM telemetry (error rates, P99 latency) before progressive rollout.
-  * **Rolling Update & Pod Disruption Budget (PDB):** Kubernetes deployment strategy incrementally replacing old pods with new pods while guaranteeing minimum replica availability (`maxUnavailable`, `maxSurge`).
-  * **Feature Flags / Feature Toggles:** Architectural capability enabling conditional runtime activation of code paths without redeploying binaries (Dark Launching).
-  * **Semantic Versioning (SemVer / RFC):** The standard versioning format `MAJOR.MINOR.PATCH` communicating breaking API contract changes (`MAJOR`), backward-compatible additions (`MINOR`), and backward-compatible patches (`PATCH`).
-  * **Mean Time To Recovery (MTTR):** The critical DevOps SRE reliability metric measuring how fast a production system can recover from an incident (optimized by Blue-Green rollback switches).
+- ⭐ **Blue-green deployment** — zero-downtime release methodology running two identical environments with router cutover
+- ⭐ **Canary release** — progressive delivery strategy routing a small percentage of production traffic
+- ⭐ **Feature flags** — runtime toggles enabling conditional activation of code paths without redeployment
+- **Rolling update** — deployment strategy incrementally replacing old pods with new pods
+- **Mean Time To Recovery** — DevOps reliability metric measuring duration required to restore failed services
+- **Pod Disruption Budget** — Kubernetes policy guaranteeing minimum available pod replicas during disruptions
 
 **💻 Code**
 * **The Scenario:** Deploying an upgraded Payment Ingestion engine (v2) on Kubernetes during high-volume business hours.
